@@ -32,3 +32,11 @@ See https://docs.arc42.org/section-4/[Solution Strategy] in the arc42 documentat
 
 ****
 endif::arc42help[]
+
+La solución propuesta se compone de tres subsistemas principales, cada uno con responsabilidades claras, siguiendo un patrón basado en microservicios:
+
+- `gamey`: Backend del juego, implementado en Rust. Responsable del motor de partidas y reglas del juego, con endpoints para manejar partidas.
+- `users`: Servicio de gestión de usuarios, implementado en Node.js. Encargado del manejo de usuarios y autenticación.
+- `webapp`: Frontend, implementado en React. Implementación de interfaces gráficas de usuario que permiten la comunicación del usuario con el resto de la aplicación.
+
+El sistema está destinado a ser desplegado en un servidor remoto y ser accedido por una dirección IP pública para ser ejecutado desde un navegador, aunque también peuede puede ser desplegado en local empleando Docker con el correspondiente fichero `docker-compose.yml`.
