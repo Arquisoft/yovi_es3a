@@ -1,7 +1,7 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-context-and-scope]]
-== Context and Scope
+== Contexto y Alcance
 
 
 ifdef::arc42help[]
@@ -30,51 +30,23 @@ See https://docs.arc42.org/section-3/[Context and Scope] in the arc42 documentat
 ****
 endif::arc42help[]
 
-=== Business Context
+El sistema propuesto forma parte del ecosistema de juegos de la empresa Micrati. Por tanto, deberá poder coexistir e interoperar con otros juegos de navegador dentro del mismo ecosistema. En este caso se provee un servicio de gestión de usuarios (`users`) que se asume ya existe y es accedido por los demás juegos, pero se proporciona por defecto.
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-Specification of *all* communication partners (users, IT-systems, ...) with explanations of domain specific inputs and outputs or interfaces.
-Optionally you can add domain specific formats or communication protocols.
+=== 3.1 Contexto de negocio
 
-.Motivation
-All stakeholders should understand which data are exchanged with the environment of the system.
+Actores y sistemas externos principales:
 
-.Form
-All kinds of diagrams that show the system as a black box and specify the domain interfaces to communication partners.
+- **Jugador (usuario principal)**: interactúa a través del navegador con el módulo `webapp` para registrarse, autenticarse y jugar.
+- **Administrador (usuario moderador)**: interactúa con el navegador para gestionar configuración del sistema y moderación de usuarios.
+- **Navegador / Cliente Web**: transporte HTTP(S) entre usuario y `webapp`.
+- **Registro de contenedores**: almacena y despliega imágenes Docker del ecosistema.
+- **Persistencia**: servicio de base de datos que almacena información de usuarios y registros de partidas (datos de juego, puntuaciones e historial).
 
-Alternatively (or additionally) you can use a table.
-The title of the table is the name of your system, the three columns contain the name of the communication partner, the inputs, and the outputs.
+=== 3. Contexto técnico
 
-****
-endif::arc42help[]
+Este apartado describe los canales técnicos, protocolos y medios de transmisión utilizados para la interacción entre el sistema y su entorno.
 
-**<Diagram or Table>**
+Canales y protocolos previstos:
 
-**<optionally: Explanation of external domain interfaces>**
-
-=== Technical Context
-
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-Technical interfaces (channels and transmission media) linking your system to its environment. In addition a mapping of domain specific input/output to the channels, i.e. an explanation which I/O uses which channel.
-
-.Motivation
-Many stakeholders make architectural decision based on the technical interfaces between the system and its context. Especially infrastructure or hardware designers decide these technical interfaces.
-
-.Form
-E.g. UML deployment diagram describing channels to neighboring systems,
-together with a mapping table showing the relationships between channels and input/output.
-
-****
-endif::arc42help[]
-
-**<Diagram or Table>**
-
-**<optionally: Explanation of technical interfaces>**
-
-**<Mapping Input/Output to Channels>**
+- **HTTP/HTTPS (REST + JSON)**: canal primario entre `webapp`, `users` y `gamey`.
+- **Docker / Docker Compose**: empaquetado y orquestación local para desarrollo y pruebas.
