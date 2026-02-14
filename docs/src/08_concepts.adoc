@@ -1,74 +1,71 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-concepts]]
-== Cross-cutting Concepts
-
+== Conceptos Transversales
 
 ifdef::arc42help[]
 [role="arc42help"]
 ****
-.Content
-This section describes overall, principal regulations and solution ideas that are relevant in multiple parts (= cross-cutting) of your system.
-Such concepts are often related to multiple building blocks.
-They can include many different topics, such as
+.Contenido
+Esta sección describe normas generales, ideas de solución y regulaciones principales que son relevantes en múltiples partes (= transversales) de tu sistema. Tales conceptos suelen estar relacionados con varios bloques de construcción. Pueden incluir muchos temas diferentes, como
 
-* models, especially domain models
-* architecture or design patterns
-* rules for using specific technology
-* principal, often technical decisions of an overarching (= cross-cutting) nature
-* implementation rules
+* modelos, especialmente modelos del dominio
+* patrones de arquitectura o de diseño
+* reglas para el uso de tecnologías específicas
+* decisiones principales, a menudo técnicas, de carácter general (= transversal)
+* reglas de implementación
 
+.Motivación
+Los conceptos forman la base de la *integridad conceptual* (consistencia, homogeneidad) de la arquitectura.  
+Por lo tanto, son una contribución importante para lograr las cualidades internas de tu sistema.
 
-.Motivation
-Concepts form the basis for _conceptual integrity_ (consistency, homogeneity) of the architecture. 
-Thus, they are an important contribution to achieve inner qualities of your system.
+Algunos de estos conceptos no pueden asignarse a bloques de construcción individuales, por ejemplo seguridad o protección.
 
-Some of these concepts cannot be assigned to individual building blocks, e.g. security or safety. 
+.Forma
+La forma puede variar:
 
+* documentos de concepto con cualquier tipo de estructura
+* extractos de modelos transversales o escenarios usando notaciones de las vistas de arquitectura
+* implementaciones de ejemplo, especialmente para conceptos técnicos
+* referencias al uso típico de frameworks estándar (por ejemplo, usar Hibernate para el mapeo objeto/relacional)
 
-.Form
-The form can be varied:
+.Estructura
+Una posible (pero no obligatoria) estructura para esta sección podría ser:
 
-* concept papers with any kind of structure
-* cross-cutting model excerpts or scenarios using notations of the architecture views
-* sample implementations, especially for technical concepts
-* reference to typical usage of standard frameworks (e.g. using Hibernate for object/relational mapping)
+* Conceptos de dominio
+* Conceptos de experiencia de usuario (UX)
+* Conceptos de seguridad y protección
+* Patrones de arquitectura y de diseño
+* “Bajo el capó”
+* Conceptos de desarrollo
+* Conceptos operativos
 
-.Structure
-A potential (but not mandatory) structure for this section could be:
+Nota: puede ser difícil asignar conceptos individuales a un tema específico de esta lista.
 
-* Domain concepts
-* User Experience concepts (UX)
-* Safety and security concepts
-* Architecture and design patterns
-* "Under-the-hood"
-* development concepts
-* operational concepts
+image::08-concepts-EN.drawio.png["Posibles temas para conceptos transversales"]
 
-Note: it might be difficult to assign individual concepts to one specific topic
-on this list.
+.Más Información
 
-image::08-concepts-EN.drawio.png["Possible topics for crosscutting concepts"]
-
-
-.Further Information
-
-See https://docs.arc42.org/section-8/[Concepts] in the arc42 documentation.
+Consulta https://docs.arc42.org/section-8/[Concepts] en la documentación de arc42.
 ****
 endif::arc42help[]
 
-=== _<Concept 1>_
+=== Concepto de Dominio
 
-_<explanation>_
+_<Aquí se mostraría un diagrama con el modelo de dominio>_
 
+=== Conceptos de Experiencia de Usuario
 
+_<Aquí se hablaría de toda la usabilidad de la aplicación: interfaz...>_
 
-=== _<Concept 2>_
+=== Conceptos de Seguridad
 
-_<explanation>_
+_<Aquí se hablaría de toda el sistema de seguridad de aplicación. Si por ejemplo, hay un sistema de inicio de sesión.>_
 
-...
+=== Conceptos de Arquitectura
 
-=== _<Concept n>_
+_<Aquí se hablaría de la arquitectura de la aplicación>_
 
-_<explanation>_
+=== Conceptos de Desarrollo
+
+_<Aquí se hablaría de las distintas partes que se han experimentado del desarrollo: la integración, el testing, el deployment...>_
