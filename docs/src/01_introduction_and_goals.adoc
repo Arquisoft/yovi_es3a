@@ -1,7 +1,8 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-introduction-and-goals]]
-== Introduction and Goals
+
+== Introducción
 
 ifdef::arc42help[]
 [role="arc42help"]
@@ -17,7 +18,14 @@ These include
 ****
 endif::arc42help[]
 
-=== Requirements Overview
+Este documento describe la aplicación web YOVI, encargada por la empresa desarrolladora de juegos Micrati. La aplicación permite a sus usuarios jugar a variantes del juego de conexión Y, con la opción de jugar contra bots o contra otros jugadores.
+
+Además, dispone de una API abierta que permite acceder al historial de partida y a las estadísticas de jugador, a través de la misma aplicación web o mediante llamadas a la API.
+
+La aplicación está basada en un sistema de prueba desarrollada por la misma empresa, sobre la que implementamos las funcionalidades necesarias para llevar la aplicación al mercado.
+
+
+=== Resumen de Requisitos
 
 ifdef::arc42help[]
 [role="arc42help"]
@@ -45,7 +53,21 @@ See https://docs.arc42.org/section-1/[Introduction and Goals] in the arc42 docum
 ****
 endif::arc42help[]
 
-=== Quality Goals
+Los requisitos de alto nivel para la aplicación YOVI son:
+
+[options="header", cols="1, 2"]
+|===
+|Prioridad|Requisito
+|1| Debe soportar el modo de juego clásico que enfrenta a un jugador con la máquina.
+|2| Debe estar desplegada en la nube y ser públicamente accesible a través de la web. 
+|3| Debe contar con una interfaz web que permita a los usuarios jugar al juego Y.
+|4| Debe ofrecer varias estrategias de juego que los usuarios puedan seleccionar junto a un nivel de dificultad para la máquina.
+|5| Debe proporcionar un sistema de registro y autenticación, que permita a los usuarios consultar sus estadísticas e histórico de participación en el sistema.
+|6| Debe exponer una API que permita el acceso y la gestión de la información de los usuarios.
+|7| Debe posibilitar que se juege a través de la API, ya sea para implementaciones públicas o a través de bots.
+|===
+
+=== Objetivos de Calidad
 
 ifdef::arc42help[]
 [role="arc42help"]
@@ -69,7 +91,19 @@ A table with quality goals and concrete scenarios, ordered by priorities
 ****
 endif::arc42help[]
 
-=== Stakeholders
+Los objetivos de calidad principales para la aplicación YOVI son:
+
+[options="header", cols="1, 1, 2"]
+|===
+|Prioridad|Objetivo|Descripción
+|Alta|Interoperabilidad|La aplicación web y el módulo Rust deben comunicarse de forma fiable mediante los estados de juego YEN en mensajes JSON.
+|Alta|Mantenibilidad|La arquitectura debe permitir añadir nuevas estrategias y variantes de juego, además de mejoras en la API sin afectar al núcleo del sistema.
+|Alta|Fiabilidad|La lógica de juego del módulo Rust debe ofrecer respuestas correctas y consistentes para la evaluación de partidas.
+|Media|Escalabilidad|El sistema debe soportar múltiples usuarios y bots interactuando con la aplicación de forma simultánea.
+|Media|Usabilidad|La aplicación debe presentar una interfaz web clara, accesible y fácil de usar.
+|===
+
+=== Grupos de Interés
 
 ifdef::arc42help[]
 [role="arc42help"]
@@ -93,9 +127,14 @@ Table with role names, person names, and their expectations with respect to the 
 ****
 endif::arc42help[]
 
-[options="header",cols="1,2,2"]
+Los grupos de interés en el desarrollo de la aplicación YOVI son:
+
+[options="header", cols="1, 2"]
 |===
-|Role/Name|Contact|Expectations
-| _<Role-1>_ | _<Contact-1>_ | _<Expectation-1>_
-| _<Role-2>_ | _<Contact-2>_ | _<Expectation-2>_
+|Grupo|Interés
+| Usuarios finales | Poder accedar al juego Y con una experiencia atractiva y fluida.
+| Bots externos | Interactuar con el sistema mediant un API estable y documentado correctamente.
+| Equipo de desarrollo | Trabajar con una arquitectura clara, modular y mantenible.
+| Profesores | Verificar la calidad arquitectónica, la documentación y la implementación del sistema.
+| Micrati | Disponer de un producto que cumpla con los requisitos deseados.
 |===
