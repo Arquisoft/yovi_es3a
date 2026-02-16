@@ -10,8 +10,6 @@ ifdef::arc42help[]
 .Contenido
 La vista de despliegue describe:
 
- 1. la infraestructura técnica usada para ejecutar tu sistema, con elementos de infraestructura como ubicaciones geográficas, entornos, ordenadores, procesadores, canales y topologías de red, así como otros elementos de infraestructura, y
-
 2. el mapeo de los bloques de construcción (software) a esos elementos de infraestructura.
 
 A menudo los sistemas se ejecutan en diferentes entornos, por ejemplo entorno de desarrollo, entorno de pruebas y entorno de producción. En tales casos se deben documentar todos los entornos relevantes.

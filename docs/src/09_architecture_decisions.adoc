@@ -32,3 +32,7 @@ Consulta https://docs.arc42.org/section-9/[Architecture Decisions] en la documen
 endif::arc42help[]
 
 _<En este apartado se hablará de la motivación y las consecuencias de cada decisión arquitectura. El uso de qué lenguaje para qué. El uso de que patrón para qué. El uso de x para y. ¿Por qué se han decidido hacer estas cosas?>_
+typescript
+rust
+json
+notacion yen

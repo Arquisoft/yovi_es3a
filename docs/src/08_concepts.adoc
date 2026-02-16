@@ -52,11 +52,13 @@ endif::arc42help[]
 
 === Concepto de Dominio
 
-_<Aquí se mostraría un diagrama con el modelo de dominio>_
+_<Aquí se mostraría un diagrama con el modelo de dominio, y una explicación de cada uno.>_
 
 === Conceptos de Experiencia de Usuario
 
-_<Aquí se hablaría de toda la usabilidad de la aplicación: interfaz...>_
+_<Aquí se hablaría de toda la usabilidad de la aplicación: interfaz, sensaciones...>_
+
+La experiencia del usuario será una de los pilares de toda la aplicación a desarrollar. Se ofrecerá en versión Web la posibilidad de jugar a diferentes juegos basados en el juego Y.
 
 === Conceptos de Seguridad
 
@@ -66,6 +68,9 @@ _<Aquí se hablaría de toda el sistema de seguridad de aplicación. Si por ejem
 
 _<Aquí se hablaría de la arquitectura de la aplicación>_
 
+Los conceptos de arquitectura serán más indigados en el siguiente apartado. De forma superficial, la arquitectura...
+
 === Conceptos de Desarrollo
 
 _<Aquí se hablaría de las distintas partes que se han experimentado del desarrollo: la integración, el testing, el deployment...>_
+
