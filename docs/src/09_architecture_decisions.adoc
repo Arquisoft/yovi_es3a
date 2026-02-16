@@ -36,3 +36,5 @@ typescript
 rust
 json
 notacion yen
+docker y máquina ubuntu
+ruby

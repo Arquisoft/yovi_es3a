@@ -52,25 +52,24 @@ endif::arc42help[]
 
 === Concepto de Dominio
 
-_<Aquí se mostraría un diagrama con el modelo de dominio, y una explicación de cada uno.>_
+_<Aquí se mostraría un diagrama con el modelo de dominio, y una explicación de cada uno. ACTUALMENTE no se muestra nada, ya que no se ha desarrollado nada sobre el dominio.>_
 
 === Conceptos de Experiencia de Usuario
-
-_<Aquí se hablaría de toda la usabilidad de la aplicación: interfaz, sensaciones...>_
 
 La experiencia del usuario será una de los pilares de toda la aplicación a desarrollar. Se ofrecerá en versión Web la posibilidad de jugar a diferentes juegos basados en el juego Y.
 
 === Conceptos de Seguridad
 
-_<Aquí se hablaría de toda el sistema de seguridad de aplicación. Si por ejemplo, hay un sistema de inicio de sesión.>_
+La seguridad de la aplicación es un tema que aún no se ha indagado dentro del desarrollo de la aplicación. Muy seguramente, haya un sistema de inicio de sesión en el que gire todo este apartado.
 
 === Conceptos de Arquitectura
 
-_<Aquí se hablaría de la arquitectura de la aplicación>_
 
-Los conceptos de arquitectura serán más indigados en el siguiente apartado. De forma superficial, la arquitectura...
+Los conceptos de arquitectura serán más indigados en el siguiente apartado. De forma superficial, la arquitectura está basada en microservicios unidos para comprender toda la aplicación.
 
 === Conceptos de Desarrollo
 
-_<Aquí se hablaría de las distintas partes que se han experimentado del desarrollo: la integración, el testing, el deployment...>_
+La aplicación se basará en su testing, integración y deployment. En este apartado no se puede indagar mucho ya que actualmente la aplicación únicamente de ha desplegado.
+
+El desplegue se realizará con Docker, donde se empaquetará la aplicación en un contenedor estandarizado donde se facilita un despliegue rápido, consistente y reproducible en cualquier entorno.
 
