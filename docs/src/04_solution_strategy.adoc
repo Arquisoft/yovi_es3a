@@ -3,36 +3,6 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-solution-strategy]]
 == Estrategia de la Solución
 
-
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-A short summary and explanation of the fundamental decisions and solution strategies, that shape system architecture. It includes
-
-* technology decisions
-* decisions about the top-level decomposition of the system, e.g. usage of an architectural pattern or design pattern
-* decisions on how to achieve key quality goals
-* relevant organizational decisions, e.g. selecting a development process or delegating certain tasks to third parties.
-
-.Motivation
-These decisions form the cornerstones for your architecture. They are the foundation for many other detailed decisions or implementation rules.
-
-.Form
-Keep the explanations of such key decisions short.
-
-Motivate what was decided and why it was decided that way,
-based upon problem statement, quality goals and key constraints.
-Refer to details in the following sections.
-
-
-.Further Information
-
-See https://docs.arc42.org/section-4/[Solution Strategy] in the arc42 documentation.
-
-****
-endif::arc42help[]
-
 La solución propuesta se compone de tres subsistemas principales, cada uno con responsabilidades claras, siguiendo un patrón basado en microservicios:
 
 - `gamey`: Backend del juego, implementado en Rust. Responsable del motor de partidas y reglas del juego, con endpoints para manejar partidas.
@@ -40,3 +10,5 @@ La solución propuesta se compone de tres subsistemas principales, cada uno con 
 - `webapp`: Frontend, implementado en React. Implementación de interfaces gráficas de usuario que permiten la comunicación del usuario con el resto de la aplicación.
 
 El sistema está destinado a ser desplegado en un servidor remoto y ser accedido por una dirección IP pública para ser ejecutado desde un navegador, aunque también peuede puede ser desplegado en local empleando Docker con el correspondiente fichero `docker-compose.yml`.
+
+Se provee de integración con Prometheus y Grafana que provee acceso a logs y métricas sobre el sistema, accesibles desde el módulo `users`.
