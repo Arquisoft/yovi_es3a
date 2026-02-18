@@ -52,18 +52,28 @@ Para múltiples entornos o despliegues alternativos, por favor copia y adapta es
 ****
 endif::arc42help[]
 
-_**<Diagrama General>**_
+image::<docs\images\DiagramaDespliegue.jpg>[Diagrama de Despliegue]
 
 Motivación::
 
-_<explicación en forma de texto>_
+El sistema se desplegará en la nube de Microsoft Azure que conectará con una Base de Datos creada en MongoDB por distintas motivaciones:
+
+- *Escalabilidad Automática*: Azure permite escalar según la carga de usuarios sin intervención manual.
+- *Seguridad*: Azure proporciona cifrado de datos.
+- *Flexibilidad*: MongoDB es ideal ya que las entidades cambiaran con el tiempo.
+- *Polimorfismo Sencillo*: MongoDB permite modelas fácilmente el cambio entre entidades.
+- *Rendimiento Excelente*: MongoDB es óptimo para registros rápidos de eventos e interacciones frecuentes.
 
 Características de Calidad y/o Rendimiento::
 
-_<explicación en forma de texto>_
+En esencia las características principales que se consigan al desplegar son:
+- *Escalabilidad*
+- *Rendimiento*
+- *Seguridad*
+- *Eficiencia*
 
 Mapeo de Bloques de Construcción a Infraestructura::
-_<descripción del mapeo>_
+_<En este punto de desarrollo del proyecto, este apartado no se puede desarrollar>_
 
 === Infraestructura Nivel 2
 
@@ -78,14 +88,4 @@ endif::arc42help[]
 
 ==== _<Elemento de Infraestructura 1>_
 
-_<diagrama + explicación>_
-
-==== _<Elemento de Infraestructura 2>_
-
-_<diagrama + explicación>_
-
-...
-
-==== _<Elemento de Infraestructura n>_
-
-_<diagrama + explicación>_
+_<En este punto de desarrollo del proyecto, este apartado no se puede desarrollar>_
