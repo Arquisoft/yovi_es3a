@@ -52,7 +52,11 @@ endif::arc42help[]
 
 === Concepto de Dominio
 
-_<Aquí se mostraría un diagrama con el modelo de dominio, y una explicación de cada uno. ACTUALMENTE no se muestra nada, ya que no se ha desarrollado nada sobre el dominio.>_
+image::DiagramaBD.png[Diagrama de Despliegue]
+
+- *Usuarios*: Tendrán nombre, nombre de usuario, contraseña, además de las estadísticas que irán variando según usen *YOVI*. Representan a los usuarios reales.
+- *Bots*: En caso de que un usuario no juegue contra otra persona real, jugará contra un bot, que tendrá nombre y dificultad.
+- *JuegosY*: Juego principal, con modo, jugadores y un resultado que se dará una vez su estado sea finalizado.
 
 === Conceptos de Experiencia de Usuario
 
