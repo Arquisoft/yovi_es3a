@@ -52,7 +52,7 @@ Se ha decidido desarrollar la *Base de Datos* mediante *MongoDB* por distintas *
 
 - *Flexibilidad*: MongoDB es ideal para modelos que evolucionan, contienen relaciones flexibles o estructuras variables, como es el caso.
 - *Alto Rendimiento*: MongoDB está optimizado para sistemas en tiempo real.
-- *Resilencia Integrada*: Los Backups () son automáticos
+- *Resilencia Integrada*: Los Backups son automáticos
 
 Las *consecuencias* que se pueden llegar a dar son las siguientes:
 
