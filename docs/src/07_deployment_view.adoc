@@ -52,7 +52,7 @@ Para múltiples entornos o despliegues alternativos, por favor copia y adapta es
 ****
 endif::arc42help[]
 
-image::<docs\images\DiagramaDespliegue.jpg>[Diagrama de Despliegue]
+image::DiagramaDespliegue.jpg[Diagrama de Despliegue]
 
 Motivación::
 
