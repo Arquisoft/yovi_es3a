@@ -4,7 +4,7 @@ gestión de la Base de Datos se realizará dentro de cada uno, y no en un "mogol
 /* Este archivo hay que editarlo una vez se pueda acceder al Atlas.*/
 const { MongoClient } = require('mongodb');
 
-const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB || 'yovi';
 
 let client;
@@ -12,6 +12,10 @@ let db;
 
 async function connectToDatabase() {
   if (db) return db;
+
+  if (!uri) {
+    throw new Error('MONGODB_URI no está definida en las variables de entorno');
+  }
 
   client = new MongoClient(uri);
   await client.connect();
