@@ -1,12 +1,15 @@
 services:
-  users:
-    build: ./users
-    container_name: users
-    image: ghcr.io/arquisoft/yovi_0-users:latest
-    ports:
-      - "3000:3000"
-    networks:
-      - monitor-net
+    users:
+      build: ./users
+      container_name: users
+      image: ghcr.io/arquisoft/yovi_0-users:latest
+      ports:
+        - "3000:3000"
+      environment:
+        - MONGODB_URI=mongodb://mongodb:27017
+        - MONGODB_DB=yovi
+      networks:
+        - monitor-net
 
   webapp:
     build:
@@ -54,3 +57,11 @@ services:
 networks:
   monitor-net:
     driver: bridge
+
+mongodb:
+  image: mongo:7
+  container_name: mongodb
+  ports:
+    - "27017:27017"
+  networks:
+    - monitor-net
