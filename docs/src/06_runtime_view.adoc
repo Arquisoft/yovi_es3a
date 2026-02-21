@@ -3,65 +3,107 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-runtime-view]]
 == Runtime View
 
+Esta sección describe los escenarios dinámicos arquitectónicamente relevantes del sistema, mostrando cómo interactúan los bloques principales (`webapp`, `users`, `gamey`) durante la ejecución.
 
 ifdef::arc42help[]
 [role="arc42help"]
 ****
-.Contents
-The runtime view describes concrete behavior and interactions of the system’s building blocks in form of scenarios from the following areas:
-
-* important use cases or features: how do building blocks execute them?
-* interactions at critical external interfaces: how do building blocks cooperate with users and neighboring systems?
-* operation and administration: launch, start-up, stop
-* error and exception scenarios
-
-Remark: The main criterion for the choice of possible scenarios (sequences, workflows) is their *architectural relevance*. It is *not* important to describe a large number of scenarios. You should rather document a representative selection.
-
-.Motivation
-You should understand how (instances of) building blocks of your system perform their job and communicate at runtime.
-You will mainly capture scenarios in your documentation to communicate your architecture to stakeholders that are less willing or able to read and understand the static models (building block view, deployment view).
-
-.Form
-There are many notations for describing scenarios, e.g.
-
-* numbered list of steps (in natural language)
-* activity diagrams or flow charts
-* sequence diagrams
-* BPMN or EPCs (event process chains)
-* state machines
-* ...
-
-
-.Further Information
-
-See https://docs.arc42.org/section-6/[Runtime View] in the arc42 documentation.
-
+Se han seleccionado únicamente escenarios representativos y arquitectónicamente significativos.
 ****
 endif::arc42help[]
 
-=== <Runtime Scenario 1>
+
+=== Runtime Scenario 1: Registro de usuario
+
+==== Descripción del escenario
+
+1. El usuario accede a la `webapp` desde el navegador.
+2. Introduce su `username` en el formulario.
+3. El componente `RegisterForm` ejecuta la función `handleSubmit`.
+4. La `webapp` envía una petición HTTP POST a `users` (`/createuser`).
+5. El servicio `users` procesa la petición y simula 1 segundo de latencia.
+6. `users` devuelve un mensaje JSON de bienvenida.
+7. La `webapp` actualiza su estado interno.
+8. El mensaje se muestra en la interfaz.
+
+==== Diagrama de secuencia
+
+image::sequence_register.png[Sequence Diagram - User Registration]
+
+==== Aspectos arquitectónicamente relevantes
+
+- Comunicación síncrona mediante HTTP REST.
+- Separación clara entre frontend y backend.
+- Gestión asíncrona del estado en React.
+- Exposición de métricas Prometheus por parte de `users`.
+- Uso de CORS para permitir comunicación entre servicios.
 
 
-* _<insert runtime diagram or textual description of the scenario>_
-* _<insert description of the notable aspects of the interactions between the
-building block instances depicted in this diagram.>_
+=== Runtime Scenario 2: Solicitud de jugada al motor gamey
 
-It is possible to use a sequence diagram:
+==== Descripción del escenario
 
-[plantuml,"Sequence diagram",png]
-----
-actor Alice
-actor Bob
-database Pod as "Bob's Pod"
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-Alice  --> Pod: Store route
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
-----
+1. El cliente (webapp o cliente de prueba) solicita una jugada al motor `gamey`.
+2. `gamey` recibe la petición HTTP.
+3. Se ejecuta la lógica del bot dentro de `core/game.rs`.
+4. El motor calcula una jugada válida.
+5. Se devuelve la jugada en formato JSON.
+6. El cliente integra la jugada en la interfaz o en la simulación.
 
-=== <Runtime Scenario 2>
+==== Diagrama de secuencia
 
-=== ...
+image::sequence_gamey.png[Sequence Diagram - Game Move Request]
 
-=== <Runtime Scenario n>
+==== Aspectos arquitectónicamente relevantes
+
+- Separación entre capa HTTP y lógica de dominio.
+- Uso de estructuras eficientes (Union-Find).
+- Motor desacoplado y reutilizable (CLI o servidor).
+- Servicio independiente del frontend.
+
+
+=== Runtime Scenario 3: Inicio del sistema mediante Docker Compose
+
+==== Descripción del escenario
+
+1. El operador ejecuta `docker-compose up --build`.
+2. Docker construye las imágenes de `webapp`, `users` y `gamey`.
+3. Se levantan los contenedores correspondientes.
+4. Se crea la red Docker interna.
+5. `users` comienza a exponer métricas en `/metrics`.
+6. Prometheus comienza a recolectarlas.
+7. Grafana permite visualizar las métricas.
+
+==== Diagrama de secuencia
+
+image::sequence_startup.png[Sequence Diagram - System Startup]
+
+==== Aspectos arquitectónicamente relevantes
+
+- Infraestructura reproducible y automatizada.
+- Aislamiento mediante contenedores.
+- Monitorización integrada.
+- Comunicación interna segura mediante red Docker.
+
+
+=== Runtime Scenario 4: Fallo del servicio users
+
+==== Descripción del escenario
+
+1. El usuario intenta registrarse.
+2. La `webapp` envía la petición a `users`.
+3. El servicio `users` no está disponible (contenedor caído).
+4. La petición falla por timeout o error de red.
+5. La `webapp` muestra un mensaje de error.
+6. Prometheus deja de recibir métricas del servicio.
+
+==== Diagrama de secuencia
+
+image::sequence_failure.png[Sequence Diagram - Users Service Failure]
+
+==== Aspectos arquitectónicamente relevantes
+
+- Manejo explícito de errores en el frontend.
+- Arquitectura desacoplada que evita fallos en cascada.
+- Detección de fallos mediante monitorización.
+- El sistema sigue parcialmente operativo.
