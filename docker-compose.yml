@@ -1,15 +1,15 @@
 services:
-    users:
-      build: ./users
-      container_name: users
-      image: ghcr.io/arquisoft/yovi_0-users:latest
-      ports:
-        - "3000:3000"
-      environment:
-        - MONGODB_URI=mongodb://mongodb:27017
-        - MONGODB_DB=yovi
-      networks:
-        - monitor-net
+  users:
+    build: ./users
+    container_name: users
+    image: ghcr.io/arquisoft/yovi_es3a-users:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DB=yovi
+    networks:
+      - monitor-net
 
   webapp:
     build:
@@ -17,7 +17,7 @@ services:
       args:
         - VITE_API_URL=http://localhost:3000
     container_name: webapp
-    image: ghcr.io/arquisoft/yovi_0-webapp:latest
+    image: ghcr.io/arquisoft/yovi_es3a-webapp:latest
     ports:
       - "80:80"
     depends_on:
@@ -28,7 +28,7 @@ services:
   gamey:
     build: ./gamey
     container_name: gamey
-    image: ghcr.io/arquisoft/yovi_0-gamey:latest
+    image: ghcr.io/arquisoft/yovi_es3a-gamey:latest
     ports:
       - "4000:4000"
     networks:
@@ -54,14 +54,14 @@ services:
     networks:
       - monitor-net
 
-networks:
-  monitor-net:
-    driver: bridge
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - monitor-net
 
-mongodb:
-  image: mongo:7
-  container_name: mongodb
-  ports:
-    - "27017:27017"
-  networks:
-    - monitor-net
+networks:
+    monitor-net:
+      driver: bridge
