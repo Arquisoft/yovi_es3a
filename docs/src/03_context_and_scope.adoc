@@ -5,7 +5,7 @@ ifndef::imagesdir[:imagesdir: ../images]
 
 El sistema propuesto forma parte del ecosistema de juegos de la empresa Micrati. Por tanto, deberá poder coexistir e interoperar con otros juegos de navegador dentro del mismo ecosistema. En este caso se provee un servicio de gestión de usuarios (`users`) que se asume ya existe y es accedido por los demás juegos, pero se proporciona por defecto.
 
-=== 3.1 Contexto de negocio
+=== Contexto de negocio
 
 Actores y sistemas externos principales:
 
@@ -15,7 +15,7 @@ Actores y sistemas externos principales:
 - **Registro de contenedores**: almacena y despliega imágenes Docker del ecosistema.
 - **Persistencia**: servicio de base de datos que almacena información de usuarios y registros de partidas (datos de juego, puntuaciones e historial).
 
-=== 3. Contexto técnico
+=== Contexto técnico
 
 Este apartado describe los canales técnicos, protocolos y medios de transmisión utilizados para la interacción entre el sistema y su entorno.
 
