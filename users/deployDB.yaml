@@ -1,0 +1,21 @@
+name: Test MongoDB connection
+
+on:
+  workflow_dispatch:  # para lanzarlo a mano desde la pestaña "Actions"
+
+jobs:
+  test-db:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: users   # muy importante: trabajar dentro de /users
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: npm install
+
+      - run: node pruebaDBUSER.js
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          MONGODB_DB: ${{ secrets.MONGODB_DB }}
