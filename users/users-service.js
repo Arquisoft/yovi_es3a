@@ -5,6 +5,7 @@ const swaggerUi = require('swagger-ui-express');
 const fs = require('node:fs');
 const YAML = require('js-yaml');
 const promBundle = require('express-prom-bundle');
+const { connectToDatabase } = require('./userDB');
 
 const metricsMiddleware = promBundle({includeMethod: true});
 app.use(metricsMiddleware);
@@ -28,22 +29,29 @@ app.use(express.json());
 
 app.post('/createuser', async (req, res) => {
   const username = req.body && req.body.username;
+  if (!username) {
+    return res.status(400).json({ error: 'username is required' });
+  }
+
   try {
-    // Simulate a 1 second delay to mimic processing/network latency
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('users');
+
+    const result = await usersCollection.insertOne({ username });
+
     const message = `Hello ${username}! welcome to the course!`;
-    res.json({ message });
+    res.json({ message, id: result.insertedId });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`User Service listening at http://localhost:${port}`)
-  })
+  });
 }
 
-module.exports = app
+module.exports = app;
