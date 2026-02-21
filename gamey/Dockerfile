@@ -1,5 +1,5 @@
 # Use a Rust base image for compilation
-FROM --platform=linux/arm64 rust:latest AS builder
+FROM rust:latest AS builder
 
 WORKDIR /app/gamey
 
@@ -12,7 +12,7 @@ COPY src/ ./src/
 RUN cargo build --release
 
 # Use a minimal image for the final stage
-FROM --platform=linux/arm64 debian:bookworm-slim
+FROM debian:bookworm-slim
 
 WORKDIR /app/gamey
 
