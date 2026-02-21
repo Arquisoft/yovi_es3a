@@ -111,7 +111,7 @@ jobs:
           context: ./users
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-users:latest
+          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:latest
 
   docker-push-webapp:
     name: Publish webapp image
@@ -143,7 +143,7 @@ jobs:
           context: ./webapp
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-webapp:latest
+          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-webapp:latest
           build-args: |
             VITE_API_URL=http://${{ secrets.DEPLOY_HOST }}:3000
 
@@ -177,7 +177,7 @@ jobs:
           context: ./gamey
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-gamey:latest
+          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-gamey:latest
 
   deploy:
     name: Deploy over SSH
