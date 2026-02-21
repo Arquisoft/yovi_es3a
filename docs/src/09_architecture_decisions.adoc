@@ -1,0 +1,60 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-design-decisions]]
+== Decisiones de Arquitectura
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+.Contenido
+Decisiones de arquitectura importantes, costosas, a gran escala o arriesgadas, incluyendo las justificaciones. Con “decisiones” nos referimos a **seleccionar una alternativa basándose en criterios dados**.  
+
+Por favor, usa tu criterio para decidir si una decisión de arquitectura debe documentarse aquí en esta sección central o si es mejor documentarla de forma local (por ejemplo, dentro de la plantilla de caja blanca de un bloque de construcción).  
+
+Evita la redundancia.  
+Haz referencia a la sección 4, donde ya capturaste las decisiones más importantes de tu arquitectura. :contentReference[oaicite:0]{index=0}
+
+.Motivación
+Los interesados (*stakeholders*) de tu sistema deben poder **comprender y reconstruir tus decisiones**. :contentReference[oaicite:1]{index=1}
+
+.Forma
+Varias opciones posibles:
+
+* ADR (*Architecture Decision Record*, Registro de Decisión de Arquitectura) para cada decisión importante :contentReference[oaicite:2]{index=2}
+* Lista o tabla, ordenada por importancia y consecuencias :contentReference[oaicite:3]{index=3}
+* Más detallado en forma de secciones separadas por cada decisión :contentReference[oaicite:4]{index=4}
+
+.Más Información
+
+Consulta https://docs.arc42.org/section-9/[Architecture Decisions] en la documentación de arc42. Allí encontrarás enlaces y ejemplos sobre los ADR. :contentReference[oaicite:5]{index=5}
+
+****
+endif::arc42help[]
+
+_En este apartado se hablará de la motivación y las consecuencias de cada decisión arquitectura que se ha tomado en el desarrollo del proyecto. Por tanto, no se contemplarán las decisiones tomadas por el equipo docente de la asignatura._
+mongodb
+
+=== Máquina Ubuntu en la Nube de Oracle
+Se ha decidido desplegar *YOVI* mediante una *Máquina Ubuntu en la Nube de Oracle* por distintas *motivaciones*:
+
+- *Estabilidad*: Ubuntu es conocida por ser una distribución robusta ampliamente usada en entornos de producción.
+- *Compatabilidad*: A sabiendas que el proyecto desarrollo comprenderá de alguna que otra API, esta decisión minimizará problemas de compatibilidad ya que una gran parte de estos microservicios funcionan de forma óptima en Ubuntu.
+- *Costes*: Las máquinas Linux en Oracle al no incluir licencias adicionales resultan más baratas que otro tipo de máquinas.
+- *Control*: Una máquina virtual Ubuntu permite instalar software personalizado además de ofrecer control total del sistema operativo.
+
+Las *consecuencias* que se pueden llegar a dar son las siguientes:
+
+- *Mayor Responsabilidad Operativa*: Al tener control total del sistema operativo, la administración recae sobre el equipo.
+- *Seguridad*: La gestión de la seguridad recae sobre los desarrolladores.
+
+=== Base de Datos en MongoDB
+Se ha decidido desarrollar la *Base de Datos* mediante *MongoDB* por distintas *motivaciones*:
+
+- *Flexibilidad*: MongoDB es ideal para modelos que evolucionan, contienen relaciones flexibles o estructuras variables, como es el caso.
+- *Alto Rendimiento*: MongoDB está optimizado para sistemas en tiempo real.
+- *Resilencia Integrada*: Los Backups son automáticos
+
+Las *consecuencias* que se pueden llegar a dar son las siguientes:
+
+- *Riesgo de Desestructuración*: En caso de diseñar incorrectamente la Base de Datos, la flexibilidad se convertirá en un problema ya que generará documentos inconsistentes.
+
