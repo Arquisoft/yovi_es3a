@@ -56,10 +56,10 @@ image::DiagramaDespliegue.jpg[Diagrama de Despliegue]
 
 Motivación::
 
-El sistema se desplegará en la nube de Microsoft Azure que conectará con una Base de Datos creada en MongoDB por distintas motivaciones:
+El sistema se desplegará en la nube de Oracle que conectará con una Base de Datos creada en MongoDB por distintas motivaciones:
 
-- *Escalabilidad Automática*: Azure permite escalar según la carga de usuarios sin intervención manual.
-- *Seguridad*: Azure proporciona cifrado de datos.
+- *Escalabilidad Automática*: Oracle permite escalar según la carga de usuarios sin intervención manual.
+- *Seguridad*: Oracle proporciona cifrado de datos.
 - *Flexibilidad*: MongoDB es ideal ya que las entidades cambiaran con el tiempo.
 - *Polimorfismo Sencillo*: MongoDB permite modelas fácilmente el cambio entre entidades.
 - *Rendimiento Excelente*: MongoDB es óptimo para registros rápidos de eventos e interacciones frecuentes.
