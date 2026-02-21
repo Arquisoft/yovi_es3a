@@ -2,6 +2,7 @@
   "name": "users",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node users-service.js",
@@ -15,6 +16,9 @@
     "express-prom-bundle": "^8.0.0",
     "js-yaml": "^4.1.0",
     "mongodb": "^7.1.0",
+    "dotenv": "^16.1.4",
+    "mongoose": "^7.3.4",
+    "bcryptjs": "^2.4.3",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
