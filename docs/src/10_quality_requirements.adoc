@@ -53,6 +53,21 @@ In any case the tree should include links to the scenarios of the following sect
 endif::arc42help[]
 
 === Escenarios de calidad
+|===
+|Escenario |Descripción
+
+|Escenario 1 - Disponibilidad
+|El sistema debe  estar disponible el 95% del tiempo. El sistema permite a los usuarios acceder a sus funcionalidades en cualquier momento, excepto durante las ventanas de mantenimiento programadas.
+
+|Escenario 2 - Rendimiento
+|El sistema debe responder a las solicitudes de los usuarios en menos de 2 segundos. Esto asegura una experiencia de usuario fluida y eficiente, incluso durante períodos de alta demanda.
+
+|Escenario 3 - Seguridad
+|El sistema debe proteger los datos de los usuarios. Esto asegura que la información personal y sensible de los usuarios esté protegida contra accesos no autorizados, garantizando la confidencialidad y la integridad de los datos.
+
+|Escenario 4 - Escalabilidad básica
+|El sistema debe ser capaz de manejar un aumento del 50% en el número de usuarios sin degradar el rendimiento. Esto asegura que el sistema pueda crecer y adaptarse a un número creciente de usuarios sin comprometer la calidad del servicio.
+|===
 
 ifdef::arc42help[]
 [role="arc42help"]
