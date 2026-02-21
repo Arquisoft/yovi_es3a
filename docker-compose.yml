@@ -1,6 +1,5 @@
 services:
   users:
-    build: ./users
     container_name: users
     image: ghcr.io/arquisoft/yovi_es3a-users:latest
     ports:
@@ -12,10 +11,6 @@ services:
       - monitor-net
 
   webapp:
-    build:
-      context: ./webapp
-      args:
-        - VITE_API_URL=http://localhost:3000
     container_name: webapp
     image: ghcr.io/arquisoft/yovi_es3a-webapp:latest
     ports:
@@ -26,7 +21,6 @@ services:
       - monitor-net
 
   gamey:
-    build: ./gamey
     container_name: gamey
     image: ghcr.io/arquisoft/yovi_es3a-gamey:latest
     ports:
