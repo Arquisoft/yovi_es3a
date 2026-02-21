@@ -455,8 +455,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#section-architecture-constraints">2. Restricciones de la Arquitectura</a></li>
 <li><a href="#section-context-and-scope">3. Contexto y Alcance</a>
 <ul class="sectlevel2">
-<li><a href="#_3_1_contexto_de_negocio">3.1. 3.1 Contexto de negocio</a></li>
-<li><a href="#_3_contexto_técnico">3.2. 3. Contexto técnico</a></li>
+<li><a href="#_contexto_de_negocio">3.1. Contexto de negocio</a></li>
+<li><a href="#_contexto_técnico">3.2. Contexto técnico</a></li>
 </ul>
 </li>
 <li><a href="#section-solution-strategy">4. Estrategia de la Solución</a></li>
@@ -492,7 +492,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#section-design-decisions">9. Decisiones de Arquitectura</a>
 <ul class="sectlevel2">
-<li><a href="#_máquina_ubuntu_en_la_nube_de_azure">9.1. Máquina Ubuntu en la Nube de Azure</a></li>
+<li><a href="#_máquina_ubuntu_en_la_nube_de_oracle">9.1. Máquina Ubuntu en la Nube de Oracle</a></li>
 <li><a href="#_base_de_datos_en_mongodb">9.2. Base de Datos en MongoDB</a></li>
 </ul>
 </li>
@@ -889,7 +889,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <p>El sistema propuesto forma parte del ecosistema de juegos de la empresa Micrati. Por tanto, deberá poder coexistir e interoperar con otros juegos de navegador dentro del mismo ecosistema. En este caso se provee un servicio de gestión de usuarios (<code>users</code>) que se asume ya existe y es accedido por los demás juegos, pero se proporciona por defecto.</p>
 </div>
 <div class="sect2">
-<h3 id="_3_1_contexto_de_negocio">3.1. 3.1 Contexto de negocio</h3>
+<h3 id="_contexto_de_negocio">3.1. Contexto de negocio</h3>
 <div class="paragraph">
 <p>Actores y sistemas externos principales:</p>
 </div>
@@ -914,7 +914,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_3_contexto_técnico">3.2. 3. Contexto técnico</h3>
+<h3 id="_contexto_técnico">3.2. Contexto técnico</h3>
 <div class="paragraph">
 <p>Este apartado describe los canales técnicos, protocolos y medios de transmisión utilizados para la interacción entre el sistema y su entorno.</p>
 </div>
@@ -1667,14 +1667,14 @@ Esta infraestructura subyacente puede e influirá en un sistema y/o en algunos c
 <dl>
 <dt class="hdlist1">Motivación</dt>
 <dd>
-<p>El sistema se desplegará en la nube de Microsoft Azure que conectará con una Base de Datos creada en MongoDB por distintas motivaciones:</p>
+<p>El sistema se desplegará en la nube de Oracle que conectará con una Base de Datos creada en MongoDB por distintas motivaciones:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Escalabilidad Automática</strong>: Azure permite escalar según la carga de usuarios sin intervención manual.</p>
+<p><strong>Escalabilidad Automática</strong>: Oracle permite escalar según la carga de usuarios sin intervención manual.</p>
 </li>
 <li>
-<p><strong>Seguridad</strong>: Azure proporciona cifrado de datos.</p>
+<p><strong>Seguridad</strong>: Oracle proporciona cifrado de datos.</p>
 </li>
 <li>
 <p><strong>Flexibilidad</strong>: MongoDB es ideal ya que las entidades cambiaran con el tiempo.</p>
@@ -1935,9 +1935,9 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 mongodb</p>
 </div>
 <div class="sect2">
-<h3 id="_máquina_ubuntu_en_la_nube_de_azure">9.1. Máquina Ubuntu en la Nube de Azure</h3>
+<h3 id="_máquina_ubuntu_en_la_nube_de_oracle">9.1. Máquina Ubuntu en la Nube de Oracle</h3>
 <div class="paragraph">
-<p>Se ha decidido desplegar <strong>YOVI</strong> mediante una <strong>Máquina Ubuntu en la Nube de Azure</strong> por distintas <strong>motivaciones</strong>:</p>
+<p>Se ha decidido desplegar <strong>YOVI</strong> mediante una <strong>Máquina Ubuntu en la Nube de Oracle</strong> por distintas <strong>motivaciones</strong>:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1948,7 +1948,7 @@ mongodb</p>
 <p><strong>Compatabilidad</strong>: A sabiendas que el proyecto desarrollo comprenderá de alguna que otra API, esta decisión minimizará problemas de compatibilidad ya que una gran parte de estos microservicios funcionan de forma óptima en Ubuntu.</p>
 </li>
 <li>
-<p><strong>Costes</strong>: Las máquinas Linux en Azure al no incluir licencias adicionales resultan más baratas que otro tipo de máquinas.</p>
+<p><strong>Costes</strong>: Las máquinas Linux en Oracle al no incluir licencias adicionales resultan más baratas que otro tipo de máquinas.</p>
 </li>
 <li>
 <p><strong>Control</strong>: Una máquina virtual Ubuntu permite instalar software personalizado además de ofrecer control total del sistema operativo.</p>
@@ -2065,6 +2065,36 @@ concrete and measurable.</p>
 </div>
 <div class="sect2">
 <h3 id="_escenarios_de_calidad">10.2. Escenarios de calidad</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Escenario</th>
+<th class="tableblock halign-left valign-top">Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Escenario 1 - Disponibilidad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema debe  estar disponible el 95% del tiempo. El sistema permite a los usuarios acceder a sus funcionalidades en cualquier momento, excepto durante las ventanas de mantenimiento programadas.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Escenario 2 - Rendimiento</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema debe responder a las solicitudes de los usuarios en menos de 2 segundos. Esto asegura una experiencia de usuario fluida y eficiente, incluso durante períodos de alta demanda.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Escenario 3 - Seguridad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema debe proteger los datos de los usuarios. Esto asegura que la información personal y sensible de los usuarios esté protegida contra accesos no autorizados, garantizando la confidencialidad y la integridad de los datos.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Escenario 4 - Escalabilidad básica</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema debe ser capaz de manejar un aumento del 50% en el número de usuarios sin degradar el rendimiento. Esto asegura que el sistema pueda crecer y adaptarse a un número creciente de usuarios sin comprometer la calidad del servicio.</p></td>
+</tr>
+</tbody>
+</table>
 <div class="sidebarblock arc42help">
 <div class="content">
 <div class="paragraph">
@@ -2179,6 +2209,45 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 </div>
 <div class="sect2">
 <h3 id="_deuda_técnica">11.2. Deuda técnica</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Deuda técnica</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Descripción</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Impacto</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Probabilidad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mitigación</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Código no documentado o mal documentado.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">La falta de documentación clara y actualizada dificulta la comprensión del código, lo que puede ralentizar el desarrollo y aumentar el riesgo de errores al modificar el sistema.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medio</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Establecer estándares de documentación y revisarlos regularmente.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implementación inicial sin optimización.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">La implementación inicial del sistema puede no estar optimizada para rendimiento o escalabilidad, lo que podría requerir refactorización significativa en el futuro para cumplir con los requisitos de rendimiento.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medio</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alta</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Planificar iteraciones de mejora continua y refactorización a medida que se identifican cuellos de botella.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gestión básica de autenticación y autorización.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">La implementación inicial de la autenticación y autorización puede ser básica, lo que podría no cumplir con los requisitos de seguridad a medida que el sistema evoluciona.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alto</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Planificar mejoras en la gestión de autenticación y autorización a medida que se identifican nuevas amenazas y requisitos de seguridad.</p></td>
+</tr>
+</tbody>
+</table>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -2235,12 +2304,36 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;Term-1&gt;</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;definition-1&gt;</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>JSON</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Formato ligero de intercambio de datos basado en texto, estructurado en pares de clave-valor y listas. Es ampliamente utilizado para la comunicación entre servicios web y se emplea en el proyecto para el intercambio de datos entre el frontend, el backend y el motor del juego.</em></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;Term-2&gt;</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>&lt;definition-2&gt;</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Notación YEN</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Formato especifico de mensajes JSON que permite representar la situación de una partida del juego Y en un instante de tiempo. Ejemplo de la notación: {"size": 4, "turn": "R", "players": [ "B", "R"], "layout": "B/.B/RB./B..R"}</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>API</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Interfaz de Programación de Aplicaciones (Application Programming Interface). Conjunto de reglas y protocolos que permiten la comunicación entre diferentes componentes de software. En el proyecto, se refiere a las interfaces que permiten la interacción entre el frontend, el backend y el motor del juego.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Bots</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Programas de software que realizan tareas automatizadas. En el contexto del proyecto, se refiere a los programas que pueden jugar al juego Y de manera autónoma, utilizando la API para interactuar con el motor del juego.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Microservicio REST</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Arquitectura de software que divide una aplicación en pequeños servicios independientes que se comunican a través de HTTP. En el proyecto, se refiere a la estructura del backend, donde cada servicio se encarga de una funcionalidad específica y se comunica con los demás a través de la API REST.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Frontend</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Parte de la aplicación con la que los usuarios interactúan directamente. En el proyecto, se refiere a la interfaz gráfica que permite a los jugadores interactuar con el juego Y, enviar comandos y recibir información sobre el estado del juego.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Backend</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Parte de la aplicación que maneja la lógica de negocio, el procesamiento de datos y la comunicación con el motor del juego. En el proyecto, se refiere a los servicios que gestionan las partidas, procesan los movimientos de los jugadores y mantienen el estado del juego.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Motor del juego</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Componente central del sistema que implementa las reglas del juego Y, procesa los movimientos de los jugadores y determina el estado del juego. En el proyecto, se refiere al software que ejecuta la lógica del juego y proporciona la funcionalidad necesaria para que los jugadores puedan interactuar con él a través de la API.</em></p></td>
 </tr>
 </tbody>
 </table>
@@ -2250,7 +2343,7 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <div id="footer">
 <div id="footer-text">
 Version 8.2 EN<br>
-Last updated 2026-02-21 11:11:20 +0100
+Last updated 2026-02-21 14:38:14 +0100
 </div>
 </div>
 </body>
