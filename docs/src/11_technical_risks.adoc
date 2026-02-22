@@ -1,7 +1,7 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-technical-risks]]
-== Risks and Technical Debts
+== Riesgos y deuda técnica
 
 
 ifdef::arc42help[]
@@ -25,3 +25,15 @@ See https://docs.arc42.org/section-11/[Risks and Technical Debt] in the arc42 do
 
 ****
 endif::arc42help[]
+
+=== Riesgos
+
+[options="header", cols="2,2,1,1,2"]
+|===
+|Riesgo|Descripción|Impacto|Probabilidad|Mitigación
+| Uso combinado de Rust, Node.js, React y TypeScript. | La utilización de varias tecnologías con paradigmas distintos incrementa la complejidad del desarrollo y mantenimiento del sistema. Pueden generar una curva de aprendizaje elevada y aumentar el esfuerzo necesario para depurar errores entre capas. | Medio | Media | Formación continua de los desarrolladores en todas las tecnologías involucradas.
+| Dependencia de librerías externas (npm y crates). | El sistema depende de paquetes externos que pueden contener vulnerabilidades, quedar sin mantenimiento o introducir cambios incompatibles en versiones futuras. Esto podría afectar a la estabilidad y seguridad del sistema. | Medio | Baja | Seleccionar librerías confiables y mantenerlas actualizadas. Revisar dependencias antes de actualizaciones mayores.
+| Mala comunicación entre los integrantes del equipo. | La falta de comunicación efectiva puede llevar a malentendidos sobre los requisitos, diseño y tareas, lo que podría resultar en retrasos, errores o trabajo duplicado. | Alto | Baja | Establecer canales de comunicación claros  y fomentar reuniones regulares para sincronizar al equipo.
+|===
+
+=== Deuda técnica
