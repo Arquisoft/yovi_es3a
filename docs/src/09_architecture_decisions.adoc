@@ -32,22 +32,20 @@ Consulta https://docs.arc42.org/section-9/[Architecture Decisions] en la documen
 endif::arc42help[]
 
 _En este apartado se hablará de la motivación y las consecuencias de cada decisión arquitectura que se ha tomado en el desarrollo del proyecto. Por tanto, no se contemplarán las decisiones tomadas por el equipo docente de la asignatura._
-mongodb
 
-=== Máquina Ubuntu en la Nube de Azure
-Se ha decidido desplegar *YOVI* mediante una *Máquina Ubuntu en la Nube de Azure* por distintas *motivaciones*:
+=== Servidor Oracle
+Se ha decidido desplegar *YOVI* mediante un *Servidor de Oracle* por distintas *motivaciones*:
 
-- *Estabilidad*: Ubuntu es conocida por ser una distribución robusta ampliamente usada en entornos de producción.
-- *Compatabilidad*: A sabiendas que el proyecto desarrollo comprenderá de alguna que otra API, esta decisión minimizará problemas de compatibilidad ya que una gran parte de estos microservicios funcionan de forma óptima en Ubuntu.
-- *Costes*: Las máquinas Linux en Azure al no incluir licencias adicionales resultan más baratas que otro tipo de máquinas.
-- *Control*: Una máquina virtual Ubuntu permite instalar software personalizado además de ofrecer control total del sistema operativo.
+- *Escalabilidad*: Los servidores en Oracle permiten ampliar o reducir recursos según las necesidades del sistema.
+- *Rendimiento*: La infraestructura está optimizada para cargas de trabajo intensivas y aplicaciones backend con alta concurrencia.
+- *Soporte y Mantenimiento Gestionado*: Oracle proporciona herramientas de monitorización y gestión que facilitan la administración del servidor.
 
 Las *consecuencias* que se pueden llegar a dar son las siguientes:
 
-- *Mayor Responsabilidad Operativa*: Al tener control total del sistema operativo, la administración recae sobre el equipo.
-- *Seguridad*: La gestión de la seguridad recae sobre los desarrolladores.
+- *Dependencia del Proveedor*: La infraestructura queda ligada al ecosistema de Oracle.
+- *Seguridad*: Aunque Oracle proporciona mecanismos de seguridad a nivel de infraestructura, la configuración de aplicaciones y accesos sigue siendo responsabilidad del equipo de desarrollo.
 
-=== Base de Datos en MongoDB
+=== Base de Datos en MongoDB Atlas
 Se ha decidido desarrollar la *Base de Datos* mediante *MongoDB* por distintas *motivaciones*:
 
 - *Flexibilidad*: MongoDB es ideal para modelos que evolucionan, contienen relaciones flexibles o estructuras variables, como es el caso.
