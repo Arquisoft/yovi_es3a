@@ -1,0 +1,498 @@
+/* ─── Contenedor principal ─────────────────────────────────────────────── */
+.gb-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem 1rem;
+  background: #0d1117;
+  border-radius: 18px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* ─── Cabecera ──────────────────────────────────────────────────────────── */
+.gb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.gb-turn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+}
+
+.gb-turn.player1 {
+  background: rgba(231, 76, 60, 0.12);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.35);
+}
+
+.gb-turn.player2 {
+  background: rgba(52, 152, 219, 0.12);
+  color: #3498db;
+  border: 1px solid rgba(52, 152, 219, 0.35);
+}
+
+.gb-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.player1 .gb-dot {
+  background: #e74c3c;
+  box-shadow: 0 0 6px #e74c3c;
+}
+
+.player2 .gb-dot {
+  background: #3498db;
+  box-shadow: 0 0 6px #3498db;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.gb-reset {
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.gb-reset:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ─── Leyenda ───────────────────────────────────────────────────────────── */
+.gb-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.leg-left { color: #c0392b; opacity: 0.75; }
+.leg-right { color: #2980b9; opacity: 0.75; }
+.leg-bottom { color: #27ae60; opacity: 0.75; }
+
+/* ─── SVG ───────────────────────────────────────────────────────────────── */
+.gb-svg {
+  display: block;
+}
+
+/* ─── Hexágonos base ────────────────────────────────────────────────────── */
+.gb-hex {
+  cursor: pointer;
+  transition: fill 0.12s ease;
+  stroke-width: 1.5;
+}
+
+/* Interior */
+.gb-interior {
+  fill: #1c1f2e;
+  stroke: #2c3050;
+}
+
+.gb-interior.gb-hover {
+  fill: #272c42;
+}
+
+/* Lado izquierdo (by=0) */
+.gb-left {
+  fill: #1c1f2e;
+  stroke: #2c3050;
+}
+
+.gb-left.gb-hover {
+  fill: #341a1a;
+}
+
+/* Lado derecho (bz=0) */
+.gb-right {
+  fill: #1c1f2e;
+  stroke: #2c3050;
+}
+
+.gb-right.gb-hover {
+  fill: #1a2030;
+}
+
+/* Lado inferior (bx=0) */
+.gb-bottom {
+  fill: #1c1f2e;
+  stroke: #2c3050;
+}
+
+.gb-bottom.gb-hover {
+  fill: #192618;
+}
+
+/* Esquinas */
+.gb-corner {
+  fill: #1c1f2e;
+  stroke: #2c3050;
+}
+
+.gb-corner.gb-hover {
+  fill: #251e30;
+}
+
+/* ─── Celdas ocupadas ───────────────────────────────────────────────────── */
+.gb-p1 {
+  fill: #3d0f0f;
+  stroke: #e74c3c;
+  stroke-width: 2;
+  cursor: default;
+}
+
+.gb-p2 {
+  fill: #0f2040;
+  stroke: #3498db;
+  stroke-width: 2;
+  cursor: default;
+}
+
+/* ─── Piezas (círculos) ─────────────────────────────────────────────────── */
+.gb-piece {
+  transition: r 0.1s ease;
+}
+
+.gb-piece-p1 {
+  fill: #e74c3c;
+  filter: drop-shadow(0 0 5px rgba(231, 76, 60, 0.7));
+}
+
+.gb-piece-p2 {
+  fill: #3498db;
+  filter: drop-shadow(0 0 5px rgba(52, 152, 219, 0.7));
+}
+
+/* ─── Indicador de hover ────────────────────────────────────────────────── */
+.gb-hint {
+  fill: none;
+  stroke-width: 2;
+  opacity: 0.45;
+}
+
+.gb-hint-p1 { stroke: #e74c3c; }
+.gb-hint-p2 { stroke: #3498db; }
+
+/* ─── Pie ───────────────────────────────────────────────────────────────── */
+.gb-cells-count {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.2);
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Indicador de conexión ─────────────────────────────────────────────── */
+.gb-status {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.gb-status.online {
+  background: rgba(39, 174, 96, 0.15);
+  color: #27ae60;
+}
+
+.gb-status.offline {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+}
+
+/* ─── Modal de victoria ─────────────────────────────────────────────────── */
+.gb-winner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.gb-winner-modal {
+  background: #1c1f2e;
+  border-radius: 20px;
+  padding: 2.5rem 3rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.4s ease;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.gb-winner-modal.player1 {
+  border: 2px solid #e74c3c;
+  box-shadow: 0 0 40px rgba(231, 76, 60, 0.4);
+}
+
+.gb-winner-modal.player2 {
+  border: 2px solid #3498db;
+  box-shadow: 0 0 40px rgba(52, 152, 219, 0.4);
+}
+
+.gb-winner-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounce 0.6s ease infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
+
+.gb-winner-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.player1 .gb-winner-title { color: #e74c3c; }
+.player2 .gb-winner-title { color: #3498db; }
+
+.gb-winner-subtitle {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 1.5rem;
+}
+
+.gb-winner-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gb-winner-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.player1 .gb-winner-btn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.player2 .gb-winner-btn {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.gb-winner-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.gb-winner-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gb-winner-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ─── Selector de modo ──────────────────────────────────────────────────── */
+.gb-mode-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 2rem;
+}
+
+.gb-mode-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.5rem;
+}
+
+.gb-mode-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 2rem;
+}
+
+.gb-mode-buttons {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gb-mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 2.5rem;
+  background: #1c1f2e;
+  border: 2px solid #2c3050;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.gb-mode-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.gb-mode-btn.pvp:hover {
+  border-color: #27ae60;
+  box-shadow: 0 10px 30px rgba(39, 174, 96, 0.2);
+}
+
+.gb-mode-btn.vs-bot:hover {
+  border-color: #9b59b6;
+  box-shadow: 0 10px 30px rgba(155, 89, 182, 0.2);
+}
+
+.gb-mode-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.gb-mode-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.gb-mode-desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ─── Botón volver ──────────────────────────────────────────────────────── */
+.gb-back {
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.gb-back:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ─── Tablero deshabilitado ─────────────────────────────────────────────── */
+.gb-svg.gb-disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ─── Pantalla de carga ─────────────────────────────────────────────────── */
+.gb-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1.5rem;
+}
+
+.gb-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.gb-loading-text {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  animation: pulse-text 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* ─── Bot pensando ──────────────────────────────────────────────────────── */
+.gb-turn.thinking {
+  animation: thinking-pulse 1s ease-in-out infinite;
+}
+
+@keyframes thinking-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 15px 5px rgba(52, 152, 219, 0.2);
+  }
+}
+
+.gb-thinking-dots::after {
+  content: '';
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+  100% { content: ''; }
+}
