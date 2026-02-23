@@ -4,21 +4,21 @@ services:
     image: ghcr.io/arquisoft/yovi_es3a-users:latest
     ports:
       - "3000:3000"
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017
-      - MONGODB_DB=yovi
     networks:
       - monitor-net
-
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DB=${MONGODB_DB}
+    
   webapp:
     container_name: webapp
     image: ghcr.io/arquisoft/yovi_es3a-webapp:latest
     ports:
       - "80:80"
-    depends_on:
-      - users
     networks:
       - monitor-net
+    depends_on:
+      - users
 
   gamey:
     container_name: gamey
@@ -29,32 +29,24 @@ services:
       - monitor-net
 
   prometheus:
-    image: prom/prometheus
     container_name: prometheus
+    image: prom/prometheus
     ports:
       - "9090:9090"
+    networks:
+      - monitor-net
     volumes:
       - ./users/monitoring/prometheus:/etc/prometheus
-    networks:
-      - monitor-net
 
   grafana:
-    image: grafana/grafana
     container_name: grafana
+    image: grafana/grafana
     ports:
       - "9091:3000"
+    networks:
+      - monitor-net
     volumes:
       - ./users/monitoring/grafana/provisioning:/etc/grafana/provisioning
-    networks:
-      - monitor-net
-
-  mongodb:
-    image: mongo:7
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    networks:
-      - monitor-net
 
 networks:
     monitor-net:
