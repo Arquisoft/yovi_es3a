@@ -2,7 +2,7 @@ name: Release — Test, Build, Publish, Deploy
 
 on:
   release:
-    types: [published]
+    types: [prereleased]
 
 permissions:
   contents: read
@@ -112,7 +112,7 @@ jobs:
           context: ./users
           platforms: linux/arm64
           push: true
-          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:latest
+          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:arm64
           cache-from: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache
           cache-to: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache,mode=max
 
@@ -143,7 +143,7 @@ jobs:
           context: ./webapp
           platforms: linux/arm64
           push: true
-          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:latest
+          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:arm64
           build-args: |
             VITE_API_URL=http://${{ secrets.DEPLOY_HOST }}:3000
           cache-from: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache
@@ -176,7 +176,7 @@ jobs:
           context: ./gamey
           platforms: linux/arm64
           push: true
-          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:latest
+          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:arm64
           cache-from: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache
           cache-to: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache,mode=max
   deploy:
