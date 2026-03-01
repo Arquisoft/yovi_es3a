@@ -2,6 +2,7 @@ services:
   users:
     container_name: users
     image: ghcr.io/arquisoft/yovi_es3a-users:latest
+    build: ./users
     ports:
       - "3000:3000"
     networks:
@@ -13,6 +14,10 @@ services:
   webapp:
     container_name: webapp
     image: ghcr.io/arquisoft/yovi_es3a-webapp:latest
+    build:
+      context: ./webapp
+      args:
+        - VITE_API_URL=http://localhost:3000
     ports:
       - "80:80"
     networks:
@@ -23,6 +28,7 @@ services:
   gamey:
     container_name: gamey
     image: ghcr.io/arquisoft/yovi_es3a-gamey:latest
+    build: ./gamey
     ports:
       - "4000:4000"
     networks:
@@ -49,5 +55,5 @@ services:
       - ./users/monitoring/grafana/provisioning:/etc/grafana/provisioning
 
 networks:
-    monitor-net:
-      driver: bridge
+  monitor-net:
+    driver: bridge

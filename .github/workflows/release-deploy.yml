@@ -64,18 +64,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install users dependencies
         run: |
           cd users
           npm ci
+
       - name: Install webapp dependencies
         run: |
           cd webapp
           npm ci
+
       - name: Install Playwright browsers
         run: |
           cd webapp
           npm run test:e2e:install-browsers
+
       - name: Run E2E tests (start servers and run cucumber)
         run: |
           cd webapp
@@ -85,9 +89,6 @@ jobs:
     name: Publish users image
     runs-on: ubuntu-latest
     needs: e2e
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -105,9 +106,6 @@ jobs:
     name: Publish webapp image
     runs-on: ubuntu-latest
     needs: e2e
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -126,9 +124,6 @@ jobs:
     name: Publish gamey image
     runs-on: ubuntu-latest
     needs: e2e
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -154,6 +149,6 @@ jobs:
           user: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           command: |
-            wget https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ env.IMAGE_TAG }}/docker-compose.yml -O docker-compose.yml
+            wget https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ github.event.release.target_commitish }}/docker-compose.yml -O docker-compose.yml
             docker compose down
             docker compose up -d --pull always

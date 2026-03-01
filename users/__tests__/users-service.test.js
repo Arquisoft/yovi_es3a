@@ -2,8 +2,6 @@ import { describe, it, expect, afterEach, vi } from 'vitest'
 import request from 'supertest'
 import app from '../users-service.js'
 
-// Falla el test debido a que la URI de la BD no está especificada aún en el user service.
-
 describe('POST /createuser', () => {
    afterEach(() => {
        vi.restoreAllMocks()
@@ -12,12 +10,11 @@ describe('POST /createuser', () => {
     it('returns a greeting message for the provided username', async () => {
        const res = await request(app)
             .post('/createuser')
-           .send({ username: 'Pablo' })
+            .send({ username: 'Pablo' })
             .set('Accept', 'application/json')
 
-            expect(res.status).toBe(400)
-//        expect(res.status).toBe(200)
-//        expect(res.body).toHaveProperty('message')
-//        expect(res.body.message).toMatch(/Hello Pablo! Welcome to the course!/i)
+        expect(res.status).toBe(200)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toMatch(/Hello Pablo! Welcome to the course!/i)
     })
 })

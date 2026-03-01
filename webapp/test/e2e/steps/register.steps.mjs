@@ -11,18 +11,13 @@ When('I enter {string} as the username and submit', async function (username) {
   const page = this.page
   if (!page) throw new Error('Page not initialized')
   await page.fill('#username', username)
-
-  /** Corrección temporal */
-  this.response = { status: () => 400 }
-
+  await page.click('.submit-button')
 })
 
-Then('I should see an error code {string}', async function (expected) {
-  const response  = this.response 
-  if (!response ) throw new Error('No response captured')
-  
-  const status = response.status().toString()
-
-  assert.strictEqual( status, expected, `Expected status ${expected}, got ${status}` )
-
+Then('I should see a welcome message containing {string}', async function (expected) {
+  const page = this.page
+  if (!page) throw new Error('Page not initialized')
+  await page.waitForSelector('.success-message', { timeout: 5000 })
+  const text = await page.textContent('.success-message')
+  assert.ok(text && text.includes(expected), `Expected success message to include "${expected}", got: "${text}"`)
 })
