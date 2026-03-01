@@ -2,7 +2,7 @@ name: Release — Test, Build, Publish, Deploy
 
 on:
   release:
-    types: [published]
+    types: [released]
 
 permissions:
   contents: read
