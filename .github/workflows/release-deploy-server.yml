@@ -10,6 +10,8 @@ permissions:
 
 env:
   IMAGE_TAG: ${{ github.event.release.tag_name }}
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}     
+  MONGODB_DB: ${[ secrets.MONGODB_DB }}
 
 jobs:
   test-node:
