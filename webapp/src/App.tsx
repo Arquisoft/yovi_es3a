@@ -1,6 +1,8 @@
 import './App.css'
 import RegisterForm from './RegisterForm';
+import GameClient from './GameClient';
 import reactLogo from './assets/react.svg'
+import GameBoard from './GameBoard';
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
 
       <h2>Welcome to the Software Arquitecture 2025-2026 course</h2>
       <RegisterForm />
+      <GameBoard />
     </div>
   );
 }
