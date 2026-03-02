@@ -9,7 +9,7 @@ services:
       - monitor-net
     environment:
       - MONGODB_URI=${{ secrets.MONGODB_URI }}     
-      - MONGODB_DB=${[ secrets.MONGODB_DB }}
+      - MONGODB_DB=${{ secrets.MONGODB_DB }}
     
   webapp:
     container_name: webapp
