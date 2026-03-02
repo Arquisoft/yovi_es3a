@@ -2,99 +2,90 @@ ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-deployment-view]]
 
-
-== Deployment View
-
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content
-The deployment view describes:
-
- 1. technical infrastructure used to execute your system, with infrastructure elements like geographical locations, environments, computers, processors, channels and net topologies as well as other infrastructure elements and
-
-2. mapping of (software) building blocks to that infrastructure elements.
-
-Often systems are executed in different environments, e.g. development environment, test environment, production environment. In such cases you should document all relevant environments.
-
-Especially document a deployment view if your software is executed as distributed system with more than one computer, processor, server or container or when you design and construct your own hardware processors and chips.
-
-From a software perspective it is sufficient to capture only those elements of an infrastructure that are needed to show a deployment of your building blocks. Hardware architects can go beyond that and describe an infrastructure to any level of detail they need to capture.
-
-.Motivation
-Software does not run without hardware.
-This underlying infrastructure can and will influence a system and/or some
-cross-cutting concepts. Therefore, there is a need to know the infrastructure.
-
-.Form
-
-Maybe a highest level deployment diagram is already contained in section 3.2. as
-technical context with your own infrastructure as ONE black box. In this section one can
-zoom into this black box using additional deployment diagrams:
-
-* UML offers deployment diagrams to express that view. Use it, probably with nested diagrams,
-when your infrastructure is more complex.
-* When your (hardware) stakeholders prefer other kinds of diagrams rather than a deployment diagram, let them use any kind that is able to show nodes and channels of the infrastructure.
-
-
-.Further Information
-
-See https://docs.arc42.org/section-7/[Deployment View] in the arc42 documentation.
-
-****
-endif::arc42help[]
-
-=== Infrastructure Level 1
+== Vista de Despliegue
 
 ifdef::arc42help[]
 [role="arc42help"]
 ****
-Describe (usually in a combination of diagrams, tables, and text):
+.Contenido
+La vista de despliegue describe:
 
-* distribution of a system to multiple locations, environments, computers, processors, .., as well as physical connections between them
-* important justifications or motivations for this deployment structure
-* quality and/or performance features of this infrastructure
-* mapping of software artifacts to elements of this infrastructure
+2. el mapeo de los bloques de construcción (software) a esos elementos de infraestructura.
 
-For multiple environments or alternative deployments please copy and adapt this section of arc42 for all relevant environments.
+A menudo los sistemas se ejecutan en diferentes entornos, por ejemplo entorno de desarrollo, entorno de pruebas y entorno de producción. En tales casos se deben documentar todos los entornos relevantes.
+
+Documenta especialmente una vista de despliegue si tu software se ejecuta como un sistema distribuido con más de un ordenador, procesador, servidor o contenedor, o cuando diseñes y construyas tus propios procesadores y chips de hardware.
+
+Desde una perspectiva de software es suficiente capturar solo aquellos elementos de una infraestructura que son necesarios para mostrar un despliegue de tus bloques de construcción. Los arquitectos de hardware pueden ir más allá y describir la infraestructura con cualquier nivel de detalle que necesiten capturar.
+
+.Motivación
+El software no se ejecuta sin hardware.  
+Esta infraestructura subyacente puede e influirá en un sistema y/o en algunos conceptos transversales. Por lo tanto, existe la necesidad de conocer la infraestructura.
+
+.Forma
+
+Quizá un diagrama de despliegue de más alto nivel ya esté incluido en la sección 3.2 como contexto técnico con tu propia infraestructura como UNA caja negra. En esta sección se puede profundizar en esa caja negra usando diagramas de despliegue adicionales:
+
+* UML ofrece diagramas de despliegue para expresar esa vista. Úsalos, probablemente con diagramas anidados, cuando tu infraestructura sea más compleja.
+* Si tus partes interesadas (stakeholders de hardware) prefieren otro tipo de diagramas en lugar de un diagrama de despliegue, que utilicen cualquiera que pueda mostrar nodos y canales de la infraestructura.
+
+.Más Información
+
+Consulta la documentación de arc42 sobre la Vista de Despliegue: https://docs.arc42.org/section-7/[Deployment View].
+
 ****
 endif::arc42help[]
 
-_**<Overview Diagram>**_
-
-Motivation::
-
-_<explanation in text form>_
-
-Quality and/or Performance Features::
-
-_<explanation in text form>_
-
-Mapping of Building Blocks to Infrastructure::
-_<description of the mapping>_
-
-
-=== Infrastructure Level 2
+=== Infraestructura Nivel 1
 
 ifdef::arc42help[]
 [role="arc42help"]
 ****
-Here you can include the internal structure of (some) infrastructure elements from level 1.
+Describe (usualmente en una combinación de diagramas, tablas y texto):
 
-Please copy the structure from level 1 for each selected element.
+* distribución de un sistema a múltiples ubicaciones, entornos, ordenadores, procesadores, …, así como las conexiones físicas entre ellos
+* justificaciones o motivaciones importantes para esta estructura de despliegue
+* características de calidad y/o rendimiento de esta infraestructura
+* mapeo de artefactos de software a elementos de esta infraestructura
+
+Para múltiples entornos o despliegues alternativos, por favor copia y adapta esta sección de arc42 para todos los entornos relevantes.
 ****
 endif::arc42help[]
 
-==== _<Infrastructure Element 1>_
+image::DiagramaDespliegue.jpg[Diagrama de Despliegue]
 
-_<diagram + explanation>_
+Motivación::
 
-==== _<Infrastructure Element 2>_
+El sistema se desplegará en la nube de Microsoft Azure que conectará con una Base de Datos creada en MongoDB por distintas motivaciones:
 
-_<diagram + explanation>_
+- *Escalabilidad Automática*: Azure permite escalar según la carga de usuarios sin intervención manual.
+- *Seguridad*: Azure proporciona cifrado de datos.
+- *Flexibilidad*: MongoDB es ideal ya que las entidades cambiaran con el tiempo.
+- *Polimorfismo Sencillo*: MongoDB permite modelas fácilmente el cambio entre entidades.
+- *Rendimiento Excelente*: MongoDB es óptimo para registros rápidos de eventos e interacciones frecuentes.
 
-...
+Características de Calidad y/o Rendimiento::
 
-==== _<Infrastructure Element n>_
+En esencia las características principales que se consigan al desplegar son:
+- *Escalabilidad*
+- *Rendimiento*
+- *Seguridad*
+- *Eficiencia*
 
-_<diagram + explanation>_
+Mapeo de Bloques de Construcción a Infraestructura::
+_<En este punto de desarrollo del proyecto, este apartado no se puede desarrollar>_
+
+=== Infraestructura Nivel 2
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+Aquí puedes incluir la estructura interna de (algunos) elementos de infraestructura del nivel 1.
+
+Por favor copia la estructura del nivel 1 para cada elemento seleccionado.
+****
+endif::arc42help[]
+
+==== _<Elemento de Infraestructura 1>_
+
+_<En este punto de desarrollo del proyecto, este apartado no se puede desarrollar>_
