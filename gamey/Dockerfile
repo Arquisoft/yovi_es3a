@@ -1,26 +1,38 @@
-# Use a Rust base image for compilation
-FROM rust:latest AS builder
+# ------ Fase de Construcción -----
+
+# Usar una imagen ligera Rust para la compilación
+FROM rust:slim AS builder
 
 WORKDIR /app/gamey
 
-# Copy Cargo.toml and Cargo.lock
-COPY benches ./benches
+# Copiar dependencias
 COPY Cargo.toml Cargo.lock ./
-COPY src/ ./src/
 
-# Build the application
+# Crear directorio para cacheado de dependencias
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+
+# Compilar y cachear dependencias
+RUN cargo build --release || true
+
+# Copiar archivos restantes
+COPY src/ ./src/
+COPY benches ./benches
+
+# Compilar el binario final
 RUN cargo build --release
 
-# Use a minimal image for the final stage
+# ----- Fase de Ejecución -----
+
+# Usar una imagen mínima para la ejecución
 FROM debian:bookworm-slim
 
 WORKDIR /app/gamey
 
-# Copy the compiled binary from the builder stage
+# Copiar el binario final
 COPY --from=builder /app/gamey/target/release/gamey .
 
-# Expose the port gamey will listen on
+# Exponer el puerto
 EXPOSE 4000
 
-# Run the gamey server on port 4000
+# Ejecutar el servidor en el puerto 4000
 CMD ["./gamey", "--mode", "server", "--port", "4000"]

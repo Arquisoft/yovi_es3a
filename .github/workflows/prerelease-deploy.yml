@@ -1,4 +1,4 @@
-name: Release — Test, Build, Publish, Deploy
+name: Prerelease — Test, Build, Publish, Deploy
 
 on:
   release:
@@ -11,7 +11,7 @@ permissions:
 env:
   IMAGE_TAG: ${{ github.event.release.tag_name }}
   MONGODB_URI: ${{ secrets.MONGODB_URI }}     
-  MONGODB_DB: ${[ secrets.MONGODB_DB }}
+  MONGODB_DB: ${{ secrets.MONGODB_DB }}
 
 jobs:
   test-node:
@@ -20,6 +20,7 @@ jobs:
     strategy:
       matrix:
         service: [webapp, users]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,6 +43,7 @@ jobs:
   test-rust:
     name: Run rust (gamey) tests
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,6 +60,7 @@ jobs:
     name: Run E2E tests
     runs-on: ubuntu-latest
     needs: [test-node, test-rust]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,6 +94,7 @@ jobs:
     name: Publish users image
     runs-on: ubuntu-latest
     needs: e2e
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -114,14 +118,17 @@ jobs:
           context: ./users
           platforms: linux/arm64
           push: true
-          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:arm64
-          cache-from: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache
-          cache-to: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ghcr.io/arquisoft/${{ github.event.repository.name }}-users:${{ env.IMAGE_TAG }}
+            ghcr.io/arquisoft/${{ github.event.repository.name }}-users:arm64
 
   docker-push-webapp:
     name: Publish webapp image
     runs-on: ubuntu-latest
     needs: e2e
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -145,16 +152,19 @@ jobs:
           context: ./webapp
           platforms: linux/arm64
           push: true
-          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ghcr.io/arquisoft/${{ github.event.repository.name }}-webapp:${{ env.IMAGE_TAG }}
+            ghcr.io/arquisoft/${{ github.event.repository.name }}-webapp:arm64
           build-args: |
             VITE_API_URL=http://${{ secrets.DEPLOY_HOST }}:3000
-          cache-from: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache
-          cache-to: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache,mode=max
 
   docker-push-gamey:
     name: Publish gamey image
     runs-on: ubuntu-latest
     needs: e2e
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -176,15 +186,20 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./gamey
+          file: ./gamey/Dockerfile
           platforms: linux/arm64
           push: true
-          tags: ghcr.io/arquisoft/${{ github.event.repository.name }}-users:arm64
-          cache-from: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache
-          cache-to: type=registry,ref=ghcr.io/arquisoft/${{ github.event.repository.name }}-users:cache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ghcr.io/arquisoft/${{ github.event.repository.name }}-gamey:${{ env.IMAGE_TAG }}
+            ghcr.io/arquisoft/${{ github.event.repository.name }}-gamey:arm64
+
   deploy:
     name: Deploy over SSH
     runs-on: ubuntu-latest
     needs: [docker-push-users, docker-push-webapp, docker-push-gamey]
+
     steps:
       - name: Deploy over SSH
         uses: fifsky/ssh-action@master
