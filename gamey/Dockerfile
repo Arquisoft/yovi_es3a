@@ -5,18 +5,18 @@ FROM rust:slim AS builder
 
 WORKDIR /app/gamey
 
-# Copiar dependencias
-COPY Cargo.toml Cargo.lock ./
+# Copiar manifestos de dependencias
+COPY gamey/Cargo.toml gamey/Cargo.lock ./
 
 # Crear directorio para cacheado de dependencias
-RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs
 
 # Compilar y cachear dependencias
-RUN cargo build --release || true
+RUN cargo build --release
 
 # Copiar archivos restantes
-COPY src/ ./src/
-COPY benches ./benches
+COPY gamey/src ./src
+COPY gamey/benches ./benches
 
 # Compilar el binario final
 RUN cargo build --release
