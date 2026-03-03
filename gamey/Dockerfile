@@ -3,10 +3,10 @@
 # Usar una imagen ligera Rust para la compilación
 FROM rust:slim AS builder
 
-WORKDIR /app/gamey
+WORKDIR /app
 
 # Copiar manifestos de dependencias
-COPY gamey/Cargo.toml gamey/Cargo.lock ./
+COPY Cargo.toml Cargo.lock ./
 
 # Crear directorio para cacheado de dependencias
 RUN mkdir -p src && echo "fn main() {}" > src/main.rs
@@ -15,8 +15,8 @@ RUN mkdir -p src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 
 # Copiar archivos restantes
-COPY gamey/src ./src
-COPY gamey/benches ./benches
+COPY src ./src
+COPY benches ./benches
 
 # Compilar el binario final
 RUN cargo build --release
@@ -26,10 +26,10 @@ RUN cargo build --release
 # Usar una imagen mínima para la ejecución
 FROM debian:bookworm-slim
 
-WORKDIR /app/gamey
+WORKDIR /app
 
 # Copiar el binario final
-COPY --from=builder /app/gamey/target/release/gamey .
+COPY --from=builder /app/target/release/gamey .
 
 # Exponer el puerto
 EXPOSE 4000
