@@ -1,7 +1,7 @@
 services:
   users:
     container_name: users
-    image: ghcr.io/arquisoft/yovi_es3a-users:latest
+    image: ghcr.io/arquisoft/yovi_es3a-users:arm64
     build: ./users
     ports:
       - "3000:3000"
@@ -13,7 +13,7 @@ services:
     
   webapp:
     container_name: webapp
-    image: ghcr.io/arquisoft/yovi_es3a-webapp:latest
+    image: ghcr.io/arquisoft/yovi_es3a-webapp:arm64
     build:
       context: ./webapp
       args:
@@ -27,7 +27,7 @@ services:
 
   gamey:
     container_name: gamey
-    image: ghcr.io/arquisoft/yovi_es3a-gamey:latest
+    image: ghcr.io/arquisoft/yovi_es3a-gamey:arm64
     build: ./gamey
     ports:
       - "4000:4000"
