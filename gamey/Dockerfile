@@ -8,6 +8,9 @@ WORKDIR /app
 # Copiar manifestos de dependencias
 COPY Cargo.toml Cargo.lock ./
 
+# Copiar benches para evitar fallos de cargo
+COPY benches ./benches
+
 # Crear directorio para cacheado de dependencias
 RUN mkdir -p src && echo "fn main() {}" > src/main.rs
 
@@ -16,7 +19,6 @@ RUN cargo build --release
 
 # Copiar archivos restantes
 COPY src ./src
-COPY benches ./benches
 
 # Compilar el binario final
 RUN cargo build --release
