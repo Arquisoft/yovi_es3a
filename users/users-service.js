@@ -2,11 +2,11 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const swaggerUi = require('swagger-ui-express');
+const crypto = require('crypto');
 const fs = require('node:fs');
 const YAML = require('js-yaml');
 const promBundle = require('express-prom-bundle');
 const { connectToDatabase } = require('./userDB');
-const crypto = require('crypto');
 
 const metricsMiddleware = promBundle({includeMethod: true});
 app.use(metricsMiddleware);
@@ -29,10 +29,22 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 app.post('/createuser', async (req, res) => {
-  const username = req.body && req.body.username;
+  const username = req.body.username;
+  const password = req.body.password;
   if (!username) {
     return res.status(400).json({ error: 'username is required' });
   }
+  if (!password) {
+    return res.status(400).json({ error: 'password is required' });
+  }
+
+  const clave = process.env.CLAVE || 'mi_clave_secreta_super_segura';
+
+  // Cifrado de la contraseña utilizando HMAC con SHA-256
+  const passwordCifrada = crypto
+      .createHmac('sha256', clave)
+      .update(password)
+      .digest('hex');
 
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -40,10 +52,19 @@ app.post('/createuser', async (req, res) => {
     const db = await connectToDatabase();
     const usersCollection = db.collection('usuarios');
 
-    const result = await usersCollection.insertOne({ nombre:username });
+    const existingUser = await usersCollection.findOne({ nombreUsuario: username });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Ese nombre de usuario ya está en uso' });
+    } else {
 
-    const message = `Hello ${username}! welcome to the course!`;
-    res.json({ message, id: result.insertedId });
+      const result = await usersCollection.insertOne({ 
+        nombreUsuario: username, 
+        contraseña: passwordCifrada 
+      });
+
+      const message = `Hello ${username}! welcome to the course!`;
+      res.json({ message, id: result.insertedId });
+    }
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

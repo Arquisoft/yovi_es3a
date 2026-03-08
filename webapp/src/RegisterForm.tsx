@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const RegisterForm: React.FC = () => {
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,13 +25,14 @@ const RegisterForm: React.FC = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username })
+        body: JSON.stringify({ username, password })
       });
 
       const data = await res.json();
       if (res.ok) {
         setResponseMessage(data.message);
         setUsername('');
+        setPassword('');
       } else {
         setError(data.error || 'Server error');
       }
@@ -50,6 +52,14 @@ const RegisterForm: React.FC = () => {
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          className="form-input"
+        />
+        <label htmlFor="password">Whats your password?</label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="form-input"
         />
       </div>
