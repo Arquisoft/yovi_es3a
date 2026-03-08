@@ -12,7 +12,7 @@ COPY Cargo.toml Cargo.lock ./
 COPY benches ./benches
 
 # Crear directorio para cacheado de dependencias
-RUN mkdir -p src && echo "fn main() {}" > src/main.rs
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs && echo "" > src/lib.rs
 
 # Compilar y cachear dependencias
 RUN cargo build --release
