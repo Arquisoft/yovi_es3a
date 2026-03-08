@@ -52,6 +52,11 @@ app.post('/createuser', async (req, res) => {
     const db = await connectToDatabase();
     const usersCollection = db.collection('usuarios');
 
+    const existingUser = await usersCollection.findOne({ nombreUsuario: username });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
     const result = await usersCollection.insertOne({ 
       nombreUsuario: username, 
       contraseña: passwordCifrada 
