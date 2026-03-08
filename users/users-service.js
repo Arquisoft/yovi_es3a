@@ -37,9 +37,9 @@ app.post('/createuser', async (req, res) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const db = await connectToDatabase();
-    const usersCollection = db.collection('users');
+    const usersCollection = db.collection('usuarios');
 
-    const result = await usersCollection.insertOne({ username });
+    const result = await usersCollection.insertOne({ nombre:username });
 
     const message = `Hello ${username}! welcome to the course!`;
     res.json({ message, id: result.insertedId });
