@@ -28,18 +28,22 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 app.post('/createuser', async (req, res) => {
-  const username = req.body && req.body.username;
+  const username = req.body.username;
+  const password = req.body.password;
   if (!username) {
     return res.status(400).json({ error: 'username is required' });
+  }
+  if (!password) {
+    return res.status(400).json({ error: 'password is required' });
   }
 
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const db = await connectToDatabase();
-    const usersCollection = db.collection('users');
+    const usersCollection = db.collection('usuarios');
 
-    const result = await usersCollection.insertOne({ username });
+    const result = await usersCollection.insertOne({ nombreUsuario: username, contraseña: password });
 
     const message = `Hello ${username}! welcome to the course!`;
     res.json({ message, id: result.insertedId });
