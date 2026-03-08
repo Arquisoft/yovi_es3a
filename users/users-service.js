@@ -48,6 +48,31 @@ app.post('/createuser', async (req, res) => {
   }
 });
 
+app.post('/login', async (req, res) => {
+  const username = req.body && req.body.username;
+  if (!username) {
+    return res.status(400).json({ error: 'username is required' });
+  }
+
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('users');
+
+    const user = await usersCollection.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found. Please register first.' });
+    }
+
+    const message = `Welcome back, ${username}!`;
+    res.json({ message, id: user._id });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`User Service listening at http://localhost:${port}`)
