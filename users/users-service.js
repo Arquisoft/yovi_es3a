@@ -54,16 +54,17 @@ app.post('/createuser', async (req, res) => {
 
     const existingUser = await usersCollection.findOne({ nombreUsuario: username });
     if (existingUser) {
-      return res.status(400).json({ error: 'Username already exists' });
+      return res.status(400).json({ error: 'Ese nombre de usuario ya está en uso' });
+    } else {
+
+      const result = await usersCollection.insertOne({ 
+        nombreUsuario: username, 
+        contraseña: passwordCifrada 
+      });
+
+      const message = `Hello ${username}! welcome to the course!`;
+      res.json({ message, id: result.insertedId });
     }
-
-    const result = await usersCollection.insertOne({ 
-      nombreUsuario: username, 
-      contraseña: passwordCifrada 
-    });
-
-    const message = `Hello ${username}! welcome to the course!`;
-    res.json({ message, id: result.insertedId });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
