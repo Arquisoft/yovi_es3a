@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const swaggerUi = require('swagger-ui-express');
+const crypto = require('crypto');
 const fs = require('node:fs');
 const YAML = require('js-yaml');
 const promBundle = require('express-prom-bundle');
@@ -37,13 +38,24 @@ app.post('/createuser', async (req, res) => {
     return res.status(400).json({ error: 'password is required' });
   }
 
+  const clave = process.env.CLAVE || 'mi_clave_secreta_super_segura';
+
+  // Cifrado de la contraseña utilizando HMAC con SHA-256
+  const passwordCifrada = crypto
+      .createHmac('sha256', clave)
+      .update(password)
+      .digest('hex');
+
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const db = await connectToDatabase();
     const usersCollection = db.collection('usuarios');
 
-    const result = await usersCollection.insertOne({ nombreUsuario: username, contraseña: password });
+    const result = await usersCollection.insertOne({ 
+      nombreUsuario: username, 
+      contraseña: passwordCifrada 
+    });
 
     const message = `Hello ${username}! welcome to the course!`;
     res.json({ message, id: result.insertedId });
