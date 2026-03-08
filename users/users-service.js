@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const YAML = require('js-yaml');
 const promBundle = require('express-prom-bundle');
 const { connectToDatabase } = require('./userDB');
+const crypto = require('crypto');
 
 const metricsMiddleware = promBundle({includeMethod: true});
 app.use(metricsMiddleware);
@@ -54,16 +55,24 @@ app.post('/login', async (req, res) => {
     return res.status(400).json({ error: 'username is required' });
   }
 
+    const clave = process.env.CLAVE || 'mi_clave_secreta_super_segura';
+
+    // Cifrado de la contraseña utilizando HMAC con SHA-256
+    const passwordCifrada = crypto
+        .createHmac('sha256', clave)
+        .update(password)
+        .digest('hex');
+
   try {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const db = await connectToDatabase();
     const usersCollection = db.collection('users');
 
-    const user = await usersCollection.findOne({ username });
+    const user = await usersCollection.findOne({ nombreUsuario:username, password: passwordCifrada });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found. Please register first.' });
+      return res.status(404).json({ error: 'User or password incorrect' });
     }
 
     const message = `Welcome back, ${username}!`;
