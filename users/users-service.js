@@ -63,6 +63,7 @@ app.post('/login', async (req, res) => {
         .update(password)
         .digest('hex');
 
+
   try {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
