@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 interface LoginFormProps {
-  onLoginSuccess?: (username: string) => void;
+  onSuccess?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
@@ -28,13 +28,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
 
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+      const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
       const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -42,9 +42,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         setResponseMessage(data.message || `Welcome back, ${username}!`);
         setUsername('');
         setPassword('');
-        if (onLoginSuccess) {
-          onLoginSuccess(username);
-        }
+        onSuccess?.();
       } else {
         setError(data.error || 'Server error');
       }
@@ -54,7 +52,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       setLoading(false);
     }
   };
-
 
   return (
     <form onSubmit={handleSubmit} className="register-form">
@@ -102,4 +99,3 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
 };
 
 export default LoginForm;
-

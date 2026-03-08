@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 
-const RegisterForm: React.FC = () => {
+interface RegisterFormProps {
+  onSuccess?: () => void;
+}
+
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
@@ -17,15 +21,20 @@ const RegisterForm: React.FC = () => {
       return;
     }
 
+    if (!password.trim()) {
+      setError('Please enter a password.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+      const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
       const res = await fetch(`${API_URL}/createuser`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -33,11 +42,12 @@ const RegisterForm: React.FC = () => {
         setResponseMessage(data.message);
         setUsername('');
         setPassword('');
+        onSuccess?.();
       } else {
         setError(data.error || 'Server error');
       }
-    } catch (err: any) {
-      setError(err.message || 'Network error');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Network error');
     } finally {
       setLoading(false);
     }
@@ -54,6 +64,9 @@ const RegisterForm: React.FC = () => {
           onChange={(e) => setUsername(e.target.value)}
           className="form-input"
         />
+      </div>
+
+      <div className="form-group">
         <label htmlFor="password">Whats your password?</label>
         <input
           type="password"
@@ -63,6 +76,7 @@ const RegisterForm: React.FC = () => {
           className="form-input"
         />
       </div>
+
       <button type="submit" className="submit-button" disabled={loading}>
         {loading ? 'Entering...' : 'Lets go!'}
       </button>
