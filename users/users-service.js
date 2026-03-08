@@ -50,7 +50,8 @@ app.post('/createuser', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const username = req.body && req.body.username;
+  const username = req.body.username;
+  const password = req.body.password;
   if (!username) {
     return res.status(400).json({ error: 'username is required' });
   }
@@ -68,9 +69,9 @@ app.post('/login', async (req, res) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const db = await connectToDatabase();
-    const usersCollection = db.collection('users');
+    const usersCollection = db.collection('usuarios');
 
-    const user = await usersCollection.findOne({ nombreUsuario:username, password: passwordCifrada });
+    const user = await usersCollection.findOne({ nombreUsuario:username, contraseña: passwordCifrada });
 
     if (!user) {
       return res.status(404).json({ error: 'User or password incorrect' });
