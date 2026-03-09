@@ -10,6 +10,8 @@ permissions:
 
 env:
   IMAGE_TAG: ${{ github.event.release.tag_name }}
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  MONGODB_DB: ${{ secrets.MONGODB_DB }}
 
 jobs:
   test-node:
@@ -18,6 +20,7 @@ jobs:
     strategy:
       matrix:
         service: [webapp, users]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,6 +43,7 @@ jobs:
   test-rust:
     name: Run rust (gamey) tests
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,6 +60,7 @@ jobs:
     name: Run E2E tests
     runs-on: ubuntu-latest
     needs: [test-node, test-rust]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,9 +91,10 @@ jobs:
           npm run test:e2e
 
   docker-push-users:
-    name: Publish users image
+    name: Publish users image (amd64)
     runs-on: ubuntu-latest
     needs: e2e
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -96,16 +102,18 @@ jobs:
       - name: Publish to Registry (users)
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: ${{ github.repository_owner }}/${{ github.event.repository.name }}-users
+          name: arquisoft/${{ github.event.repository.name }}-users:${{ env.IMAGE_TAG }}-amd64
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
           workdir: users
+            
 
   docker-push-webapp:
-    name: Publish webapp image
+    name: Publish webapp image (amd64)
     runs-on: ubuntu-latest
     needs: e2e
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -113,7 +121,7 @@ jobs:
       - name: Publish to Registry (webapp)
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: ${{ github.repository_owner }}/${{ github.event.repository.name }}-webapp
+          name: arquisoft/${{ github.event.repository.name }}-webapp:${{ env.IMAGE_TAG }}-amd64
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
@@ -121,9 +129,10 @@ jobs:
           buildargs: VITE_API_URL=http://${{ secrets.DEPLOY_HOST }}:3000
 
   docker-push-gamey:
-    name: Publish gamey image
+    name: Publish gamey image (amd64)
     runs-on: ubuntu-latest
     needs: e2e
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -131,7 +140,7 @@ jobs:
       - name: Publish to Registry (gamey)
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: ${{ github.repository_owner }}/${{ github.event.repository.name }}-gamey
+          name: arquisoft/${{ github.event.repository.name }}-gamey:${{ env.IMAGE_TAG }}-amd64
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
@@ -141,6 +150,7 @@ jobs:
     name: Deploy over SSH
     runs-on: ubuntu-latest
     needs: [docker-push-users, docker-push-webapp, docker-push-gamey]
+    
     steps:
       - name: Deploy over SSH
         uses: fifsky/ssh-action@master
@@ -149,6 +159,6 @@ jobs:
           user: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           command: |
-            wget https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ github.event.release.target_commitish }}/docker-compose.yml -O docker-compose.yml
+            wget https://raw.githubusercontent.com/arquisoft/${{ github.event.repository.name }}/${{ github.event.release.target_commitish }}/docker-compose.yml -O docker-compose.yml
             docker compose down
             docker compose up -d --pull always

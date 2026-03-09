@@ -8,7 +8,7 @@ WORKDIR /app
 # Copiar manifestos de dependencias
 COPY Cargo.toml Cargo.lock ./
 
-# Copiar benches para evitar fallos de cargo
+# Copiar benches para evitar fallos de Cargo build
 COPY benches ./benches
 
 # Crear directorio para cacheado de dependencias
@@ -33,8 +33,8 @@ WORKDIR /app
 # Copiar el binario final
 COPY --from=builder /app/target/release/gamey .
 
-# Exponer el puerto
+# Exponer el puerto 4000
 EXPOSE 4000
 
-# Ejecutar el servidor en el puerto 4000
+# Ejecutar el servidor
 CMD ["./gamey", "--mode", "server", "--port", "4000"]

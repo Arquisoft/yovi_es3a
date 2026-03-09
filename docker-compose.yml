@@ -7,8 +7,8 @@ services:
     networks:
       - monitor-net
     environment:
-      - MONGODB_URI=${MONGODB_URI}
       - MONGODB_DB=${MONGODB_DB}
+      - MONGODB_URI=${MONGODB_URI}
     
   webapp:
     container_name: webapp
