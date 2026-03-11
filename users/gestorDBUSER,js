@@ -1,0 +1,68 @@
+const GestorDBUSERS = require('./gestorDBUSER');
+
+(async () => {
+  const gestor = new GestorDBUSERS();
+
+  try {
+    // 1. Verificar conexión
+    console.log('Verificando conexión...');
+    const isConnected = await gestor.verifyConnection();
+    
+    if (!isConnected) {
+      console.error('No se pudo conectar a la base de datos.');
+      process.exit(1);
+    }
+    console.log('Conexión a MongoDB correcta');
+
+    // 2. Intentar añadir un usuario
+    const nombreUsuario = "juanp_test";
+    console.log(`Intentando añadir al usuario: ${nombreUsuario}`);
+
+    const resultado = await gestor.addUser(
+      "Juan Pérez",
+      nombreUsuario,
+      "esto_deberia_ser_un_hash_seguro"
+    );
+
+    if (resultado.success) {
+      console.log(`${resultado.message} ID: ${resultado.id}`);
+    } else {
+      console.log(`Aviso: ${resultado.message}`);
+    }
+
+    // 3. Probar el nuevo método de estadísticas (updateUserStats)
+    console.log('\n--- Probando actualización de estadísticas ---');
+    
+    // Victoria (+25 puntos)
+    console.log('Simulando una victoria...');
+    const resVictoria = await gestor.updateUserStats(nombreUsuario, 25);
+    console.log(`${resVictoria.message} Puntos actuales: ${resVictoria.nuevosPuntos}`);
+
+    // Empate (0 puntos)
+    console.log('Simulando un empate...');
+    const resEmpate = await gestor.updateUserStats(nombreUsuario, 0);
+    console.log(`${resEmpate.message} Puntos actuales: ${resEmpate.nuevosPuntos}`);
+
+    // Derrota (-200 puntos, para probar el límite de 0)
+    console.log('Simulando una gran derrota para probar el límite de 0 puntos...');
+    const resDerrota = await gestor.updateUserStats(nombreUsuario, -200);
+    console.log(`${resDerrota.message} Puntos actuales: ${resDerrota.nuevosPuntos}`);
+
+    // 4. Probar login
+    console.log('\n--- Probando proceso de login ---');
+    const passwordCorrecta = "esto_deberia_ser_un_hash_seguro";
+    
+    console.log('Intento de login con contraseña correcta...');
+    const loginOk = await gestor.login(nombreUsuario, passwordCorrecta);
+    console.log(loginOk.success ? `Login exitoso: ${loginOk.message}` : `Fallo: ${loginOk.message}`);
+
+    console.log('Intento de login con contraseña INCORRECTA...');
+    const loginFail = await gestor.login(nombreUsuario, "contraseña_falsa_123");
+    console.log(loginFail.success ? `Login exitoso (esto no debería pasar)` : `Fallo esperado: ${loginFail.message}`);
+
+    process.exit(0);
+  } catch (err) {
+    console.error('Error inesperado:', err.message);
+    process.exit(1);
+  }
+})();
