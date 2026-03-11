@@ -166,6 +166,53 @@ class GestorDBUSERS {
             throw new Error(`Error durante el proceso de login: ${err.message}`);
         }
     }
+
+    /**
+     * Obtiene todas las estadísticas de un jugador.
+     * Devolvera un objeto con el siguiente aspecto:
+     * {
+        "success": true,
+        "message": "Estadísticas recuperadas correctamente.",
+        "estadisticas": {
+            "partidasJugadas": 3,
+            "victorias": 1,
+            "derrotas": 1,
+            "empates": 1,
+            "puntosRanking": 100
+        }
+        }
+     * @param {string} nombreUsuario 
+     * @returns {Promise<{success: boolean, message: string, estadisticas?: object}>}
+     */
+    async getUserStats(nombreUsuario) {
+        try {
+            const db = await connectToDatabase();
+            const usersCollection = db.collection('usuarios');
+
+            // 1. Buscar al usuario
+            const usuario = await usersCollection.findOne(
+                { nombreUsuario },
+                { projection: { estadisticas: 1, _id: 0 } } // Solo queremos las estadísticas
+            );
+
+            if (!usuario) {
+                return { 
+                    success: false, 
+                    message: `El usuario '${nombreUsuario}' no existe.` 
+                };
+            }
+
+            return { 
+                success: true, 
+                message: 'Estadísticas recuperadas correctamente.', 
+                estadisticas: usuario.estadisticas 
+            };
+
+        } catch (err) {
+            console.error('Error en getUserStats:', err.message);
+            throw new Error(`Error al recuperar estadísticas: ${err.message}`);
+        }
+    }
 }
 
 module.exports = GestorDBUSERS;
