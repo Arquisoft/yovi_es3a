@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './forms.css';
 
 interface LoginFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (username: string) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
@@ -43,7 +43,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         setResponseMessage(data.message || `Welcome back, ${username}!`);
         setUsername('');
         setPassword('');
-        onSuccess?.();
+        onSuccess?.(username);
       } else {
         setError(data.error || 'Server error');
       }

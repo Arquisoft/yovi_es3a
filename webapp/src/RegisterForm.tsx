@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './forms.css';
 
 interface RegisterFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (username: string) => void;
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
@@ -43,7 +43,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
         setResponseMessage(data.message);
         setUsername('');
         setPassword('');
-        onSuccess?.();
+        onSuccess?.(username);
       } else {
         setError(data.error || 'Server error');
       }

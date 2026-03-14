@@ -1,0 +1,85 @@
+.stats-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.stats-modal {
+  background-color: white;
+  padding: 40px;
+  border-radius: 15px;
+  min-width: 400px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  color: black;
+}
+
+.stats-title {
+  font-size: 3rem;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+}
+
+.stats-content {
+  margin-top: 20px;
+}
+
+.stats-total-container {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.stats-total  {
+  color: black;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.stats-points {
+  color: black;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.stats-details {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.stats-wins {
+  color: green;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.stats-losses {
+  color: red;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.stats-close-btn {
+  margin-top: 40px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #242424;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.stats-close-btn:hover {
+  background-color: #3a3a3a;
+}

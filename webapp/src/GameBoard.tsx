@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './GameBoard.css';
+import UserStats from './UserStats';
 
 // Tablero del Juego Y — coordenadas baricéntricas (bx, by, bz) con bx+by+bz = N-1
 // N=7 → 28 celdas (tamaño estándar del motor Rust)
@@ -151,7 +152,7 @@ function checkWinner(board: CellState[], player: Player): boolean {
 
 const BOT_DELAY_MS = 800; // Delay en milisegundos para simular "pensamiento"
 
-export function GameBoard() {
+export function GameBoard({  username }: { username: string }) {
   const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
   const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
   const [hovered, setHovered] = useState<number | null>(null);
@@ -162,6 +163,7 @@ export function GameBoard() {
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false); // Nuevo estado
+  const [showStats, setShowStats] = useState<boolean>(false);
 
   // Inicializar juego con el motor
   useEffect(() => {
@@ -373,6 +375,10 @@ export function GameBoard() {
 
   return (
     <div className="gb-wrapper">
+      {/* Renderizar el modal de estadísticas del usuario */}
+      {showStats && (
+        <UserStats username={username} onClose={() => setShowStats(false)} />
+      )}
       {/* Modal de victoria */}
       {winner && (
         <div className="gb-winner-overlay">
@@ -404,6 +410,14 @@ export function GameBoard() {
       {/* Cabecera */}
       <div className="gb-header">
         <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
+        {/* Botón de estadísticas */}
+        <button 
+          className="gb-back" 
+          onClick={() => setShowStats(true)}
+          style={{ marginLeft: '10px', backgroundColor: '#4a90e2' }}
+        >
+          Estadísticas del usuario
+        </button>
         <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
           <span className="gb-dot" />
           {isBotThinking ? (

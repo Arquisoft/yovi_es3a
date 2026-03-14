@@ -6,14 +6,19 @@ import reactLogo from './assets/react.svg'
 import GameBoard from './GameBoard'
 
 function App() {
-  const [showRegister, setShowRegister] = useState(false)
-  const [showLogin, setShowLogin] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const storedUser = localStorage.getItem('username')
 
-  const handleAuthSuccess = () => {
+  const [showRegister, setShowRegister] = useState(false)
+  const [showLogin, setShowLogin] = useState(!storedUser)
+  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(storedUser))
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(storedUser)
+
+  const handleAuthSuccess = (username: string) => {
+    setLoggedInUser(username)
     setIsAuthenticated(true)
     setShowLogin(false)
     setShowRegister(false)
+    localStorage.setItem('username', username)
   }
 
   return (
@@ -55,6 +60,7 @@ function App() {
       {!isAuthenticated && showLogin && (
         <div className="form-container">
           <h3>Login</h3>
+          {/* SIN PARÉNTESIS AQUÍ */}
           <LoginForm onSuccess={handleAuthSuccess} />
         </div>
       )}
@@ -62,13 +68,15 @@ function App() {
       {!isAuthenticated && showRegister && (
         <div className="form-container">
           <h3>Register</h3>
+          {/* SIN PARÉNTESIS AQUÍ */}
           <RegisterForm onSuccess={handleAuthSuccess} />
         </div>
       )}
 
       {isAuthenticated && (
         <div className="form-container">
-          <GameBoard />
+          {/* Pasamos el usuario a GameBoard si lo configuraste para recibirlo */}
+          <GameBoard username={loggedInUser || "Invitado"} />
         </div>
       )}
     </div>
