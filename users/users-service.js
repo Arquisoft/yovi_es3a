@@ -1,14 +1,23 @@
+/**
+ * NOTE:
+ *  The code below is deprectaded, replaced by an N-Layer pattern.
+ *  See also user-service.js, user-model.js and user-controller.js.
+ * 
+ *  This file will be replaced once the refactoring is compete.
+ */
+
 const express = require('express');
+require('dotenv').config();
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const swaggerUi = require('swagger-ui-express');
-const crypto = require('crypto');
 const fs = require('node:fs');
 const YAML = require('js-yaml');
 const promBundle = require('express-prom-bundle');
-const { connectToDatabase } = require('./userDB');
 
-const metricsMiddleware = promBundle({includeMethod: true});
+const userModel = require('./user-model').default.default;
+
+const metricsMiddleware = promBundle({ includeMethod: true });
 app.use(metricsMiddleware);
 
 try {
@@ -20,94 +29,76 @@ try {
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
 app.use(express.json());
 
-app.post('/createuser', async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  if (!username) {
-    return res.status(400).json({ error: 'username is required' });
-  }
-  if (!password) {
-    return res.status(400).json({ error: 'password is required' });
-  }
+// Health endpoints
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/ready', (req, res) => res.json({ ready: true }));
 
-  const clave = process.env.CLAVE || 'mi_clave_secreta_super_segura';
-
-  // Cifrado de la contraseña utilizando HMAC con SHA-256
-  const passwordCifrada = crypto
-      .createHmac('sha256', clave)
-      .update(password)
-      .digest('hex');
+// RESTful users endpoints
+app.post('/api/users', async (req, res) => {
+  const username = req.body && req.body.username;
+  if (!username) return res.status(400).json({ error: 'username is required' });
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const db = await connectToDatabase();
-    const usersCollection = db.collection('usuarios');
-
-    const existingUser = await usersCollection.findOne({ nombreUsuario: username });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Ese nombre de usuario ya está en uso' });
-    } else {
-
-      const result = await usersCollection.insertOne({ 
-        nombreUsuario: username, 
-        contraseña: passwordCifrada 
-      });
-
-      const message = `Hello ${username}! welcome to the course!`;
-      res.json({ message, id: result.insertedId });
-    }
+    const user = await userModel.addUser(username);
+    res.status(201).json(user);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/login', async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  if (!username) {
-    return res.status(400).json({ error: 'username is required' });
-  }
-
-    const clave = process.env.CLAVE || 'mi_clave_secreta_super_segura';
-
-    // Cifrado de la contraseña utilizando HMAC con SHA-256
-    const passwordCifrada = crypto
-        .createHmac('sha256', clave)
-        .update(password)
-        .digest('hex');
-
-
+app.get('/api/users', async (req, res) => {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const db = await connectToDatabase();
-    const usersCollection = db.collection('usuarios');
-
-    const user = await usersCollection.findOne({ nombreUsuario:username, contraseña: passwordCifrada });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User or password incorrect' });
-    }
-
-    const message = `Welcome back, ${username}!`;
-    res.json({ message, id: user._id });
+    const users = await userModel.listUsers(req.query.limit || 100);
+    res.json(users);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const user = await userModel.getUserById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const ok = await userModel.deleteUser(req.params.id);
+    if (!ok) return res.status(404).json({ error: 'not found' });
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// backward compatibility
+app.post('/createuser', async (req, res) => {
+  const username = req.body && req.body.username;
+  if (!username) return res.status(400).json({ error: 'username is required' });
+  try {
+    const user = await userModel.addUser(username);
+    const message = `Hello ${username}! welcome to the course!`;
+    res.json({ message, id: user.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
 if (require.main === module) {
   app.listen(port, () => {
-    console.log(`User Service listening at http://localhost:${port}`)
+    console.log(`User Service listening at http://localhost:${port}`);
   });
 }
 

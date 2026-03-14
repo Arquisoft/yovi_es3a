@@ -1,68 +1,59 @@
 services:
   users:
-    build: ./users
     container_name: users
-    image: ghcr.io/arquisoft/yovi_0-users:latest
+    image: ghcr.io/arquisoft/yovi_es3a-users:latest
+    build: ./users
     ports:
       - "3000:3000"
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017
-      - MONGODB_DB=yovi
     networks:
       - monitor-net
-
+    environment:
+      - MONGODB_URI=${{ secrets.MONGODB_URI }}     
+      - MONGODB_DB=${[ secrets.MONGODB_DB }}
+    
   webapp:
+    container_name: webapp
+    image: ghcr.io/arquisoft/yovi_es3a-webapp:latest
     build:
       context: ./webapp
       args:
         - VITE_API_URL=http://localhost:3000
-    container_name: webapp
-    image: ghcr.io/arquisoft/yovi_0-webapp:latest
     ports:
       - "80:80"
-    depends_on:
-      - users
     networks:
       - monitor-net
+    depends_on:
+      - users
 
   gamey:
-    build: ./gamey
     container_name: gamey
-    image: ghcr.io/arquisoft/yovi_0-gamey:latest
+    image: ghcr.io/arquisoft/yovi_es3a-gamey:latest
+    build: ./gamey
     ports:
       - "4000:4000"
     networks:
       - monitor-net
 
   prometheus:
-    image: prom/prometheus
     container_name: prometheus
+    image: prom/prometheus
     ports:
       - "9090:9090"
+    networks:
+      - monitor-net
     volumes:
       - ./users/monitoring/prometheus:/etc/prometheus
-    networks:
-      - monitor-net
 
   grafana:
-    image: grafana/grafana
     container_name: grafana
+    image: grafana/grafana
     ports:
       - "9091:3000"
+    networks:
+      - monitor-net
     volumes:
       - ./users/monitoring/grafana/provisioning:/etc/grafana/provisioning
-    networks:
-      - monitor-net
-
-  mongodb:
-    image: mongo:7
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    networks:
-      - monitor-net
 
 networks:
   monitor-net:
     driver: bridge
-
