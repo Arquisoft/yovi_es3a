@@ -117,6 +117,27 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// User stats endpoint
+app.get('/stats/:username', async (req, res) => {
+  const { username } = req.params;
+  
+  if (!username) {
+    return res.status(400).json({ success: false, message: 'El nombre de usuario es obligatorio' });
+  }
+
+  try {
+    const result = await gestor.getUserStats(username); 
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json(result);
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`User Service listening at http://localhost:${port}`);
