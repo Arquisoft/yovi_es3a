@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './forms.css';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -82,13 +83,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       </button>
 
       {responseMessage && (
-        <div className="success-message" style={{ marginTop: 12, color: 'green' }}>
+        <div className="success-message">
           {responseMessage}
         </div>
       )}
 
       {error && (
-        <div className="error-message" style={{ marginTop: 12, color: 'red' }}>
+        <div className="error-message">
           {error}
         </div>
       )}

@@ -144,12 +144,12 @@ class GestorDBUSERS {
             }
 
             // 2. Comparar la contraseña proporcionada con el hash guardado
-            const esValida = await bcrypt.compare(contrasena, usuario.contrasena);
+            const esValida = await bcrypt.compare(contrasena, usuario.passwordHashed);
 
             if (esValida) {
                 // No devolvemos la contraseña en el objeto user por seguridad
-                const { contrasena: _, ...userWithoutPassword } = usuario;
-                return { 
+                const { passwordHashed: _, ...userWithoutPassword } = usuario;
+                return {
                     success: true, 
                     message: 'Login correcto.', 
                     user: userWithoutPassword 

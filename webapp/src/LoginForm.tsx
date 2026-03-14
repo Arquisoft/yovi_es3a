@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './forms.css';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -54,7 +55,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="register-form">
+    <form onSubmit={handleSubmit} className="login-form">
       <div className="form-group">
         <label htmlFor="login-username">Username:</label>
         <input
@@ -84,13 +85,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       </button>
 
       {responseMessage && (
-        <div className="success-message" style={{ marginTop: 12, color: 'green' }}>
+        <div className="success-message">
           {responseMessage}
         </div>
       )}
 
       {error && (
-        <div className="error-message" style={{ marginTop: 12, color: 'red' }}>
+        <div className="error-message">
           {error}
         </div>
       )}

@@ -30,14 +30,13 @@ function App() {
       <h2>Welcome to the Software Arquitecture 2025-2026 course</h2>
 
       {!isAuthenticated && (
-        <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className="auth-buttons">
           <button
             onClick={() => {
               setShowLogin(true)
               setShowRegister(false)
             }}
             className="submit-button"
-            style={{ padding: '10px 20px' }}
           >
             Login
           </button>
@@ -47,7 +46,6 @@ function App() {
               setShowLogin(false)
             }}
             className="submit-button"
-            style={{ padding: '10px 20px' }}
           >
             Register
           </button>
@@ -55,21 +53,21 @@ function App() {
       )}
 
       {!isAuthenticated && showLogin && (
-        <div style={{ marginTop: '20px' }}>
+        <div className="form-container">
           <h3>Login</h3>
           <LoginForm onSuccess={handleAuthSuccess} />
         </div>
       )}
 
       {!isAuthenticated && showRegister && (
-        <div style={{ marginTop: '20px' }}>
+        <div className="form-container">
           <h3>Register</h3>
           <RegisterForm onSuccess={handleAuthSuccess} />
         </div>
       )}
 
       {isAuthenticated && (
-        <div style={{ marginTop: '20px' }}>
+        <div className="form-container">
           <GameBoard />
         </div>
       )}

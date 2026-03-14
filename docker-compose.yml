@@ -8,9 +8,9 @@ services:
     networks:
       - monitor-net
     environment:
-      - MONGODB_URI=${{ secrets.MONGODB_URI }}     
-      - MONGODB_DB=${[ secrets.MONGODB_DB }}
-    
+      - MONGODB_URI=${{ secrets.MONGODB_URI }}$
+      - MONGODB_DB=${[ secrets.MONGODB_DB }}$
+
   webapp:
     container_name: webapp
     image: ghcr.io/arquisoft/yovi_es3a-webapp:latest

@@ -93,3 +93,19 @@
 .submit-button:hover {
   background-color: #0056b3;
 }
+
+.form-container {
+  margin-top: 20px;
+}
+
+.auth-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.auth-buttons button {
+  padding: 10px 20px;
+}
+

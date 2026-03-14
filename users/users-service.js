@@ -14,8 +14,10 @@ const swaggerUi = require('swagger-ui-express');
 const fs = require('node:fs');
 const YAML = require('js-yaml');
 const promBundle = require('express-prom-bundle');
+const GestorDBUSERS = require('./gestorDBUSER');
 
 const userModel = require('./user-model').default.default;
+const gestor = new GestorDBUSERS();
 
 const metricsMiddleware = promBundle({ includeMethod: true });
 app.use(metricsMiddleware);
@@ -85,12 +87,31 @@ app.delete('/api/users/:id', async (req, res) => {
 
 // backward compatibility
 app.post('/createuser', async (req, res) => {
-  const username = req.body && req.body.username;
+  const { username, password } = req.body;
   if (!username) return res.status(400).json({ error: 'username is required' });
+  if (!password) return res.status(400).json({ error: 'password is required' });
   try {
-    const user = await userModel.addUser(username);
-    const message = `Hello ${username}! welcome to the course!`;
-    res.json({ message, id: user.id });
+    const result = await gestor.addUser(username, username, password);
+    if (!result.success) {
+      return res.status(400).json({ error: result.message });
+    }
+    res.status(201).json({ message: result.message, id: result.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Login endpoint
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username) return res.status(400).json({ error: 'username is required' });
+  if (!password) return res.status(400).json({ error: 'password is required' });
+  try {
+    const result = await gestor.login(username, password);
+    if (!result.success) {
+      return res.status(401).json({ error: result.message });
+    }
+    res.json({ message: result.message, user: result.user });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
