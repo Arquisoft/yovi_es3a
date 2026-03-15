@@ -22,6 +22,7 @@ services:
 
   gamey:
     container_name: gamey
+    build: ./gamey
     image: ghcr.io/arquisoft/yovi_es3a-gamey:${IMAGE_TAG}-arm64
     ports:
       - "4000:4000"
@@ -36,7 +37,7 @@ services:
     networks:
       - monitor-net
     volumes:
-      - ./users/monitoring/prometheus:/etc/prometheus
+      - /home/github-actions/users/monitoring/prometheus:/etc/prometheus
 
   grafana:
     container_name: grafana
