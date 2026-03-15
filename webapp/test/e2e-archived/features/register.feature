@@ -3,6 +3,5 @@ Feature: Register
   # Validate the register form
   Scenario: Successful registration
     Given the register page is open
-    When I enter "Alice" as the username
-    When I enter "passAlice" as the password and submit
+    When I enter "Alice" as the username, "passAlice" as the password and submit
     Then I should see a welcome message containing "Hello Alice"

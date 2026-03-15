@@ -26,19 +26,19 @@ describe('RegisterForm', () => {
     // Mock fetch to resolve automatically
     global.fetch = vi.fn().mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ message: 'Hello Pablo! Welcome to the course!' }),
+      json: async () => ({ message: 'Hello Lucas! Welcome to the course!' }),
     } as Response)
 
     render(<RegisterForm />)
 
     // Wrap interaction + assertion inside waitFor
     await waitFor(async () => {
-      await user.type(screen.getByLabelText(/whats your name\?/i), 'Pablo')
+      await user.type(screen.getByLabelText(/whats your name\?/i), 'Lucas')
       await user.click(screen.getByRole('button', { name: /lets go!/i }))
 
       // Response message should appear
       expect(
-        screen.getByText(/hello pablo! welcome to the course!/i)
+        screen.getByText(/hello Lucas! welcome to the course!/i)
       ).toBeInTheDocument()
     })
   })
