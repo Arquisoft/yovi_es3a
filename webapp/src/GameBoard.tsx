@@ -506,5 +506,3 @@ export function GameBoard({  username }: { username: string }) {
     </div>
   );
 }
-
-export default GameBoard;
