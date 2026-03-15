@@ -151,7 +151,7 @@ function checkWinner(board: CellState[], player: Player): boolean {
 
 const BOT_DELAY_MS = 800; // Delay en milisegundos para simular "pensamiento"
 
-export function GameBoard() {
+export default function GameBoard() {
   const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
   const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
   const [hovered, setHovered] = useState<number | null>(null);
@@ -492,5 +492,3 @@ export function GameBoard() {
     </div>
   );
 }
-
-export default GameBoard;
