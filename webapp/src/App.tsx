@@ -21,8 +21,24 @@ function App() {
     localStorage.setItem('username', username)
   }
 
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    setLoggedInUser(null)
+    setShowLogin(true)
+    setShowRegister(false)
+    localStorage.removeItem('username')
+  }
+
   return (
     <div className="App">
+      {isAuthenticated && (
+        <div className="user-header">
+          <span className="user-name">{loggedInUser}</span>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      )}
       <div>
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
           <img src="/vite.svg" className="logo" alt="Vite logo" />
