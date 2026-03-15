@@ -208,5 +208,12 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           command: |
             wget https://raw.githubusercontent.com/arquisoft/${{ github.event.repository.name }}/${{ github.event.release.target_commitish }}/docker-compose.yml -O docker-compose.yml
+            
+            cat > .env <<EOF
+            IMAGE_TAG=${{ env.IMAGE_TAG }}
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+            MONGODB_DB=${{ secrets.MONGODB_DB }}
+            EOF
+            
             docker compose down
             docker compose up -d --pull always
