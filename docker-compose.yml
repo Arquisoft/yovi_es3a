@@ -30,6 +30,7 @@ services:
       - monitor-net
     depends_on:
       - users
+    entrypoint: ["bash", "-c", "./gamey --mode server --port 4000 && tail -f /dev/null"]
 
   prometheus:
     container_name: prometheus
