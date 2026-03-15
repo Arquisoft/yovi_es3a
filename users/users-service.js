@@ -86,17 +86,25 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 // backward compatibility
-app.post('/createuser', async (req, res) => {
+app.post('/createuser', async (req, res) =>
+{
   const { username, password } = req.body;
   if (!username) return res.status(400).json({ error: 'username is required' });
   if (!password) return res.status(400).json({ error: 'password is required' });
-  try {
+  
+  try
+  {
     const result = await gestor.addUser(username, username, password);
-    if (!result.success) {
+    
+    if (!result.success)
+    {
       return res.status(400).json({ error: result.message });
     }
+    
     res.status(201).json({ message: result.message, id: result.id });
-  } catch (err) {
+  }
+  catch (err)
+  {
     res.status(500).json({ error: err.message });
   }
 });

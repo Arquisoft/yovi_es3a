@@ -7,10 +7,16 @@ Given('the register page is open', async function () {
   await page.goto('http://localhost:5173')
 })
 
-When('I enter {string} as the username and submit', async function (username) {
+When('I enter {string} as the username', async function (username) {
   const page = this.page
   if (!page) throw new Error('Page not initialized')
   await page.fill('#username', username)
+})
+
+When('I enter {string} as the password and submit', async function (pass) {
+  const page = this.page
+  if (!page) throw new Error('Page not initialized')
+  await page.fill('#password', pass)
   await page.click('.submit-button')
 })
 
