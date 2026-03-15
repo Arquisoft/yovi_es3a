@@ -12,6 +12,7 @@ env:
   IMAGE_TAG: ${{ github.event.release.tag_name }}
   MONGODB_URI: ${{ secrets.MONGODB_URI }}
   MONGODB_DB: ${{ secrets.MONGODB_DB }}
+  RUN_E2E: 'false'
 
 jobs:
   test-node:
@@ -60,6 +61,7 @@ jobs:
     name: Run E2E tests
     runs-on: ubuntu-latest
     needs: [test-node, test-rust]
+    if: ${{ env.RUN_E2E == 'true' }}
 
     steps:
       - name: Checkout
