@@ -25,7 +25,8 @@ path = "src/lib.rs"
 
 [dependencies]
 anyhow = "1.0"
-axum = { version = "0.8", features = ["macros"] }
+axum = { version = "0.8", features = ["macros", "ws"] }
+futures = "0.3"
 clap = { version = "4.0", features = ["derive"] }
 rand = "0.9"
 rustyline = { version = "17.0", features = ["with-file-history"] }

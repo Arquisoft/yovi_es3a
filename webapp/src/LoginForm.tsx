@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import './forms.css';
 
-interface RegisterFormProps {
+interface LoginFormProps {
   onSuccess?: (username: string) => void;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
@@ -30,7 +30,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     setLoading(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-      const res = await fetch(`${API_URL}/createuser`, {
+      const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
 
       const data = await res.json();
       if (res.ok) {
-        setResponseMessage(data.message);
+        setResponseMessage(data.message || `Welcome back, ${username}!`);
         setUsername('');
         setPassword('');
         onSuccess?.(username);
@@ -55,31 +55,33 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="register-form">
+    <form onSubmit={handleSubmit} className="login-form">
       <div className="form-group">
-        <label htmlFor="username">Whats your name?</label>
+        <label htmlFor="login-username">Username:</label>
         <input
           type="text"
-          id="username"
+          id="login-username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="form-input"
+          placeholder="Enter your username"
         />
       </div>
 
       <div className="form-group">
-        <label htmlFor="password">Whats your password?</label>
+        <label htmlFor="login-password">Password:</label>
         <input
           type="password"
-          id="password"
+          id="login-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="form-input"
+          placeholder="Enter your password"
         />
       </div>
 
       <button type="submit" className="submit-button" disabled={loading}>
-        {loading ? 'Entering...' : 'Lets go!'}
+        {loading ? 'Logging in...' : 'Login'}
       </button>
 
       {responseMessage && (
@@ -97,4 +99,4 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   );
 };
 
-export default RegisterForm;
+export default LoginForm;

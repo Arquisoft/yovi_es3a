@@ -5,6 +5,39 @@
   text-align: center;
 }
 
+.App {
+  position: relative;
+}
+
+.user-header {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #0b2239;
+}
+
+.logout-button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  background-color: #c0392b;
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.logout-button:hover {
+  background-color: #a83226;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -41,7 +74,6 @@
   color: #888;
 }
 
-/* Register Form Styles */
 .register-form {
   display: flex;
   flex-direction: column;
@@ -92,4 +124,19 @@
 
 .submit-button:hover {
   background-color: #0056b3;
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+.auth-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.auth-buttons button {
+  padding: 10px 20px;
 }
