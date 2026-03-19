@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './GameBoard.css';
-import UserStats from './UserStats';
+import UserStats from '../user-stats/UserStats';
 
 // Tablero del Juego Y — coordenadas baricéntricas (bx, by, bz) con bx+by+bz = N-1
 // N=7 → 28 celdas (tamaño estándar del motor Rust)

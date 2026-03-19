@@ -1,9 +1,9 @@
 import './App.css'
 import { useState } from 'react'
-import RegisterForm from './RegisterForm'
-import LoginForm from './LoginForm'
+import RegisterForm from './features/auth/register/RegisterForm'
+import LoginForm from './features/auth/login/LoginForm'
 import reactLogo from './assets/react.svg'
-import GameBoard from './GameBoard'
+import GameBoard from './features/game/GameBoard'
 
 function App() {
   const storedUser = localStorage.getItem('username')
