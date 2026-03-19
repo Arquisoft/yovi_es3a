@@ -1,142 +1,84 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+html, body, #root
+{
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	overflow-x: hidden;
 }
 
-.App {
-  position: relative;
+#root
+{
+	display: flex;
+  	flex-direction: column;
 }
 
-.user-header {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+.spectrum-background {
+    min-height: 100vh;
+    width: 100%;
+
+    background: 
+        radial-gradient(at 0% 0%, rgba(98, 34, 224, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(31, 41, 55, 0.1) 0px, transparent 50%),
+        linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+    
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    color: #f5f6fa;
 }
 
-.user-name {
-  font-weight: 600;
-  color: #0b2239;
+.card-transparent
+{
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
 }
 
-.logout-button {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 4px;
-  background-color: #c0392b;
-  color: #fff;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+.purple-bg
+{
+    background: linear-gradient(90deg, #5723c3 0%, #6222E0 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(98, 34, 224, 0.3);
+    transition: all 0.3s ease;
 }
 
-.logout-button:hover {
-  background-color: #a83226;
+.purple-fg
+{
+    color: #a29bfe;
+    text-shadow: 0 0 20px rgba(162, 155, 254, 0.2);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.purple-outline {
+    border: 2px solid #6222E0;
+    color: #6222E0;
+    background: transparent;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+footer
+{
+    background: #6222E0;
+    flex-shrink: 0;
+    margin-top: auto;
+    padding: 15px 0;
+    color: white;
+    text-align: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+#mainContainer
+{
+	display: flex;
+    flex: 1 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-.register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  max-width: 300px;
-  margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #333;
-}
-
-.form-input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.form-input:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.submit-button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  background-color: #03080e;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.submit-button:hover {
-  background-color: #0056b3;
-}
-
-.form-container {
-  margin-top: 20px;
-}
-
-.auth-buttons {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.auth-buttons button {
-  padding: 10px 20px;
+.nav-link i
+{
+    font-size: 1.1rem;
+    vertical-align: middle;
 }

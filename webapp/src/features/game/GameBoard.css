@@ -4,11 +4,11 @@
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.5rem 2rem 1rem;
-  background: #0d1117;
-  border-radius: 18px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  width: fit-content;
+  padding: 1rem;
+  background: transparent; 
+  border: none;
+  box-shadow: none;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -16,21 +16,22 @@
 .gb-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
-  gap: 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.gb-back, .gb-reset, .gb-status, .gb-turn {
+  padding: 0.25rem 0.6rem !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap;
 }
 
 .gb-turn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.35rem 0.9rem;
-  border-radius: 20px;
-  letter-spacing: 0.02em;
-  transition: all 0.25s ease;
+  min-width: 110px;
+  justify-content: center;
 }
 
 .gb-turn.player1 {
@@ -101,7 +102,9 @@
 
 /* ─── SVG ───────────────────────────────────────────────────────────────── */
 .gb-svg {
-  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: 0.5rem;
 }
 
 /* ─── Hexágonos base ────────────────────────────────────────────────────── */
@@ -366,16 +369,9 @@
 }
 
 .gb-mode-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 2.5rem;
-  background: #1c1f2e;
-  border: 2px solid #2c3050;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 200px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 240px;
 }
 
 .gb-mode-btn:hover {

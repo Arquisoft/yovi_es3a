@@ -339,20 +339,20 @@ function GameBoard({  username }: { username: string }) {
           
           <div className="gb-mode-buttons">
             <button 
-              className="gb-mode-btn pvp"
+              className="gb-mode-btn pvp flex-grow-1"
               onClick={() => { setGameMode('pvp'); setIsGameStarted(true); }}
             >
               <span className="gb-mode-icon">👥</span>
-              <span className="gb-mode-label">Jugador vs Jugador</span>
+              <span className="gb-mode-label">Jugador vs Jugador</span><br/>
               <span className="gb-mode-desc">Juega contra un amigo</span>
             </button>
             
             <button 
-              className="gb-mode-btn vs-bot"
+              className="gb-mode-btn vs-bot flex-grow-1"
               onClick={() => { setGameMode('vs-bot'); setIsGameStarted(true); }}
             >
               <span className="gb-mode-icon">🤖</span>
-              <span className="gb-mode-label">Jugador vs Bot</span>
+              <span className="gb-mode-label">Jugador vs Bot</span><br/>
               <span className="gb-mode-desc">Juega contra el bot random</span>
             </button>
           </div>
@@ -409,31 +409,24 @@ function GameBoard({  username }: { username: string }) {
 
       {/* Cabecera */}
       <div className="gb-header">
-        <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
-        {/* Botón de estadísticas */}
-        <button 
-          className="gb-back" 
-          onClick={() => setShowStats(true)}
-          style={{ marginLeft: '10px', backgroundColor: '#4a90e2' }}
-        >
-          Estadísticas del usuario
-        </button>
+        <div className="d-flex gap-2">
+          <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
+          <button className="gb-back" onClick={() => setShowStats(true)} style={{ backgroundColor: '#4a90e2' }}>
+            <i className="bi bi-graph-up"></i> Stats
+          </button>
+        </div>
+
         <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
           <span className="gb-dot" />
-          {isBotThinking ? (
-            <span>Bot pensando<span className="gb-thinking-dots"></span></span>
-          ) : (
-            <span>
-              Turno: {gameMode === 'vs-bot' 
-                ? (currentPlayer === 1 ? 'Tú' : 'Bot') 
-                : `Jugador ${currentPlayer}`}
-            </span>
-          )}
+          <span>{isBotThinking ? '...' : (currentPlayer === 1 ? 'P1' : 'P2')}</span>
         </div>
-        <span className={`gb-status ${isOnline ? 'online' : 'offline'}`}>
-          {isOnline ? '🟢 Online' : '🔴 Offline'}
-        </span>
-        <button className="gb-reset" onClick={handleReset}>Reiniciar</button>
+
+        <div className="d-flex gap-2 align-items-center">
+          <span className={`gb-status ${isOnline ? 'online' : 'offline'}`}>
+            {isOnline ? '🟢' : '🔴'}
+          </span>
+          <button className="gb-reset" onClick={handleReset}>Reiniciar</button>
+        </div>
       </div>
 
       {/* Tablero SVG */}
