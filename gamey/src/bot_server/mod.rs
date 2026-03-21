@@ -35,6 +35,8 @@ use axum::extract::State;
 use futures::{SinkExt, StreamExt};
 use serde_json::json;
 
+use serde::Serialize;
+
 /// Creates the Axum router with the given state.
 ///
 /// This is useful for testing the API without binding to a network port.
@@ -269,4 +271,11 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
             Message::Ping(_) | Message::Pong(_) => {}
         }
     }
+}
+
+#[derive(Serialize)]
+pub struct BotInfo {
+    pub name: String,
+    pub difficulty: String,
+    pub description: String,
 }
