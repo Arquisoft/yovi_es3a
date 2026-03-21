@@ -30,12 +30,20 @@ pub use error::ErrorResponse;
 pub use version::*;
 
 use crate::{GameYError, RandomBot, YBotRegistry, state::AppState};
+use crate::bot::ybot::YBot;
 use axum::extract::ws::{WebSocketUpgrade, WebSocket, Message};
-use axum::extract::State;
+use axum::{
+    extract::State,
+    Json,
+};
+use axum::routing::get;
 use futures::{SinkExt, StreamExt};
 use serde_json::json;
 
 use serde::Serialize;
+
+Router::new()
+    .route("/bots", get(list_bots))
 
 /// Creates the Axum router with the given state.
 ///
@@ -279,3 +287,22 @@ pub struct BotInfo {
     pub difficulty: String,
     pub description: String,
 }
+
+pub async fn list_bots(
+    State(state): State<Arc<AppState>>,
+) -> Json<Vec<BotInfo>> {
+
+    let bots = state.bot_registry.get_all_bots();
+
+    let result: Vec<BotInfo> = bots
+        .iter()
+        .map(|bot| BotInfo {
+            name: bot.name().to_string(),
+            difficulty: bot.difficulty().to_string(),
+            description: bot.description().to_string(),
+        })
+        .collect();
+
+    Json(result)
+}
+
