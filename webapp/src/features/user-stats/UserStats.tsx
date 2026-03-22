@@ -8,15 +8,19 @@ interface StatsProps {
 
 const UserStats: React.FC<StatsProps> = ({ username, onClose }) => {
   const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true);
+
       try {
         const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-        
-        const response = await fetch(`${API_URL}/stats/${username}`); 
+  
+        const response = await fetch(API_URL + '/stats/' + username); 
+
         const data = await response.json();
         
         if (data.success) {
@@ -24,6 +28,7 @@ const UserStats: React.FC<StatsProps> = ({ username, onClose }) => {
         } else {
           setError(data.message || 'No se pudieron cargar las estadísticas.');
         }
+
       } catch (err) {
         setError('Error de red al conectar con el servidor.');
       } finally {
@@ -31,46 +36,42 @@ const UserStats: React.FC<StatsProps> = ({ username, onClose }) => {
       }
     };
 
-    if (username) {
-      fetchStats();
-    }
+    if (username) {fetchStats();}
   }, [username]);
 
   return (
     <div className="stats-overlay">
       <div className="stats-modal">
-        <h1 className="stats-title">{username}</h1>
+        <h2 className="stats-title">Estadísticas del jugador {username}</h2>
         
-        {loading && <p>Cargando estadísticas...</p>}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {loading &&
+          <p>Cargando estadísticas...</p>}
+
+        {error &&
+          <p style={{ color: 'red' }}>{error}</p>}
         
         {stats && (
           <div className="stats-content">
             <div className="stats-total-container">
-              <p className="stats-total">
-                Partidas Totales: {stats.partidasTotales || 0}
+              <p className="stats-total"> Partidas Totales: {stats.partidasTotales || 0}
               </p>
             </div>
             
             <div className="stats-details">
-              <div className="stats-wins">
-                Victorias: {stats.victorias || 0}
+              <div className="stats-wins"> Victorias: {stats.victorias || 0}
               </div>
-              <div className="stats-losses">
-                Derrotas: {stats.derrotas || 0}
+              <div className="stats-losses"> Derrotas: {stats.derrotas || 0}
               </div>
             </div>
+
             <br></br>
+
             <div className="stats-points">
               Puntos Totales: {stats.puntosRanking || 0}
             </div>
           </div>
 
         )}
-
-        <button onClick={onClose} className="stats-close-btn">
-          Volver al juego
-        </button>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Navbar, Footer } from '@components/layout';
+import { Navbar, Footer } from './components/layout';
 import './App.css';
-import RegisterForm from '@features/auth/register/RegisterForm';
-import LoginForm from '@features/auth/login/LoginForm';
-import GameBoard from '@features/game/GameBoard';
+import RegisterForm from './features/auth/register/RegisterForm';
+import LoginForm from './features/auth/login/LoginForm';
+import GameBoard from './features/game/GameBoard';
+import UserStats from './features/user-stats/UserStats';
 
 function App()
 {
@@ -63,6 +64,15 @@ function App()
 									loggedInUser
 										? <GameBoard username={loggedInUser} />
 										: <Navigate to="/login" />
+								}/>
+								
+								<Route path="/stats" element=
+								{
+									loggedInUser
+										? <UserStats username={loggedInUser} onClose={function (): void {
+											throw new Error('Function not implemented.');
+										} } />
+										: <Navigate to="/stats" />
 								}/>
 
 								{/* Redirect to login or game if URL not found or root */}

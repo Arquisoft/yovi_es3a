@@ -18,15 +18,13 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
   };
 
   return (
-    
     <nav id="myNav" className="navbar navbar-expand-lg navbar-dark purple-bg shadow">
-      
       <div className="container-fluid">
         
         {/* Navbar brand - App icon/brand */}
         <NavLink className="navbar-brand d-flex align-items-center" to="/" style={{ fontFamily: "'Righteous'" }}>
           <i className="bi bi-triangle-half h1 me-2 mb-0"></i>
-          <b className="h2 font-weight-bold font-italic mb-0"> YOVI </b>
+          <b className="h2 font-weight-bold font-italic mb-0">YOVI</b>
         </NavLink>
 
         {/* Toggler for smaller viewports */}
@@ -87,17 +85,17 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
                 <a className="nav-link dropdown-toggle btn border-0" href="#" role="button" data-bs-toggle="dropdown">
                   <i className="bi bi-person-circle me-1"></i> {user}
                 </a>
+
                 <ul className="dropdown-menu dropdown-menu-end shadow">
                   <li>
                     <button className="dropdown-item text-danger d-flex align-items-center" onClick={handleLogout}>
-                      <i className="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+                      <i className="bi bi-box-arrow-right me-2"></i> Cerrar sesión
                     </button>
                   </li>
                 </ul>
               </li>
             )}
           </ul>
-            
         </div>
       </div>
     </nav>

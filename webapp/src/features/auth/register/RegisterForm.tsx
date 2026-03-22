@@ -1,46 +1,48 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
-interface RegisterFormProps {
+interface RegisterFormProps
+{
   onSuccess?: (username: string) => void;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) =>
+{
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) =>
+  {
     event.preventDefault();
     setResponseMessage(null);
     setError(null);
 
-    if (!username.trim()) {
-      setError('Please enter a username.');
-      return;
-    }
-
-    if (!password.trim()) {
-      setError('Please enter a password.');
-      return;
-    }
+    if (!username.trim()) {setError('Please enter a username.'); return;}
+    if (!password.trim()) {setError('Please enter a password.'); return;}
 
     setLoading(true);
+
     try {
       const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-      const res = await fetch(`${API_URL}/createuser`, {
+
+      const res = await fetch(API_URL + '/createuser',
+      {
         method: 'POST',
-        headers: {
+        headers:
+        {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
-      if (res.ok) {
-        setResponseMessage(data.message);
+
+      if (res.ok)
+      {
+        setResponseMessage(data.message || 'Usuario creado correctamente!');
         setUsername('');
         setPassword('');
         onSuccess?.(username);
@@ -99,7 +101,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       </div>
 
       <button type="submit" className="btn btn-dark purple-bg w-100 fw-bold py-2" disabled={loading}>
-        {loading ? 'Entrando...' : 'Entrar'}
+        {loading ? 'Intentando crear cuenta...' : 'Crear cuenta'}
       </button>
 
       <div className="text-center mt-4">
@@ -111,6 +113,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
         </p>
       </div>
 
+      {/* ¿Tiene algún uso? */}
       {responseMessage && (
         <div className="success-message">
           {responseMessage}

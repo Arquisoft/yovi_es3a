@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
 import './GameBoard.css';
-import UserStats from '../user-stats/UserStats';
+
+/* Constantes de juego: */
+const N =  7;
+type Player = 1 | 2;
+type CellState = 0 | Player;
+
+
+
+
 
 // Tablero del Juego Y — coordenadas baricéntricas (bx, by, bz) con bx+by+bz = N-1
 // N=7 → 28 celdas (tamaño estándar del motor Rust)
-const N = 7;
+
 const HEX_SIZE = 36;
 const PADDING = 28;
 const dx = Math.sqrt(3) * HEX_SIZE; // separación horizontal entre centros
@@ -13,8 +21,7 @@ const dy = 1.5 * HEX_SIZE;          // separación vertical entre filas
 const SVG_WIDTH  = 2 * HEX_SIZE + (N - 1) * dx + 2 * PADDING;
 const SVG_HEIGHT = 2 * HEX_SIZE + (N - 1) * dy + 2 * PADDING;
 
-type Player    = 1 | 2;
-type CellState = 0 | Player;
+
 
 interface Cell {
   index: number;
@@ -162,8 +169,7 @@ function GameBoard({  username }: { username: string }) {
   const [gameMode, setGameMode] = useState<GameMode>('pvp');
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Nuevo estado
-  const [showStats, setShowStats] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Inicializar juego con el motor
   useEffect(() => {
@@ -237,6 +243,7 @@ function GameBoard({  username }: { username: string }) {
 
           if (data.winner) {
             setWinner(data.winner as Player);
+            /* Añadir winner */
           } else if (checkWinner(next, 2)) {
             setWinner(2);
           } else {
@@ -375,10 +382,6 @@ function GameBoard({  username }: { username: string }) {
 
   return (
     <div className="gb-wrapper">
-      {/* Renderizar el modal de estadísticas del usuario */}
-      {showStats && (
-        <UserStats username={username} onClose={() => setShowStats(false)} />
-      )}
       {/* Modal de victoria */}
       {winner && (
         <div className="gb-winner-overlay">

@@ -82,3 +82,11 @@ footer
     font-size: 1.1rem;
     vertical-align: middle;
 }
+
+.error-message
+{
+    background-color: #f3b1b1;
+    color: #cc0000;
+    padding: 5px 10px;
+    border-radius: 8px;
+}

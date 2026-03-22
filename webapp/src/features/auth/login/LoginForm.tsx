@@ -6,42 +6,43 @@ interface LoginFormProps
   onSuccess?: (username: string) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
+{
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) =>
+  {
     event.preventDefault();
     setResponseMessage(null);
     setError(null);
 
-    if (!username.trim()) {
-      setError('Please enter a username.');
-      return;
-    }
-
-    if (!password.trim()) {
-      setError('Please enter a password.');
-      return;
-    }
+    if (!username.trim()) {setError('Please enter a username.'); return;}
+    if (!password.trim()) {setError('Please enter a password.'); return;}
 
     setLoading(true);
+
     try {
       const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-      const res = await fetch(`${API_URL}/login`, {
+
+      const res = await fetch(API_URL + '/login',
+      {
         method: 'POST',
-        headers: {
+        headers:
+        {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
-      if (res.ok) {
-        setResponseMessage(data.message || `Welcome back, ${username}!`);
+
+      if (res.ok)
+      {
+        setResponseMessage(data.message || 'Welcome back, ' + username + '!');
         setUsername('');
         setPassword('');
         onSuccess?.(username);
@@ -56,6 +57,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   };
 
   return (
+
     <form onSubmit={handleSubmit} className="w-100">
       
       <div className="text-center mb-4">
@@ -99,18 +101,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       </div>
 
       <button type="submit" className="btn btn-dark purple-bg  w-100 fw-bold py-2" disabled={loading}>
-        {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+        {loading ? 'Iniciando sesión...' : 'Entrar'}
       </button>
 
       <div className="text-center mt-4">
         <p className="d-flex align-items-center justify-content-center">
-          <span className='text-white me-1'> ¿Ya estás registrado? </span>
+          <span className='text-white me-1'> ¿No tienes cuenta? </span>
           <NavLink to="/register" className="purple-fg fw-bold text-decoration-none ms-2">
             Crear cuenta
           </NavLink>
         </p>
       </div>
 
+      {/* ¿Tiene algún uso? */}
       {responseMessage && (
         <div className="success-message">
           {responseMessage}
