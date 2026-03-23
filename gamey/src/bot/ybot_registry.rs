@@ -62,6 +62,11 @@ impl YBotRegistry {
     pub fn get_all_bots(&self) -> Vec<Arc<dyn YBot>> {
         self.bots.values().cloned().collect()
     }
+
+    /// Devuelve el número de bots registrados.
+    pub fn count(&self) -> usize {
+        self.bots.len()
+    }
 }
 
 /// Implementación por defecto → crea un registro vacío.
@@ -169,5 +174,30 @@ mod tests {
 
         // Solo debe haber uno porque se sobrescribe
         assert_eq!(registry.names().len(), 1);
+    }
+
+    /// Comprueba el método count().
+    #[test]
+    fn test_registry_count() {
+        let registry = YBotRegistry::new()
+            .with_bot(Arc::new(MockBot::new("bot1")))
+            .with_bot(Arc::new(MockBot::new("bot2")));
+        
+        assert_eq!(registry.count(), 2);
+    }
+
+    /// Comprueba el método get_all_bots().
+    #[test]
+    fn test_get_all_bots() {
+        let registry = YBotRegistry::new()
+            .with_bot(Arc::new(MockBot::new("bot1")))
+            .with_bot(Arc::new(MockBot::new("bot2")));
+        
+        let bots = registry.get_all_bots();
+        assert_eq!(bots.len(), 2);
+        
+        let names: Vec<&str> = bots.iter().map(|b| b.name()).collect();
+        assert!(names.contains(&"bot1"));
+        assert!(names.contains(&"bot2"));
     }
 }
