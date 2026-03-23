@@ -1,3 +1,8 @@
+//! Factoría de bots para el juego Game of Y.
+//!
+//! Este módulo centraliza la creación y el registro de todas las estrategias
+//! de bots disponibles en el sistema.
+
 use std::sync::Arc;
 
 use crate::bot::{
@@ -5,11 +10,19 @@ use crate::bot::{
     strategies::random::RandomBot,
 };
 
+/// Crea un registro con todas las implementaciones de bots disponibles.
+///
+/// Esta función es el punto central para añadir nuevos bots al sistema.
+/// Al añadir un bot aquí, estará disponible tanto en la CLI como en el servidor API.
 pub fn create_all_bots() -> YBotRegistry {
     let mut registry = YBotRegistry::new();
 
+    // Registro de bots disponibles
     registry = registry
         .with_bot(Arc::new(RandomBot));
+
+    // Aquí se pueden añadir más bots en el futuro:
+    // .with_bot(Arc::new(MinimaxBot::new(3)))
 
     registry
 }
