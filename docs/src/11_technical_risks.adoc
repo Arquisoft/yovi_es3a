@@ -37,3 +37,15 @@ endif::arc42help[]
 |===
 
 === Deuda técnica
+
+|===
+
+|Deuda técnica|Descripción|Impacto|Probabilidad|Mitigación
+
+| Código no documentado o mal documentado. | La falta de documentación clara y actualizada dificulta la comprensión del código, lo que puede ralentizar el desarrollo y aumentar el riesgo de errores al modificar el sistema. | Medio | Media | Establecer estándares de documentación y revisarlos regularmente.
+
+| Implementación inicial sin optimización. | La implementación inicial del sistema puede no estar optimizada para rendimiento o escalabilidad, lo que podría requerir refactorización significativa en el futuro para cumplir con los requisitos de rendimiento. | Medio | Alta | Planificar iteraciones de mejora continua y refactorización a medida que se identifican cuellos de botella.
+
+| Gestión básica de autenticación y autorización. | La implementación inicial de la autenticación y autorización puede ser básica, lo que podría no cumplir con los requisitos de seguridad a medida que el sistema evoluciona. | Alto | Media | Planificar mejoras en la gestión de autenticación y autorización a medida que se identifican nuevas amenazas y requisitos de seguridad.
+
+|===

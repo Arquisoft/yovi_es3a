@@ -34,12 +34,12 @@ endif::arc42help[]
 _En este apartado se hablará de la motivación y las consecuencias de cada decisión arquitectura que se ha tomado en el desarrollo del proyecto. Por tanto, no se contemplarán las decisiones tomadas por el equipo docente de la asignatura._
 mongodb
 
-=== Máquina Ubuntu en la Nube de Azure
-Se ha decidido desplegar *YOVI* mediante una *Máquina Ubuntu en la Nube de Azure* por distintas *motivaciones*:
+=== Máquina Ubuntu en la Nube de Oracle
+Se ha decidido desplegar *YOVI* mediante una *Máquina Ubuntu en la Nube de Oracle* por distintas *motivaciones*:
 
 - *Estabilidad*: Ubuntu es conocida por ser una distribución robusta ampliamente usada en entornos de producción.
 - *Compatabilidad*: A sabiendas que el proyecto desarrollo comprenderá de alguna que otra API, esta decisión minimizará problemas de compatibilidad ya que una gran parte de estos microservicios funcionan de forma óptima en Ubuntu.
-- *Costes*: Las máquinas Linux en Azure al no incluir licencias adicionales resultan más baratas que otro tipo de máquinas.
+- *Costes*: Las máquinas Linux en Oracle al no incluir licencias adicionales resultan más baratas que otro tipo de máquinas.
 - *Control*: Una máquina virtual Ubuntu permite instalar software personalizado además de ofrecer control total del sistema operativo.
 
 Las *consecuencias* que se pueden llegar a dar son las siguientes:
