@@ -5,6 +5,7 @@
 //!
 //! # Endpoints
 //! - `GET /status` - Endpoint de comprobación de estado (health check)
+//! - `GET /bots` - Obtener la lista de bots disponibles
 //! - `POST /{api_version}/ybot/choose/{bot_id}` - Solicitar un movimiento a un bot
 //!
 //! # Ejemplo

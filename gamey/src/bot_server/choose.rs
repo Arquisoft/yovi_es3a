@@ -4,6 +4,7 @@ use axum::{
     extract::{Path, State},
 };
 use serde::{Deserialize, Serialize};
+use tracing::info;
 
 /// Path parameters extracted from the choose endpoint URL.
 #[derive(Deserialize)]
@@ -74,7 +75,16 @@ pub async fn choose(
         }
     };
     let coords = match bot.choose_move(&game_y) {
-        Some(coords) => coords,
+        Some(coords) => {
+            // Log move choice with bot ID and current turn count
+            info!(
+                bot_id = %params.bot_id,
+                turn = %game_y.moves().len(),
+                coords = ?coords,
+                "Bot successfully chose a move"
+            );
+            coords
+        }
         None => {
             // Handle the case where the bot has no valid moves
             return Err(Json(ErrorResponse::error(
