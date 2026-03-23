@@ -10,28 +10,10 @@ pub trait YBot: Send + Sync {
     /// Chooses a move based on the current game state.
     fn choose_move(&self, board: &GameY) -> Option<Coordinates>;
 
-    fn difficulty() -> &str;
+    /// Returns the difficulty level of the bot.
+    fn difficulty(&self) -> &str;
 
-    fn description() -> &str;
-}
-
-//Algo asi
-impl YBot for RandomBot{
-    fn name(&self) -> &str{
-        "RandomBot"
-    }
-
-    fn choose_move(&self, board: &GameY) -> Option<Coordinates> {
-        let moves = board.available_moves();
-
-        if moves.is_empty() {
-            return None;
-        }
-
-        // Elegir uno aleatorio
-        use rand::seq::SliceRandom;
-        let mut rng = rand::thread_rng();
-        moves.choose(&mut rng).cloned()
-    }
+    /// Returns a description of how the bot works.
+    fn description(&self) -> &str;
 }
 

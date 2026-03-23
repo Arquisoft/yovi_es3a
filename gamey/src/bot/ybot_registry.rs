@@ -55,6 +55,11 @@ impl YBotRegistry {
     pub fn names(&self) -> Vec<String> {
         self.bots.keys().cloned().collect()
     }
+
+    /// Returns all registered bots.
+    pub fn get_all_bots(&self) -> Vec<Arc<dyn YBot>> {
+        self.bots.values().cloned().collect()
+    }
 }
 
 impl Default for YBotRegistry {
@@ -88,6 +93,14 @@ mod tests {
 
         fn choose_move(&self, _board: &GameY) -> Option<Coordinates> {
             None
+        }
+
+        fn difficulty(&self) -> &str {
+            "N/A"
+        }
+
+        fn description(&self) -> &str {
+            "A mock bot for testing purposes."
         }
     }
 

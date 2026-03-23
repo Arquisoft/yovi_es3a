@@ -29,7 +29,7 @@ pub use choose::MoveResponse;
 pub use error::ErrorResponse;
 pub use version::*;
 
-use crate::{GameYError, RandomBot, YBotRegistry, state::AppState};
+use crate::{GameYError, YBotRegistry, state::AppState, create_all_bots};
 use crate::bot::ybot::YBot;
 use axum::extract::ws::{WebSocketUpgrade, WebSocket, Message};
 use axum::{
@@ -42,15 +42,13 @@ use serde_json::json;
 
 use serde::Serialize;
 
-Router::new()
-    .route("/bots", get(list_bots))
-
 /// Creates the Axum router with the given state.
 ///
 /// This is useful for testing the API without binding to a network port.
 pub fn create_router(state: AppState) -> axum::Router {
     axum::Router::new()
         .route("/status", axum::routing::get(status))
+        .route("/bots", axum::routing::get(list_bots))
         .route("/ws", axum::routing::get(ws_handler))
         .route(
             "/{api_version}/ybot/choose/{bot_id}",
@@ -61,9 +59,9 @@ pub fn create_router(state: AppState) -> axum::Router {
 
 /// Creates the default application state with the standard bot registry.
 ///
-/// The default state includes the `RandomBot` which selects moves randomly.
+/// The default state includes all bots provided by the factory.
 pub fn create_default_state() -> AppState {
-    let bots = YBotRegistry::new().with_bot(Arc::new(RandomBot));
+    let bots = create_all_bots();
     AppState::new(bots)
 }
 
@@ -289,10 +287,10 @@ pub struct BotInfo {
 }
 
 pub async fn list_bots(
-    State(state): State<Arc<AppState>>,
+    State(state): State<AppState>,
 ) -> Json<Vec<BotInfo>> {
 
-    let bots = state.bot_registry.get_all_bots();
+    let bots = state.bots().get_all_bots();
 
     let result: Vec<BotInfo> = bots
         .iter()

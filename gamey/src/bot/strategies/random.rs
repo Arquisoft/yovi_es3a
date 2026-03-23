@@ -37,6 +37,14 @@ impl YBot for RandomBot {
         let coordinates = Coordinates::from_index(*cell, board.board_size());
         Some(coordinates)
     }
+
+    fn difficulty(&self) -> &str {
+        "Easy"
+    }
+
+    fn description(&self) -> &str {
+        "Chooses a random available cell on the board."
+    }
 }
 
 #[cfg(test)]
