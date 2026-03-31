@@ -5,6 +5,7 @@
 //! - Human vs Human: Two players take turns at the same terminal
 //! - Human vs Computer: Play against a bot
 //! - Server: Run as an HTTP server for bot API
+//!  Aquí  se juega por terminal
 
 use crate::{
     Coordinates, GameAction, Movement, RenderOptions, YBot, game, create_all_bots,
@@ -70,7 +71,7 @@ pub fn run_cli_game() -> Result<()> {
     let mut render_options = crate::RenderOptions::default();
     let mut rl = DefaultEditor::new()?;
     let bots_registry = create_all_bots();
-    let bot: Arc<dyn YBot> = match bots_registry.find(&args.bot) {
+    let bot: Arc<dyn YBot> = match bots_registry.find(&args.bot) { //Aquí se escoge el bot
         Some(b) => b,
         None => {
             println!(
