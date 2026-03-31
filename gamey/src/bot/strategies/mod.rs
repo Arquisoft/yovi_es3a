@@ -5,6 +5,8 @@
 
 pub mod random;
 pub mod greedy;
+pub mod random_strategy;
 
 pub use random::*;
 pub use greedy::*;
+pub use random_strategy::*;
