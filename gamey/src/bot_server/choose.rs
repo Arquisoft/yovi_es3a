@@ -79,7 +79,7 @@ pub async fn choose(
             // Log move choice with bot ID and current turn count
             info!(
                 bot_id = %params.bot_id,
-                turn = %game_y.moves().len(),
+                turn = %game_y.turn(),
                 coords = ?coords,
                 "Bot successfully chose a move"
             );

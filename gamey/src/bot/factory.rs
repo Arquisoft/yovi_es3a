@@ -8,6 +8,7 @@ use std::sync::Arc;
 use crate::bot::{
     ybot_registry::YBotRegistry,
     strategies::random::RandomBot,
+    strategies::greedy::GreedyBot,
 };
 
 /// Crea un registro con todas las implementaciones de bots disponibles.
@@ -19,10 +20,10 @@ pub fn create_all_bots() -> YBotRegistry {
 
     // Registro de bots disponibles
     registry = registry
-        .with_bot(Arc::new(RandomBot));
-
-    // Aquí se pueden añadir más bots en el futuro:
-    // .with_bot(Arc::new(MinimaxBot::new(3)))
+        .with_bot(Arc::new(RandomBot))
+        .with_bot(Arc::new(GreedyBot::new("easy")))
+        .with_bot(Arc::new(GreedyBot::new("medium")))
+        .with_bot(Arc::new(GreedyBot::new("hard")));
 
     registry
 }

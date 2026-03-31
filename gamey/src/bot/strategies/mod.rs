@@ -4,5 +4,7 @@
 //! can be used to play the game.
 
 pub mod random;
+pub mod greedy;
 
 pub use random::*;
+pub use greedy::*;
