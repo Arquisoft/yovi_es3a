@@ -1,8 +1,7 @@
 services:
   users:
     container_name: users
-    build: ./users
-    image: yovi-users:latest
+    image: ghcr.io/arquisoft/yovi_es3a-users:${IMAGE_TAG}-amd64
     ports:
       - "3000:3000"
     networks:
@@ -10,11 +9,10 @@ services:
     environment:
       - MONGODB_DB=${MONGODB_DB}
       - MONGODB_URI=${MONGODB_URI}
-    
+
   webapp:
     container_name: webapp
-    build: ./webapp
-    image: yovi-webapp:latest
+    image: ghcr.io/arquisoft/yovi_es3a-webapp:${IMAGE_TAG}-amd64
     ports:
       - "80:80"
     networks:
@@ -24,8 +22,7 @@ services:
 
   gamey:
     container_name: gamey
-    build: ./gamey
-    image: yovi-gamey:latest
+    image: ghcr.io/arquisoft/yovi_es3a-gamey:${IMAGE_TAG}-amd64
     ports:
       - "4000:4000"
     networks:
