@@ -157,7 +157,7 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                 match v.get("type").and_then(|t| t.as_str()) {
 
                     // Inicializar partida
-                    Some("start") => {
+                    Some("start") => { //Aquí se escoge el bot
                         let size = v.get("size").and_then(|s| s.as_u64()).unwrap_or(7) as u32;
                         bot_id = v.get("bot_id").and_then(|b| b.as_str()).map(|s| s.to_string());
 
