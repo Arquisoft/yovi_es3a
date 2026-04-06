@@ -117,6 +117,7 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
 
     // Imports locales para lógica del juego
     use crate::core::game::GameY;
+    use crate::core::game::GameStatus;
     use crate::core::coord::Coordinates;
     use crate::core::movement::Movement;
     use crate::core::player::PlayerId;
@@ -174,10 +175,19 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                         // Enviar estado inicial
                         let yen: YEN = (&game).into();
                         let render = game.render(&render_options);
+                        let status = match game.status() {
+                            GameStatus::Finished { winner } => {
+                                serde_json::json!({ "Finished": { "winner": { "id": winner.id() } } })
+                            }
+                            GameStatus::Ongoing { next_player } => {
+                                serde_json::json!({ "Ongoing": { "next_player": { "id": next_player.id() } } })
+                            }
+                        };
 
                         let _ = socket.send(Message::Text(json!({
                             "type":"state",
                             "yen":yen,
+                            "status": status,
                             "render": render
                         }).to_string().into())).await;
                     }
@@ -190,6 +200,15 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                         {
                             if let Some(arr) = coords_v.as_array() {
                                 if arr.len() == 3 {
+
+                                    // Validar si el juego ya ha terminado
+                                    if game.check_game_over() {
+                                        let _ = socket.send(Message::Text(json!({
+                                            "type":"error",
+                                            "message":"Game is already finished. Start a new game to continue."
+                                        }).to_string().into())).await;
+                                        continue;
+                                    }
 
                                     let coords = Coordinates::new(
                                         arr[0].as_u64().unwrap_or(0) as u32,
@@ -212,6 +231,9 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
 
                                         // Turno del bot si aplica
                                         if mode == CliMode::Computer && !game.check_game_over() {
+                                            // Simular que el bot está pensando
+                                            tokio::time::sleep(tokio::time::Duration::from_millis(400)).await;
+
                                             if let Some(ref b) = bot_opt {
                                                 if let Some(bot_coords) = b.choose_move(&game) {
                                                     let bot_player = game.next_player().unwrap_or(PlayerId::new(1));
@@ -227,10 +249,19 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                                         // Enviar estado actualizado
                                         let yen: YEN = (&game).into();
                                         let render = game.render(&render_options);
+                                        let status = match game.status() {
+                                            GameStatus::Finished { winner } => {
+                                                serde_json::json!({ "Finished": { "winner": { "id": winner.id() } } })
+                                            }
+                                            GameStatus::Ongoing { next_player } => {
+                                                serde_json::json!({ "Ongoing": { "next_player": { "id": next_player.id() } } })
+                                            }
+                                        };
 
                                         let _ = socket.send(Message::Text(json!({
                                             "type":"state",
                                             "yen":yen,
+                                            "status": status,
                                             "render": render
                                         }).to_string().into())).await;
                                     }
@@ -243,6 +274,15 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                     Some("command") => {
                         if let Some(line) = v.get("line").and_then(|l| l.as_str()) {
 
+                            // Validar si el juego ya ha terminado
+                            if game.check_game_over() {
+                                let _ = socket.send(Message::Text(json!({
+                                    "type":"error",
+                                    "message":"Game is already finished. Start a new game to continue."
+                                }).to_string().into())).await;
+                                continue;
+                            }
+
                             let player = game.next_player().unwrap_or(PlayerId::new(0));
                             let cmd = parse_command(line, game.total_cells());
 
@@ -250,7 +290,50 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                                 Command::Place { idx } => {
                                     let coords = Coordinates::from_index(idx, game.board_size());
                                     let movement = Movement::Placement { player, coords };
-                                    let _ = game.add_move(movement);
+
+                                    // Aplicar el movimiento del jugador
+                                    if let Err(e) = game.add_move(movement) {
+                                        let _ = socket.send(Message::Text(json!({
+                                            "type":"error",
+                                            "message":format!("invalid move: {}", e)
+                                        }).to_string().into())).await;
+                                    } else {
+                                        // Turno del bot si aplica (modo Computer)
+                                        if mode == CliMode::Computer && !game.check_game_over() {
+                                            // Simular que el bot está pensando
+                                            tokio::time::sleep(tokio::time::Duration::from_millis(400)).await;
+
+                                            if let Some(ref b) = bot_opt {
+                                                if let Some(bot_coords) = b.choose_move(&game) {
+                                                    let bot_player = game.next_player().unwrap_or(PlayerId::new(1));
+                                                    let bot_mv = Movement::Placement {
+                                                        player: bot_player,
+                                                        coords: bot_coords,
+                                                    };
+                                                    let _ = game.add_move(bot_mv);
+                                                }
+                                            }
+                                        }
+
+                                        // Enviar estado tras comando
+                                        let yen: YEN = (&game).into();
+                                        let render = game.render(&render_options);
+                                        let status = match game.status() {
+                                            GameStatus::Finished { winner } => {
+                                                serde_json::json!({ "Finished": { "winner": { "id": winner.id() } } })
+                                            }
+                                            GameStatus::Ongoing { next_player } => {
+                                                serde_json::json!({ "Ongoing": { "next_player": { "id": next_player.id() } } })
+                                            }
+                                        };
+
+                                        let _ = socket.send(Message::Text(json!({
+                                            "type":"state",
+                                            "yen":yen,
+                                            "status": status,
+                                            "render": render
+                                        }).to_string().into())).await;
+                                    }
                                 }
                                 Command::Resign => {
                                     let movement = Movement::Action {
@@ -258,6 +341,25 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                                         action: crate::GameAction::Resign
                                     };
                                     let _ = game.add_move(movement);
+
+                                    // Enviar estado tras comando
+                                    let yen: YEN = (&game).into();
+                                    let render = game.render(&render_options);
+                                    let status = match game.status() {
+                                        GameStatus::Finished { winner } => {
+                                            serde_json::json!({ "Finished": { "winner": { "id": winner.id() } } })
+                                        }
+                                        GameStatus::Ongoing { next_player } => {
+                                            serde_json::json!({ "Ongoing": { "next_player": { "id": next_player.id() } } })
+                                        }
+                                    };
+
+                                    let _ = socket.send(Message::Text(json!({
+                                        "type":"state",
+                                        "yen":yen,
+                                        "status": status,
+                                        "render": render
+                                    }).to_string().into())).await;
                                 }
                                 Command::Help => {
                                     let _ = socket.send(Message::Text(json!({
@@ -271,16 +373,6 @@ async fn handle_socket(mut socket: WebSocket, state: AppState) {
                                 }
                                 _ => {}
                             }
-
-                            // Enviar estado tras comando
-                            let yen: YEN = (&game).into();
-                            let render = game.render(&render_options);
-
-                            let _ = socket.send(Message::Text(json!({
-                                "type":"state",
-                                "yen":yen,
-                                "render": render
-                            }).to_string().into())).await;
                         }
                     }
 

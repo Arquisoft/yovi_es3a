@@ -72,14 +72,20 @@ function parseBoardFromYEN(yen: any): CellState[] {
     const board: CellState[] = new Array(CELLS.length).fill(0);
     if (!yen || !yen.layout) return board;
 
-    const rows: string[] = Array.isArray(yen.layout) ? yen.layout : [];
+    const rows: string[] =
+        typeof yen.layout === "string"
+            ? yen.layout.split('/')
+            : Array.isArray(yen.layout)
+                ? yen.layout
+                : [];
+
     let index = 0;
     for (let row = 0; row < rows.length; row++) {
         const line = rows[row];
         for (let col = 0; col < line.length; col++) {
             const ch = line[col];
-            if (ch === '1') board[index] = 1;
-            else if (ch === '2') board[index] = 2;
+            if (ch === 'B') board[index] = 1;
+            else if (ch === 'R') board[index] = 2;
             index++;
         }
     }
@@ -87,10 +93,19 @@ function parseBoardFromYEN(yen: any): CellState[] {
 }
 
 // Detect winner from YEN status field
-function getWinnerFromYEN(yen: any): Player | null {
-    if (!yen) return null;
-    // status may be { Finished: { winner: { id: 0 } } } or { Ongoing: ... }
-    if (yen.status && yen.status.Finished) {
+function getWinnerFromYEN(message: any): Player | null {
+    if (!message) return null;
+    
+    // Buscar status en el mensaje principal
+    if (message.status && message.status.Finished) {
+        const id = message.status.Finished?.winner?.id;
+        if (id === 0) return 1;
+        if (id === 1) return 2;
+    }
+    
+    // Fallback: check YEN si existe
+    const yen = message.yen;
+    if (yen && yen.status && yen.status.Finished) {
         const id = yen.status.Finished?.winner?.id;
         if (id === 0) return 1;
         if (id === 1) return 2;
@@ -99,11 +114,20 @@ function getWinnerFromYEN(yen: any): Player | null {
 }
 
 // Detect whose turn it is from YEN
-function getCurrentPlayerFromYEN(yen: any): Player {
-    if (!yen) return 1;
-    if (yen.status && yen.status.Ongoing) {
-        const id = yen.status.Ongoing?.next_player?.id;
+function getCurrentPlayerFromYEN(message: any): Player {
+    if (!message) return 1;
+    
+    const yen = message.yen || message;
+    
+    // Check status Ongoing
+    if (message.status && message.status.Ongoing) {
+        const id = message.status.Ongoing?.next_player?.id;
         if (id === 1) return 2;
+    }
+    
+    // Usar turn field de YEN como fallback (0=player1, 1=player2)
+    if (yen && yen.turn !== undefined) {
+        return yen.turn === 0 ? 1 : 2;
     }
     return 1;
 }
@@ -126,7 +150,7 @@ function GameBoard({ username }: { username: string }) {
     const [connected, setConnected] = useState<boolean>(false);
     const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
     const [showStats, setShowStats] = useState<boolean>(false);
-    //const [renderText, setRenderText] = useState<string | null>(null);
+    const [renderText, setRenderText] = useState<string | null>(null);
 
     const wsRef = useRef<WebSocket | null>(null);
     // track last move sender to detect bot reply
@@ -154,8 +178,8 @@ function GameBoard({ username }: { username: string }) {
 
                 if (v.type === 'state' && v.yen) {
                     const newBoard = parseBoardFromYEN(v.yen);
-                    const newWinner = getWinnerFromYEN(v.yen);
-                    const newPlayer = getCurrentPlayerFromYEN(v.yen);
+                    const newWinner = getWinnerFromYEN(v);
+                    const newPlayer = getCurrentPlayerFromYEN(v);
 
                     setBoard(newBoard);
                     setWinner(newWinner);
