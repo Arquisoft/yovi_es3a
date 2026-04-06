@@ -192,3 +192,20 @@ describe('POST /login', () =>
                 expect(res.body.error).toMatch(/El usuario 'PabloASW' no existe./i)
         }); 
     })
+
+describe('GET /api/users', () =>
+    {    
+        /**
+         * Se devuelve una lista de los usuarios, hasta un máximo de 100.
+         * Se recibe un mensaje de éxito con el código 200.
+         */
+        it('returns an approval message ', async () =>
+        {
+            const res = await request(app)
+                .get('/api/users')
+                .set('Accept', 'application/json')
+    
+            expect(res.status).toBe(200)
+            expect(Array.isArray(res.body)).toBe(true);
+        }); 
+    })
