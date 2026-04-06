@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './GameBoard.css';
 import UserStats from './UserStats';
 
-// Tablero del Juego Y — coordenadas baricéntricas (bx, by, bz) con bx+by+bz = N-1
-// N=7 → 28 celdas (tamaño estándar del motor Rust)
 const N = 7;
 const HEX_SIZE = 36;
 const PADDING = 28;
-const dx = Math.sqrt(3) * HEX_SIZE; // separación horizontal entre centros
-const dy = 1.5 * HEX_SIZE;          // separación vertical entre filas
+const dx = Math.sqrt(3) * HEX_SIZE;
+const dy = 1.5 * HEX_SIZE;
 
 const SVG_WIDTH  = 2 * HEX_SIZE + (N - 1) * dx + 2 * PADDING;
 const SVG_HEIGHT = 2 * HEX_SIZE + (N - 1) * dy + 2 * PADDING;
@@ -17,494 +15,426 @@ type Player    = 1 | 2;
 type CellState = 0 | Player;
 
 interface Cell {
-  index: number;
-  bx: number; // N-1-row  (distancia al lado inferior)
-  by: number; // col       (distancia al lado izquierdo)
-  bz: number; // row-col   (distancia al lado derecho)
-  row: number;
-  col: number;
-  cx: number; // centro SVG x
-  cy: number; // centro SVG y
+    index: number;
+    bx: number;
+    by: number;
+    bz: number;
+    row: number;
+    col: number;
+    cx: number;
+    cy: number;
 }
 
 function buildCells(): Cell[] {
-  const cells: Cell[] = [];
-  let index = 0;
-  for (let row = 0; row < N; row++) {
-    for (let col = 0; col <= row; col++) {
-      const bx = N - 1 - row;
-      const by = col;
-      const bz = row - col;
-      const cx = PADDING + HEX_SIZE + ((N - 1 - row) * dx) / 2 + col * dx;
-      const cy = PADDING + HEX_SIZE + row * dy;
-      cells.push({ index, bx, by, bz, row, col, cx, cy });
-      index++;
+    const cells: Cell[] = [];
+    let index = 0;
+    for (let row = 0; row < N; row++) {
+        for (let col = 0; col <= row; col++) {
+            const bx = N - 1 - row;
+            const by = col;
+            const bz = row - col;
+            const cx = PADDING + HEX_SIZE + ((N - 1 - row) * dx) / 2 + col * dx;
+            const cy = PADDING + HEX_SIZE + row * dy;
+            cells.push({ index, bx, by, bz, row, col, cx, cy });
+            index++;
+        }
     }
-  }
-  return cells;
+    return cells;
 }
 
 const CELLS = buildCells();
 
-/** Polígono hexagonal pointy-top centrado en (cx, cy) con radio r */
 function hexPoints(cx: number, cy: number, r: number): string {
-  return Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 3) * i - Math.PI / 6;
-    return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
-  }).join(' ');
+    return Array.from({ length: 6 }, (_, i) => {
+        const angle = (Math.PI / 3) * i - Math.PI / 6;
+        return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
+    }).join(' ');
 }
 
 type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';
 
 function getSide(cell: Cell): SideType {
-  const onLeft   = cell.by === 0;
-  const onRight  = cell.bz === 0;
-  const onBottom = cell.bx === 0;
-  const count = (onLeft ? 1 : 0) + (onRight ? 1 : 0) + (onBottom ? 1 : 0);
-  if (count >= 2) return 'corner';
-  if (onLeft)   return 'left';
-  if (onRight)  return 'right';
-  if (onBottom) return 'bottom';
-  return 'interior';
+    const onLeft   = cell.by === 0;
+    const onRight  = cell.bz === 0;
+    const onBottom = cell.bx === 0;
+    const count = (onLeft ? 1 : 0) + (onRight ? 1 : 0) + (onBottom ? 1 : 0);
+    if (count >= 2) return 'corner';
+    if (onLeft)   return 'left';
+    if (onRight)  return 'right';
+    if (onBottom) return 'bottom';
+    return 'interior';
 }
 
-const API_URL = 'http://localhost:8080'; // Ajusta según el puerto del motor gamey
+// ── YEN parser ────────────────────────────────────────────────────────────────
+// YEN layout field is an array of strings, one per row.
+// Each char: '.' = empty, '1' = player 1, '2' = player 2.
+function parseBoardFromYEN(yen: any): CellState[] {
+    const board: CellState[] = new Array(CELLS.length).fill(0);
+    if (!yen || !yen.layout) return board;
+
+    const rows: string[] = Array.isArray(yen.layout) ? yen.layout : [];
+    let index = 0;
+    for (let row = 0; row < rows.length; row++) {
+        const line = rows[row];
+        for (let col = 0; col < line.length; col++) {
+            const ch = line[col];
+            if (ch === '1') board[index] = 1;
+            else if (ch === '2') board[index] = 2;
+            index++;
+        }
+    }
+    return board;
+}
+
+// Detect winner from YEN status field
+function getWinnerFromYEN(yen: any): Player | null {
+    if (!yen) return null;
+    // status may be { Finished: { winner: { id: 0 } } } or { Ongoing: ... }
+    if (yen.status && yen.status.Finished) {
+        const id = yen.status.Finished?.winner?.id;
+        if (id === 0) return 1;
+        if (id === 1) return 2;
+    }
+    return null;
+}
+
+// Detect whose turn it is from YEN
+function getCurrentPlayerFromYEN(yen: any): Player {
+    if (!yen) return 1;
+    if (yen.status && yen.status.Ongoing) {
+        const id = yen.status.Ongoing?.next_player?.id;
+        if (id === 1) return 2;
+    }
+    return 1;
+}
+
+function stripAnsi(s: string): string {
+    return s.replace(/\x1b\[[0-9;]*m/g, '');
+}
 
 type GameMode = 'pvp' | 'vs-bot';
 
-interface GameState {
-  board: number[];
-  currentPlayer: 1 | 2;
-  winner: number | null;
-  gameOver: boolean;
-}
+const WS_URL = 'ws://localhost:4000/ws';
 
-// Función para detectar victoria localmente (BFS)
-function checkWinner(board: CellState[], player: Player): boolean {
-  // El jugador gana si conecta los tres lados del triángulo
-  // Usamos Union-Find para verificar conexión entre los tres lados
-  
-  const playerCells = CELLS.filter((_, idx) => board[idx] === player);
-  if (playerCells.length < 3) return false;
+function GameBoard({ username }: { username: string }) {
+    const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
+    const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
+    const [hovered, setHovered] = useState<number | null>(null);
+    const [winner, setWinner] = useState<Player | null>(null);
+    const [gameMode, setGameMode] = useState<GameMode>('pvp');
+    const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
+    const [connected, setConnected] = useState<boolean>(false);
+    const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
+    const [showStats, setShowStats] = useState<boolean>(false);
+    //const [renderText, setRenderText] = useState<string | null>(null);
 
-  // Construir grafo de adyacencias
-  const getNeighborIndices = (cell: Cell): number[] => {
-    const neighbors: number[] = [];
-    for (const other of CELLS) {
-      const dbx = Math.abs(cell.bx - other.bx);
-      const dby = Math.abs(cell.by - other.by);
-      const dbz = Math.abs(cell.bz - other.bz);
-      // Celdas adyacentes difieren en exactamente 1 en dos coordenadas
-      if ((dbx === 1 && dby === 1 && dbz === 0) ||
-          (dbx === 1 && dby === 0 && dbz === 1) ||
-          (dbx === 0 && dby === 1 && dbz === 1)) {
-        neighbors.push(other.index);
-      }
-    }
-    return neighbors;
-  };
+    const wsRef = useRef<WebSocket | null>(null);
+    // track last move sender to detect bot reply
+    const awaitingBotRef = useRef<boolean>(false);
 
-  // BFS para encontrar componentes conectados del jugador
-  const visited = new Set<number>();
-  const components: Set<number>[] = [];
-
-  for (const cell of playerCells) {
-    if (visited.has(cell.index)) continue;
-    
-    const component = new Set<number>();
-    const queue = [cell.index];
-    
-    while (queue.length > 0) {
-      const current = queue.shift()!;
-      if (visited.has(current)) continue;
-      visited.add(current);
-      component.add(current);
-      
-      for (const neighborIdx of getNeighborIndices(CELLS[current])) {
-        if (board[neighborIdx] === player && !visited.has(neighborIdx)) {
-          queue.push(neighborIdx);
+    // ── WebSocket lifecycle ──────────────────────────────────────────────────
+    function connectWS(mode: GameMode) {
+        if (wsRef.current) {
+            wsRef.current.close();
+            wsRef.current = null;
         }
-      }
-    }
-    components.push(component);
-  }
 
-  // Verificar si algún componente toca los tres lados
-  for (const component of components) {
-    let touchesLeft = false;
-    let touchesRight = false;
-    let touchesBottom = false;
+        const ws = new WebSocket(WS_URL);
 
-    for (const idx of component) {
-      const cell = CELLS[idx];
-      if (cell.by === 0) touchesLeft = true;   // Lado izquierdo
-      if (cell.bz === 0) touchesRight = true;  // Lado derecho
-      if (cell.bx === 0) touchesBottom = true; // Lado inferior
-    }
+        ws.onopen = () => {
+            setConnected(true);
+            const msg: any = { type: 'start', size: N };
+            if (mode === 'vs-bot') msg.bot_id = 'random_bot';
+            ws.send(JSON.stringify(msg));
+        };
 
-    if (touchesLeft && touchesRight && touchesBottom) {
-      return true;
-    }
-  }
+        ws.onmessage = (ev) => {
+            try {
+                const v = JSON.parse(ev.data);
 
-  return false;
-}
+                if (v.type === 'state' && v.yen) {
+                    const newBoard = parseBoardFromYEN(v.yen);
+                    const newWinner = getWinnerFromYEN(v.yen);
+                    const newPlayer = getCurrentPlayerFromYEN(v.yen);
 
-const BOT_DELAY_MS = 800; // Delay en milisegundos para simular "pensamiento"
+                    setBoard(newBoard);
+                    setWinner(newWinner);
+                    setCurrentPlayer(newPlayer);
 
-function GameBoard({  username }: { username: string }) {
-  const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
-  const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [winner, setWinner] = useState<Player | null>(null);
-  const [gameId, setGameId] = useState<string | null>(null);
-  const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [gameMode, setGameMode] = useState<GameMode>('pvp');
-  const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
-  const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Nuevo estado
-  const [showStats, setShowStats] = useState<boolean>(false);
+                    if (v.render && typeof v.render === 'string') {
+                        setRenderText(stripAnsi(v.render));
+                    }
 
-  // Inicializar juego con el motor
-  useEffect(() => {
-    if (isGameStarted) {
-      startNewGame();
-    }
-  }, [isGameStarted]);
+                    // Bot reply has arrived
+                    if (awaitingBotRef.current) {
+                        awaitingBotRef.current = false;
+                        setIsBotThinking(false);
+                    }
+                }
 
-  // Turno del bot
-  useEffect(() => {
-    if (gameMode === 'vs-bot' && currentPlayer === 2 && !winner && isGameStarted && !isLoading) {
-      makeBotMove();
-    }
-  }, [currentPlayer, gameMode, winner, isGameStarted, isLoading]);
+                if (v.type === 'error') {
+                    console.warn('Server error:', v.message);
+                    setIsBotThinking(false);
+                    awaitingBotRef.current = false;
+                }
+            } catch (e) {
+                console.warn('Bad JSON from server', e);
+            }
+        };
 
-  async function startNewGame() {
-    setIsLoading(true); // Iniciar carga
-    
-    // Resetear el tablero primero
-    setBoard(new Array(CELLS.length).fill(0));
-    setCurrentPlayer(1);
-    setWinner(null);
-    setHovered(null);
-    
-    try {
-      const response = await fetch(`${API_URL}/game/new`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ size: N })
-      });
-      const data = await response.json();
-      setGameId(data.gameId);
-      setIsOnline(true);
-    } catch (error) {
-      console.error('Error iniciando juego, usando modo offline:', error);
-      setIsOnline(false);
-    } finally {
-      setIsLoading(false); // Finalizar carga
-    }
-  }
+        ws.onclose = () => {
+            setConnected(false);
+            setIsBotThinking(false);
+            awaitingBotRef.current = false;
+            wsRef.current = null;
+        };
 
-  async function makeBotMove() {
-    if (!isOnline || !gameId) {
-      makeLocalBotMove();
-      return;
+        ws.onerror = () => {
+            console.warn('WS error');
+            setIsBotThinking(false);
+        };
+
+        wsRef.current = ws;
     }
 
-    setIsBotThinking(true);
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            wsRef.current?.close();
+        };
+    }, []);
 
-    // Añadir delay para simular pensamiento
-    await new Promise(resolve => setTimeout(resolve, BOT_DELAY_MS));
+    // ── Game actions ─────────────────────────────────────────────────────────
+    function sendCommand(line: string) {
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+        wsRef.current.send(JSON.stringify({ type: 'command', line }));
+    }
 
-    try {
-      const response = await fetch(`${API_URL}/game/${gameId}/bot-move`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ player: 2 })
-      });
+    function handleClick(index: number) {
+        if (!connected) return;
+        if (board[index] !== 0 || winner || isBotThinking) return;
+        if (gameMode === 'vs-bot' && currentPlayer === 2) return;
 
-      const data = await response.json();
-      
-      if (data.position) {
-        const cellIndex = CELLS.findIndex(
-          c => c.bx === data.position.bx && c.by === data.position.by && c.bz === data.position.bz
-        );
-
-        if (cellIndex !== -1) {
-          const next = [...board];
-          next[cellIndex] = 2;
-          setBoard(next);
-
-          if (data.winner) {
-            setWinner(data.winner as Player);
-          } else if (checkWinner(next, 2)) {
-            setWinner(2);
-          } else {
-            setCurrentPlayer(1);
-          }
+        // In vs-bot mode, flag that we're waiting for bot reply
+        if (gameMode === 'vs-bot') {
+            awaitingBotRef.current = true;
+            setIsBotThinking(true);
         }
-      }
-    } catch (error) {
-      console.error('Error al hacer movimiento del bot:', error);
-      makeLocalBotMove();
-    } finally {
-      setIsBotThinking(false);
+
+        sendCommand(String(index));
     }
-  }
 
-  function makeLocalBotMove() {
-    const emptyCells = CELLS.filter((_, idx) => board[idx] === 0);
-    if (emptyCells.length === 0) return;
-
-    setIsBotThinking(true);
-
-    // Delay para el bot local también
-    setTimeout(() => {
-      const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-      const next = [...board];
-      next[randomCell.index] = 2;
-      setBoard(next);
-
-      if (checkWinner(next, 2)) {
-        setWinner(2);
-      } else {
+    function handleReset() {
+        setBoard(new Array(CELLS.length).fill(0));
         setCurrentPlayer(1);
-      }
-      setIsBotThinking(false);
-    }, BOT_DELAY_MS);
-  }
+        setWinner(null);
+        setHovered(null);
+        setIsBotThinking(false);
+        awaitingBotRef.current = false;
 
-  async function handleClick(index: number) {
-    // Añadir isLoading a la condición
-    if (board[index] !== 0 || winner || isBotThinking || isLoading) return;
-    if (gameMode === 'vs-bot' && currentPlayer === 2) return; // No permitir clicks durante turno del bot
-
-    const next = [...board];
-    next[index] = currentPlayer;
-
-    if (isOnline && gameId) {
-      try {
-        const cell = CELLS[index];
-        const response = await fetch(`${API_URL}/game/${gameId}/move`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            player: currentPlayer,
-            position: { bx: cell.bx, by: cell.by, bz: cell.bz }
-          })
-        });
-
-        const data: GameState = await response.json();
-        setBoard(next);
-
-        if (data.winner) {
-          setWinner(data.winner as Player);
-          return;
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            const msg: any = { type: 'start', size: N };
+            if (gameMode === 'vs-bot') msg.bot_id = 'random_bot';
+            wsRef.current.send(JSON.stringify(msg));
+        } else {
+            connectWS(gameMode);
         }
-      } catch (error) {
-        console.error('Error al hacer movimiento, usando verificación local:', error);
-        setIsOnline(false);
-      }
     }
 
-    // Verificación local de victoria
-    setBoard(next);
-    
-    if (checkWinner(next, currentPlayer)) {
-      setWinner(currentPlayer);
-    } else {
-      setCurrentPlayer(currentPlayer === 1 ? 2 : 1);
+    function handleBackToMenu() {
+        wsRef.current?.close();
+        wsRef.current = null;
+        setIsGameStarted(false);
+        setConnected(false);
+        setBoard(new Array(CELLS.length).fill(0));
+        setCurrentPlayer(1);
+        setWinner(null);
+        setHovered(null);
+        setIsBotThinking(false);
+        setRenderText(null);
     }
-  }
 
-  function handleReset() {
-    startNewGame();
-  }
+    function handleStartGame(mode: GameMode) {
+        setGameMode(mode);
+        setIsGameStarted(true);
+        setBoard(new Array(CELLS.length).fill(0));
+        setCurrentPlayer(1);
+        setWinner(null);
+        connectWS(mode);
+    }
 
-  function handleBackToMenu() {
-    setIsGameStarted(false);
-    setBoard(new Array(CELLS.length).fill(0));
-    setCurrentPlayer(1);
-    setWinner(null);
-    setHovered(null);
-  }
-
-  // Pantalla de selección de modo
-  if (!isGameStarted) {
-    return (
-      <div className="gb-wrapper">
-        <div className="gb-mode-select">
-          <h2 className="gb-mode-title">Juego Y</h2>
-          <p className="gb-mode-subtitle">Selecciona el modo de juego</p>
-          
-          <div className="gb-mode-buttons">
-            <button 
-              className="gb-mode-btn pvp"
-              onClick={() => { setGameMode('pvp'); setIsGameStarted(true); }}
-            >
-              <span className="gb-mode-icon">👥</span>
-              <span className="gb-mode-label">Jugador vs Jugador</span>
-              <span className="gb-mode-desc">Juega contra un amigo</span>
-            </button>
-            
-            <button 
-              className="gb-mode-btn vs-bot"
-              onClick={() => { setGameMode('vs-bot'); setIsGameStarted(true); }}
-            >
-              <span className="gb-mode-icon">🤖</span>
-              <span className="gb-mode-label">Jugador vs Bot</span>
-              <span className="gb-mode-desc">Juega contra el bot random</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Pantalla de carga
-  if (isLoading) {
-    return (
-      <div className="gb-wrapper">
-        <div className="gb-loading">
-          <div className="gb-spinner"></div>
-          <p className="gb-loading-text">Preparando el juego...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="gb-wrapper">
-      {/* Renderizar el modal de estadísticas del usuario */}
-      {showStats && (
-        <UserStats username={username} onClose={() => setShowStats(false)} />
-      )}
-      {/* Modal de victoria */}
-      {winner && (
-        <div className="gb-winner-overlay">
-          <div className={`gb-winner-modal player${winner}`}>
-            <div className="gb-winner-icon">
-              {gameMode === 'vs-bot' && winner === 1 ? '🏆' : 
-               gameMode === 'vs-bot' && winner === 2 ? '🤖' : '🎉'}
+    // ── Render ───────────────────────────────────────────────────────────────
+    if (!isGameStarted) {
+        return (
+            <div className="gb-wrapper">
+                <div className="gb-mode-select">
+                    <h2 className="gb-mode-title">Juego Y</h2>
+                    <p className="gb-mode-subtitle">Selecciona el modo de juego</p>
+                    <div className="gb-mode-buttons">
+                        <button
+                            className="gb-mode-btn pvp"
+                            onClick={() => handleStartGame('pvp')}
+                        >
+                            <span className="gb-mode-icon">👥</span>
+                            <span className="gb-mode-label">Jugador vs Jugador</span>
+                            <span className="gb-mode-desc">Juega contra un amigo</span>
+                        </button>
+                        <button
+                            className="gb-mode-btn vs-bot"
+                            onClick={() => handleStartGame('vs-bot')}
+                        >
+                            <span className="gb-mode-icon">🤖</span>
+                            <span className="gb-mode-label">Jugador vs Bot</span>
+                            <span className="gb-mode-desc">Juega contra el bot random</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <h2 className="gb-winner-title">
-              {gameMode === 'vs-bot' 
-                ? (winner === 1 ? '¡Has ganado!' : '¡El bot gana!')
-                : `¡Jugador ${winner} gana!`}
-            </h2>
-            <p className="gb-winner-subtitle">
-              {winner === 1 ? 'Rojo ha conectado los tres lados' : 'Azul ha conectado los tres lados'}
-            </p>
-            <div className="gb-winner-actions">
-              <button className="gb-winner-btn" onClick={handleReset}>
-                Jugar de nuevo
-              </button>
-              <button className="gb-winner-btn secondary" onClick={handleBackToMenu}>
-                Cambiar modo
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        );
+    }
 
-      {/* Cabecera */}
-      <div className="gb-header">
-        <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
-        {/* Botón de estadísticas */}
-        <button 
-          className="gb-back" 
-          onClick={() => setShowStats(true)}
-          style={{ marginLeft: '10px', backgroundColor: '#4a90e2' }}
-        >
-          Estadísticas del usuario
-        </button>
-        <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
-          <span className="gb-dot" />
-          {isBotThinking ? (
-            <span>Bot pensando<span className="gb-thinking-dots"></span></span>
-          ) : (
-            <span>
-              Turno: {gameMode === 'vs-bot' 
-                ? (currentPlayer === 1 ? 'Tú' : 'Bot') 
-                : `Jugador ${currentPlayer}`}
+    if (!connected) {
+        return (
+            <div className="gb-wrapper">
+                <div className="gb-loading">
+                    <div className="gb-spinner"></div>
+                    <p className="gb-loading-text">Conectando al servidor...</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="gb-wrapper">
+            {showStats && (
+                <UserStats username={username} onClose={() => setShowStats(false)} />
+            )}
+
+            {winner && (
+                <div className="gb-winner-overlay">
+                    <div className={`gb-winner-modal player${winner}`}>
+                        <div className="gb-winner-icon">
+                            {gameMode === 'vs-bot' && winner === 1 ? '🏆' :
+                                gameMode === 'vs-bot' && winner === 2 ? '🤖' : '🎉'}
+                        </div>
+                        <h2 className="gb-winner-title">
+                            {gameMode === 'vs-bot'
+                                ? (winner === 1 ? '¡Has ganado!' : '¡El bot gana!')
+                                : `¡Jugador ${winner} gana!`}
+                        </h2>
+                        <p className="gb-winner-subtitle">
+                            {winner === 1
+                                ? 'Rojo ha conectado los tres lados'
+                                : 'Azul ha conectado los tres lados'}
+                        </p>
+                        <div className="gb-winner-actions">
+                            <button className="gb-winner-btn" onClick={handleReset}>
+                                Jugar de nuevo
+                            </button>
+                            <button className="gb-winner-btn secondary" onClick={handleBackToMenu}>
+                                Cambiar modo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="gb-header">
+                <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
+                <button
+                    className="gb-back"
+                    onClick={() => setShowStats(true)}
+                    style={{ marginLeft: '10px', backgroundColor: '#4a90e2' }}
+                >
+                    Estadísticas del usuario
+                </button>
+                <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
+                    <span className="gb-dot" />
+                    {isBotThinking ? (
+                        <span>Bot pensando<span className="gb-thinking-dots"></span></span>
+                    ) : (
+                        <span>
+              Turno:{' '}
+                            {gameMode === 'vs-bot'
+                                ? currentPlayer === 1 ? 'Tú' : 'Bot'
+                                : `Jugador ${currentPlayer}`}
             </span>
-          )}
-        </div>
-        <span className={`gb-status ${isOnline ? 'online' : 'offline'}`}>
-          {isOnline ? '🟢 Online' : '🔴 Offline'}
+                    )}
+                </div>
+                <span className={`gb-status ${connected ? 'online' : 'offline'}`}>
+          {connected ? '🟢 Online' : '🔴 Offline'}
         </span>
-        <button className="gb-reset" onClick={handleReset}>Reiniciar</button>
-      </div>
+                <button className="gb-reset" onClick={handleReset}>Reiniciar</button>
+            </div>
 
-      {/* Tablero SVG */}
-      <svg
-        className={`gb-svg ${isBotThinking ? 'gb-disabled' : ''}`}
-        width={SVG_WIDTH}
-        height={SVG_HEIGHT}
-        viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-      >
-        <defs>
-          <filter id="glow1">
-            <feGaussianBlur stdDeviation="3.5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-          <filter id="glow2">
-            <feGaussianBlur stdDeviation="3.5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-        </defs>
+            <svg
+                className={`gb-svg ${isBotThinking ? 'gb-disabled' : ''}`}
+                width={SVG_WIDTH}
+                height={SVG_HEIGHT}
+                viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+            >
+                <defs>
+                    <filter id="glow1">
+                        <feGaussianBlur stdDeviation="3.5" result="blur" />
+                        <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    </filter>
+                    <filter id="glow2">
+                        <feGaussianBlur stdDeviation="3.5" result="blur" />
+                        <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    </filter>
+                </defs>
 
-        {CELLS.map(cell => {
-          const state    = board[cell.index];
-          const side     = getSide(cell);
-          const isHovered = hovered === cell.index && state === 0 && !winner && !isBotThinking;
+                {CELLS.map(cell => {
+                    const state     = board[cell.index];
+                    const side      = getSide(cell);
+                    const isHovered = hovered === cell.index && state === 0 && !winner && !isBotThinking;
 
-          const cellClass = [
-            'gb-hex',
-            state === 1 ? 'gb-p1' :
-            state === 2 ? 'gb-p2' :
-            `gb-${side}`,
-            isHovered ? 'gb-hover' : '',
-          ].filter(Boolean).join(' ');
+                    const cellClass = [
+                        'gb-hex',
+                        state === 1 ? 'gb-p1' :
+                            state === 2 ? 'gb-p2' :
+                                `gb-${side}`,
+                        isHovered ? 'gb-hover' : '',
+                    ].filter(Boolean).join(' ');
 
-          return (
-            <g key={cell.index}>
-              <polygon
-                className={cellClass}
-                points={hexPoints(cell.cx, cell.cy, HEX_SIZE - 2)}
-                onClick={() => handleClick(cell.index)}
-                onMouseEnter={() => setHovered(cell.index)}
-                onMouseLeave={() => setHovered(null)}
-                filter={state === 1 ? 'url(#glow1)' : state === 2 ? 'url(#glow2)' : undefined}
-              />
-              {state !== 0 && (
-                <circle
-                  className={`gb-piece gb-piece-p${state}`}
-                  cx={cell.cx}
-                  cy={cell.cy}
-                  r={HEX_SIZE * 0.37}
-                  style={{ pointerEvents: 'none' }}
-                />
-              )}
-              {isHovered && (
-                <circle
-                  className={`gb-hint gb-hint-p${currentPlayer}`}
-                  cx={cell.cx}
-                  cy={cell.cy}
-                  r={HEX_SIZE * 0.22}
-                  style={{ pointerEvents: 'none' }}
-                />
-              )}
-            </g>
-          );
-        })}
-      </svg>
+                    return (
+                        <g key={cell.index}>
+                            <polygon
+                                className={cellClass}
+                                points={hexPoints(cell.cx, cell.cy, HEX_SIZE - 2)}
+                                onClick={() => handleClick(cell.index)}
+                                onMouseEnter={() => setHovered(cell.index)}
+                                onMouseLeave={() => setHovered(null)}
+                                filter={state === 1 ? 'url(#glow1)' : state === 2 ? 'url(#glow2)' : undefined}
+                            />
+                            {state !== 0 && (
+                                <circle
+                                    className={`gb-piece gb-piece-p${state}`}
+                                    cx={cell.cx}
+                                    cy={cell.cy}
+                                    r={HEX_SIZE * 0.37}
+                                    style={{ pointerEvents: 'none' }}
+                                />
+                            )}
+                            {isHovered && (
+                                <circle
+                                    className={`gb-hint gb-hint-p${currentPlayer}`}
+                                    cx={cell.cx}
+                                    cy={cell.cy}
+                                    r={HEX_SIZE * 0.22}
+                                    style={{ pointerEvents: 'none' }}
+                                />
+                            )}
+                        </g>
+                    );
+                })}
+            </svg>
 
-      <p className="gb-cells-count">
-        {CELLS.length} celdas · N={N} · {gameMode === 'pvp' ? 'PvP' : 'vs Bot'}
-      </p>
-    </div>
-  );
+            <p className="gb-cells-count">
+                {CELLS.length} celdas · N={N} · {gameMode === 'pvp' ? 'PvP' : 'vs Bot'}
+            </p>
+        </div>
+    );
 }
 
 export default GameBoard;
