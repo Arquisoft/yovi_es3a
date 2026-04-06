@@ -132,9 +132,9 @@ function getCurrentPlayerFromYEN(message: any): Player {
     return 1;
 }
 
-function stripAnsi(s: string): string {
-    return s.replace(/\x1b\[[0-9;]*m/g, '');
-}
+//function stripAnsi(s: string): string {
+//    return s.replace(/\x1b\[[0-9;]*m/g, '');
+//}
 
 type GameMode = 'pvp' | 'vs-bot';
 
