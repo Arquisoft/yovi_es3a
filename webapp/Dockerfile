@@ -12,10 +12,9 @@ RUN npm ci --silent
 # Copiar sources
 COPY . .
 
-# Aceptar urls de API y Gamey en tiempo de ejecución y compilar el binario final
-ARG VITE_API_URL="http://localhost:3000"
-ARG VITE_GAMEY_URL="http://localhost:4000"
-RUN export VITE_API_URL=${VITE_API_URL} && export VITE_GAMEY_URL=${VITE_GAMEY_URL} && npm run build
+# Compilar - sin necesidad de variables de entorno
+# La URL del WebSocket se resuelve en tiempo de ejecución en el navegador
+RUN npm run build
 
 # ----- Fase de Ejecución -----
 
@@ -24,6 +23,9 @@ FROM nginx:stable-alpine
 
 # Copiar el binario final
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copiar configuración de nginx
+COPY webapp/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exponer el puerto 80
 EXPOSE 80

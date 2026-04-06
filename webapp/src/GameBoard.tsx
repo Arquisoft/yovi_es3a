@@ -135,26 +135,15 @@ function getCurrentPlayerFromYEN(message: any): Player {
 
 type GameMode = 'pvp' | 'vs-bot';
 
-// Construct WebSocket URL from environment or default to localhost
+// Construct WebSocket URL - resolved at runtime, not at build time
 function getWebSocketURL(): string {
-    // If VITE_GAMEY_URL is set, use it (e.g., http://gamey:4000)
-    const gameyUrl = import.meta.env.VITE_GAMEY_URL;
-    if (gameyUrl) {
-        const protocol = gameyUrl.startsWith('https') ? 'wss' : 'ws';
-        const url = gameyUrl.replace(/^https?:\/\//, '');
-        return `${protocol}://${url}/ws`;
-    }
-    
-    // If VITE_API_URL is set, derive gamey URL from it
-    const apiUrl = import.meta.env.VITE_API_URL;
-    if (apiUrl) {
-        const protocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
-        const host = apiUrl.replace(/^https?:\/\//, '').split(':')[0];
-        return `${protocol}://${host}:4000/ws`;
-    }
-    
-    // Default to localhost
-    return 'ws://localhost:4000/ws';
+    // In production/Docker, all services are on the same network
+    // Use the same hostname as the webapp and port 4000 for gamey
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const host = window.location.hostname;
+    const wsUrl = `${protocol}://${host}:4000/ws`;
+    console.log('WebSocket URL:', wsUrl);
+    return wsUrl;
 }
 
 const WS_URL = getWebSocketURL();
