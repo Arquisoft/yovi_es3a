@@ -12,9 +12,10 @@ RUN npm ci --silent
 # Copiar sources
 COPY . .
 
-# Aceptar url de la API en tiempo de ejecución y compilar el binario final
+# Aceptar urls de API y Gamey en tiempo de ejecución y compilar el binario final
 ARG VITE_API_URL="http://localhost:3000"
-RUN export VITE_API_URL=${VITE_API_URL} && npm run build
+ARG VITE_GAMEY_URL="http://localhost:4000"
+RUN export VITE_API_URL=${VITE_API_URL} && export VITE_GAMEY_URL=${VITE_GAMEY_URL} && npm run build
 
 # ----- Fase de Ejecución -----
 

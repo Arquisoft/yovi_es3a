@@ -53,4 +53,3 @@ services:
 
 networks:
   monitor-net:
-    driver: bridge

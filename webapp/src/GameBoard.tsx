@@ -132,13 +132,32 @@ function getCurrentPlayerFromYEN(message: any): Player {
     return 1;
 }
 
-//function stripAnsi(s: string): string {
-//    return s.replace(/\x1b\[[0-9;]*m/g, '');
-//}
 
 type GameMode = 'pvp' | 'vs-bot';
 
-const WS_URL = 'ws://localhost:4000/ws';
+// Construct WebSocket URL from environment or default to localhost
+function getWebSocketURL(): string {
+    // If VITE_GAMEY_URL is set, use it (e.g., http://gamey:4000)
+    const gameyUrl = import.meta.env.VITE_GAMEY_URL;
+    if (gameyUrl) {
+        const protocol = gameyUrl.startsWith('https') ? 'wss' : 'ws';
+        const url = gameyUrl.replace(/^https?:\/\//, '');
+        return `${protocol}://${url}/ws`;
+    }
+    
+    // If VITE_API_URL is set, derive gamey URL from it
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (apiUrl) {
+        const protocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
+        const host = apiUrl.replace(/^https?:\/\//, '').split(':')[0];
+        return `${protocol}://${host}:4000/ws`;
+    }
+    
+    // Default to localhost
+    return 'ws://localhost:4000/ws';
+}
+
+const WS_URL = getWebSocketURL();
 
 function GameBoard({username}: { username: string }) {
     const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
