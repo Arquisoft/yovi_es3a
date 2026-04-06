@@ -12,9 +12,9 @@ RUN npm ci --silent
 # Copiar sources
 COPY . .
 
-# Compilar - sin necesidad de variables de entorno
-# La URL del WebSocket se resuelve en tiempo de ejecución en el navegador
-RUN npm run build
+# Aceptar url de la API en tiempo de ejecución y compilar el binario final
+ARG VITE_API_URL="http://localhost:3000"
+RUN export VITE_API_URL=${VITE_API_URL} && npm run build
 
 # ----- Fase de Ejecución -----
 
@@ -23,9 +23,6 @@ FROM nginx:stable-alpine
 
 # Copiar el binario final
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copiar configuración de nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exponer el puerto 80
 EXPOSE 80
