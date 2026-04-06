@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import './GameBoard.css';
 import UserStats from './UserStats';
 
@@ -8,10 +8,10 @@ const PADDING = 28;
 const dx = Math.sqrt(3) * HEX_SIZE;
 const dy = 1.5 * HEX_SIZE;
 
-const SVG_WIDTH  = 2 * HEX_SIZE + (N - 1) * dx + 2 * PADDING;
+const SVG_WIDTH = 2 * HEX_SIZE + (N - 1) * dx + 2 * PADDING;
 const SVG_HEIGHT = 2 * HEX_SIZE + (N - 1) * dy + 2 * PADDING;
 
-type Player    = 1 | 2;
+type Player = 1 | 2;
 type CellState = 0 | Player;
 
 interface Cell {
@@ -35,7 +35,7 @@ function buildCells(): Cell[] {
             const bz = row - col;
             const cx = PADDING + HEX_SIZE + ((N - 1 - row) * dx) / 2 + col * dx;
             const cy = PADDING + HEX_SIZE + row * dy;
-            cells.push({ index, bx, by, bz, row, col, cx, cy });
+            cells.push({index, bx, by, bz, row, col, cx, cy});
             index++;
         }
     }
@@ -45,7 +45,7 @@ function buildCells(): Cell[] {
 const CELLS = buildCells();
 
 function hexPoints(cx: number, cy: number, r: number): string {
-    return Array.from({ length: 6 }, (_, i) => {
+    return Array.from({length: 6}, (_, i) => {
         const angle = (Math.PI / 3) * i - Math.PI / 6;
         return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
     }).join(' ');
@@ -54,13 +54,13 @@ function hexPoints(cx: number, cy: number, r: number): string {
 type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';
 
 function getSide(cell: Cell): SideType {
-    const onLeft   = cell.by === 0;
-    const onRight  = cell.bz === 0;
+    const onLeft = cell.by === 0;
+    const onRight = cell.bz === 0;
     const onBottom = cell.bx === 0;
     const count = (onLeft ? 1 : 0) + (onRight ? 1 : 0) + (onBottom ? 1 : 0);
     if (count >= 2) return 'corner';
-    if (onLeft)   return 'left';
-    if (onRight)  return 'right';
+    if (onLeft) return 'left';
+    if (onRight) return 'right';
     if (onBottom) return 'bottom';
     return 'interior';
 }
@@ -95,14 +95,14 @@ function parseBoardFromYEN(yen: any): CellState[] {
 // Detect winner from YEN status field
 function getWinnerFromYEN(message: any): Player | null {
     if (!message) return null;
-    
+
     // Buscar status en el mensaje principal
     if (message.status && message.status.Finished) {
         const id = message.status.Finished?.winner?.id;
         if (id === 0) return 1;
         if (id === 1) return 2;
     }
-    
+
     // Fallback: check YEN si existe
     const yen = message.yen;
     if (yen && yen.status && yen.status.Finished) {
@@ -116,15 +116,15 @@ function getWinnerFromYEN(message: any): Player | null {
 // Detect whose turn it is from YEN
 function getCurrentPlayerFromYEN(message: any): Player {
     if (!message) return 1;
-    
+
     const yen = message.yen || message;
-    
+
     // Check status Ongoing
     if (message.status && message.status.Ongoing) {
         const id = message.status.Ongoing?.next_player?.id;
         if (id === 1) return 2;
     }
-    
+
     // Usar turn field de YEN como fallback (0=player1, 1=player2)
     if (yen && yen.turn !== undefined) {
         return yen.turn === 0 ? 1 : 2;
@@ -140,7 +140,7 @@ type GameMode = 'pvp' | 'vs-bot';
 
 const WS_URL = 'ws://localhost:4000/ws';
 
-function GameBoard({ username }: { username: string }) {
+function GameBoard({username}: { username: string }) {
     const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
     const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
     const [hovered, setHovered] = useState<number | null>(null);
@@ -150,7 +150,7 @@ function GameBoard({ username }: { username: string }) {
     const [connected, setConnected] = useState<boolean>(false);
     const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
     const [showStats, setShowStats] = useState<boolean>(false);
-    const [renderText, setRenderText] = useState<string | null>(null);
+    //const [renderText, setRenderText] = useState<string | null>(null);
 
     const wsRef = useRef<WebSocket | null>(null);
     // track last move sender to detect bot reply
@@ -167,7 +167,7 @@ function GameBoard({ username }: { username: string }) {
 
         ws.onopen = () => {
             setConnected(true);
-            const msg: any = { type: 'start', size: N };
+            const msg: any = {type: 'start', size: N};
             if (mode === 'vs-bot') msg.bot_id = 'random_bot';
             ws.send(JSON.stringify(msg));
         };
@@ -184,10 +184,6 @@ function GameBoard({ username }: { username: string }) {
                     setBoard(newBoard);
                     setWinner(newWinner);
                     setCurrentPlayer(newPlayer);
-
-                    if (v.render && typeof v.render === 'string') {
-                        setRenderText(stripAnsi(v.render));
-                    }
 
                     // Bot reply has arrived
                     if (awaitingBotRef.current) {
@@ -231,7 +227,7 @@ function GameBoard({ username }: { username: string }) {
     // ── Game actions ─────────────────────────────────────────────────────────
     function sendCommand(line: string) {
         if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
-        wsRef.current.send(JSON.stringify({ type: 'command', line }));
+        wsRef.current.send(JSON.stringify({type: 'command', line}));
     }
 
     function handleClick(index: number) {
@@ -257,7 +253,7 @@ function GameBoard({ username }: { username: string }) {
         awaitingBotRef.current = false;
 
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            const msg: any = { type: 'start', size: N };
+            const msg: any = {type: 'start', size: N};
             if (gameMode === 'vs-bot') msg.bot_id = 'random_bot';
             wsRef.current.send(JSON.stringify(msg));
         } else {
@@ -275,7 +271,6 @@ function GameBoard({ username }: { username: string }) {
         setWinner(null);
         setHovered(null);
         setIsBotThinking(false);
-        setRenderText(null);
     }
 
     function handleStartGame(mode: GameMode) {
@@ -331,7 +326,7 @@ function GameBoard({ username }: { username: string }) {
     return (
         <div className="gb-wrapper">
             {showStats && (
-                <UserStats username={username} onClose={() => setShowStats(false)} />
+                <UserStats username={username} onClose={() => setShowStats(false)}/>
             )}
 
             {winner && (
@@ -368,12 +363,12 @@ function GameBoard({ username }: { username: string }) {
                 <button
                     className="gb-back"
                     onClick={() => setShowStats(true)}
-                    style={{ marginLeft: '10px', backgroundColor: '#4a90e2' }}
+                    style={{marginLeft: '10px', backgroundColor: '#4a90e2'}}
                 >
                     Estadísticas del usuario
                 </button>
                 <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
-                    <span className="gb-dot" />
+                    <span className="gb-dot"/>
                     {isBotThinking ? (
                         <span>Bot pensando<span className="gb-thinking-dots"></span></span>
                     ) : (
@@ -399,18 +394,24 @@ function GameBoard({ username }: { username: string }) {
             >
                 <defs>
                     <filter id="glow1">
-                        <feGaussianBlur stdDeviation="3.5" result="blur" />
-                        <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                        <feGaussianBlur stdDeviation="3.5" result="blur"/>
+                        <feMerge>
+                            <feMergeNode in="blur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
                     </filter>
                     <filter id="glow2">
-                        <feGaussianBlur stdDeviation="3.5" result="blur" />
-                        <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                        <feGaussianBlur stdDeviation="3.5" result="blur"/>
+                        <feMerge>
+                            <feMergeNode in="blur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
                     </filter>
                 </defs>
 
                 {CELLS.map(cell => {
-                    const state     = board[cell.index];
-                    const side      = getSide(cell);
+                    const state = board[cell.index];
+                    const side = getSide(cell);
                     const isHovered = hovered === cell.index && state === 0 && !winner && !isBotThinking;
 
                     const cellClass = [
@@ -437,7 +438,7 @@ function GameBoard({ username }: { username: string }) {
                                     cx={cell.cx}
                                     cy={cell.cy}
                                     r={HEX_SIZE * 0.37}
-                                    style={{ pointerEvents: 'none' }}
+                                    style={{pointerEvents: 'none'}}
                                 />
                             )}
                             {isHovered && (
@@ -446,7 +447,7 @@ function GameBoard({ username }: { username: string }) {
                                     cx={cell.cx}
                                     cy={cell.cy}
                                     r={HEX_SIZE * 0.22}
-                                    style={{ pointerEvents: 'none' }}
+                                    style={{pointerEvents: 'none'}}
                                 />
                             )}
                         </g>
