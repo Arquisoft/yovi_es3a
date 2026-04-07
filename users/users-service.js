@@ -85,6 +85,38 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
+app.get('/api/ranking', async (req,res) =>
+{
+  try
+  {
+    const result = await gestor.globalRanking();
+
+    if (!result.success)
+      return res
+        .status(500)
+        .json({error : "Error al obtener el ranking"});
+
+    const ranking = result.data;
+
+    const response =
+    {
+      gold : ranking[0] || null,
+      silver : ranking[1] || null,
+      bronze : ranking[2] || null,
+      rest : ranking.slice(3)
+    }
+    res.json(response);
+  }
+  catch (err)
+  {
+    res
+      .status(500)
+      .json({error : err.message});
+
+    console.log(`Error al obtener raking: ${err.message}`);
+  }
+});
+
 // backward compatibility
 app.post('/createuser', async (req, res) =>
 {

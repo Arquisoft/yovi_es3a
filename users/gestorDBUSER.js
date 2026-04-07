@@ -213,6 +213,38 @@ class GestorDBUSERS {
             throw new Error(`Error al recuperar estadísticas: ${err.message}`);
         }
     }
+
+    async globalRanking()
+    {
+        try
+        {
+            const db = await connectToDatabase();
+            const usersCollection = db.collection('usuarios');
+
+            const ranking = await usersCollection
+                .find({})
+                .sort({ "estadisticas.puntosRanking": -1 })
+                .project({
+                    _id: 0,
+                    playerName: "$nombreUsuario",
+                    score: "$estadisticas.puntosRanking"
+                })
+                .toArray();
+
+            return {
+                success: true,
+                data: ranking
+            };
+        }
+        catch (err)
+        {
+            console.error('Error en globalRanking:', err.message);
+            return { 
+                success: false, 
+                message: 'Error al obtener el ranking de la base de datos.' 
+            };
+        }
+    }
 }
 
 module.exports = GestorDBUSERS;

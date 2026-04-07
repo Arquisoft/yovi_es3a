@@ -6,6 +6,7 @@ import RegisterForm from './features/auth/register/RegisterForm';
 import LoginForm from './features/auth/login/LoginForm';
 import GameBoard from './features/game/GameBoard';
 import UserStats from './features/user-stats/UserStats';
+import Ranking from './features/ranking/Ranking';
 
 function App()
 {
@@ -73,6 +74,13 @@ function App()
 											throw new Error('Function not implemented.');
 										} } />
 										: <Navigate to="/stats" />
+								}/>
+
+								<Route path="/ranking" element=
+								{
+									loggedInUser
+										? <Ranking/>
+										: <Navigate to="/login" />
 								}/>
 
 								{/* Redirect to login or game if URL not found or root */}
