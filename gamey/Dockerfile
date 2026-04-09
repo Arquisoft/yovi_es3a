@@ -1,7 +1,7 @@
 # ------ Fase de Construcción -----
 
 # Usar imagen Rust estable
-FROM rust:latest AS builder
+FROM --platform=linux/amd64 rust:latest AS builder
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ RUN cargo build --release 2>&1
 # ----- Fase de Ejecución -----
 
 # Usar imagen Debian Bookworm para consistencia
-FROM debian:bookworm-slim
+FROM --platform=linux/amd64 debian:bookworm-slim
 
 WORKDIR /app
 
