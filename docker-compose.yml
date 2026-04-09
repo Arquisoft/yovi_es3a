@@ -1,8 +1,8 @@
 services:
   users:
     container_name: users
-    build: ./users
-    image: yovi-users:latest
+    image: ghcr.io/arquisoft/yovi_es3a-users:${IMAGE_TAG}-arm64
+    pull_policy: always
     ports:
       - "3000:3000"
     networks:
@@ -13,8 +13,8 @@ services:
 
   webapp:
     container_name: webapp
-    build: ./webapp
-    image: yovi-webapp:latest
+    image: ghcr.io/arquisoft/yovi_es3a-webapp:${IMAGE_TAG}-arm64
+    pull_policy: always
     ports:
       - "80:80"
     networks:
@@ -24,35 +24,29 @@ services:
 
   gamey:
     container_name: gamey
-    build: ./gamey
-    image: yovi-gamey:latest
+    image: ghcr.io/arquisoft/yovi_es3a-gamey:${IMAGE_TAG}-arm64
+    pull_policy: always
     ports:
       - "4000:4000"
     networks:
       - monitor-net
-    depends_on:
-      - users
-    entrypoint: ["bash", "-c", "./gamey --mode server --port 4000 && tail -f /dev/null"]
+    restart: on-failure
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus
+    image: prom/prometheus:latest
     ports:
       - "9090:9090"
     networks:
       - monitor-net
-    volumes:
-      - ./users/monitoring/prometheus:/etc/prometheus
 
   grafana:
     container_name: grafana
-    image: grafana/grafana
+    image: grafana/grafana:latest
     ports:
       - "9091:3000"
     networks:
       - monitor-net
-    volumes:
-      - ./users/monitoring/grafana/provisioning:/etc/grafana/provisioning
 
 networks:
   monitor-net:
