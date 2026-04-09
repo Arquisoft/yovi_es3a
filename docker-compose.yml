@@ -1,9 +1,7 @@
 services:
   users:
     container_name: users
-    build:
-      context: ./users
-      dockerfile: Dockerfile
+    image: ghcr.io/arquisoft/yovi_es3a-users:${IMAGE_TAG}-arm64
     ports:
       - "3000:3000"
     networks:
@@ -14,9 +12,7 @@ services:
 
   webapp:
     container_name: webapp
-    build:
-      context: ./webapp
-      dockerfile: Dockerfile
+    image: ghcr.io/arquisoft/yovi_es3a-webapp:${IMAGE_TAG}-arm64
     ports:
       - "80:80"
     networks:
@@ -26,13 +22,31 @@ services:
 
   gamey:
     container_name: gamey
-    build:
-      context: ./gamey
-      dockerfile: Dockerfile
+    image: ghcr.io/arquisoft/yovi_es3a-gamey:${IMAGE_TAG}-arm64
     ports:
       - "4000:4000"
     networks:
       - monitor-net
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    networks:
+      - monitor-net
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - "9091:3000"
+    networks:
+      - monitor-net
+
+networks:
+  monitor-net:
+    driver: bridge
 
   prometheus:
     container_name: prometheus
