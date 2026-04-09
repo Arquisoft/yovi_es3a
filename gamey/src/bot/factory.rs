@@ -8,6 +8,7 @@ use tracing::info;
 
 use crate::bot::{
     ybot_registry::YBotRegistry,
+    ybot::YBot,
     strategies::random::RandomBot,
     strategies::greedy::GreedyBot,
     strategies::random_strategy::RandomStrategyBot,

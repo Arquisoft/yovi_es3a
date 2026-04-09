@@ -1,6 +1,6 @@
 # ------ Fase de Construcción -----
 
-# Usar una imagen Rust completa
+# Usar imagen Rust estable
 FROM rust:latest AS builder
 
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar manifestos de dependencias
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml ./
 
 # Copiar benches para evitar fallos de Cargo build
 COPY benches ./benches
@@ -21,10 +21,10 @@ COPY benches ./benches
 # Crear directorio para cacheado de dependencias
 RUN mkdir -p src && echo "fn main() {}" > src/main.rs && echo "" > src/lib.rs
 
-# Compilar y cachear dependencias
+# Compilar y cachear dependencias (ignora Cargo.lock)
 RUN cargo build --release 2>&1
 
-# Copiar archivos restantes
+# Copiar archivos restantes (invalidate cache)
 COPY src ./src
 
 # Compilar el binario final
@@ -32,7 +32,7 @@ RUN cargo build --release 2>&1
 
 # ----- Fase de Ejecución -----
 
-# Usar una imagen con librerías necesarias
+# Usar imagen Debian Bookworm para consistencia
 FROM debian:bookworm-slim
 
 WORKDIR /app
@@ -41,6 +41,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     libssl3 \
+    libgcc-s1 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar el binario final
@@ -51,6 +53,9 @@ EXPOSE 4000
 
 # Configurar nivel de logs
 ENV RUST_LOG=info
+ENV RUST_BACKTRACE=1
+# Force unbuffered output
+ENV PYTHONUNBUFFERED=1
 
-# Ejecutar el servidor con output visible
-CMD ["./gamey", "--mode", "server", "--port", "4000"]
+# Ejecutar el servidor con output visible y sin buffer
+CMD ["sh", "-c", "exec ./gamey --mode server --port 4000"]

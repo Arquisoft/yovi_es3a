@@ -30,8 +30,7 @@ services:
       - "4000:4000"
     networks:
       - monitor-net
-    depends_on:
-      - users
+    restart: on-failure
 
   prometheus:
     container_name: prometheus

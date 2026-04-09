@@ -41,5 +41,5 @@ pub use gamey_error::*;
 pub use notation::*;
 pub use bot_server::*;
 pub use crate::cli::{CliArgs, Mode};
-pub use crate::server::run_bot_server;
+pub use crate::bot_server::run_bot_server;
 pub use crate::cli::run_cli_game;
