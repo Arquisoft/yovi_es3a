@@ -1,10 +1,8 @@
 services:
   users:
     container_name: users
-    build:
-      context: ./users
-      dockerfile: Dockerfile
-    image: yovi-users:${IMAGE_TAG}
+    build: ./users
+    image: yovi-users:latest
     ports:
       - "3000:3000"
     networks:
@@ -15,10 +13,8 @@ services:
 
   webapp:
     container_name: webapp
-    build:
-      context: ./webapp
-      dockerfile: Dockerfile
-    image: yovi-webapp:${IMAGE_TAG}
+    build: ./webapp
+    image: yovi-webapp:latest
     ports:
       - "80:80"
     networks:
@@ -28,19 +24,19 @@ services:
 
   gamey:
     container_name: gamey
-    build:
-      context: ./gamey
-      dockerfile: Dockerfile
-    image: yovi-gamey:${IMAGE_TAG}
+    build: ./gamey
+    image: yovi-gamey:latest
     ports:
       - "4000:4000"
     networks:
       - monitor-net
-    restart: on-failure
+    depends_on:
+      - users
+    entrypoint: ["bash", "-c", "./gamey --mode server --port 4000 && tail -f /dev/null"]
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus:latest
+    image: prom/prometheus
     ports:
       - "9090:9090"
     networks:
@@ -50,7 +46,7 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana:latest
+    image: grafana/grafana
     ports:
       - "9091:3000"
     networks:
