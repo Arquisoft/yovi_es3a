@@ -1,7 +1,7 @@
 # ------ Fase de Construcción -----
 
 # Usar imagen Rust estable
-FROM --platform=linux/amd64 rust:latest AS builder
+FROM rust:latest AS builder
 
 WORKDIR /app
 
@@ -13,27 +13,19 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar manifestos de dependencias
-COPY Cargo.toml ./
+COPY Cargo.toml Cargo.lock ./
 
-# Copiar benches para evitar fallos de Cargo build
+# Copiar benches y src
 COPY benches ./benches
-
-# Crear directorio para cacheado de dependencias
-RUN mkdir -p src && echo "fn main() {}" > src/main.rs && echo "" > src/lib.rs
-
-# Compilar y cachear dependencias (ignora Cargo.lock)
-RUN cargo build --release 2>&1
-
-# Copiar archivos restantes (invalidate cache)
 COPY src ./src
 
 # Compilar el binario final
-RUN cargo build --release 2>&1
+RUN cargo build --release
 
 # ----- Fase de Ejecución -----
 
 # Usar imagen Debian Bookworm para consistencia
-FROM --platform=linux/amd64 debian:bookworm-slim
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
@@ -51,11 +43,10 @@ COPY --from=builder /app/target/release/gamey .
 # Exponer el puerto 4000
 EXPOSE 4000
 
-# Configurar nivel de logs
+# Configurar nivel de logs y desactivar buffering
 ENV RUST_LOG=info
 ENV RUST_BACKTRACE=1
-# Force unbuffered output
-ENV PYTHONUNBUFFERED=1
+ENV RUST_LOG_STYLE=always
 
-# Ejecutar el servidor con output visible y sin buffer
-CMD ["sh", "-c", "exec ./gamey --mode server --port 4000"]
+# Ejecutar el servidor sin sh wrapper
+CMD ["./gamey", "--mode", "server", "--port", "4000"]

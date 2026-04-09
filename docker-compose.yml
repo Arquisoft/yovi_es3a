@@ -1,8 +1,9 @@
 services:
   users:
     container_name: users
-    image: ghcr.io/arquisoft/yovi_es3a-users:${IMAGE_TAG}-arm64
-    pull_policy: always
+    build:
+      context: ./users
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     networks:
@@ -13,8 +14,9 @@ services:
 
   webapp:
     container_name: webapp
-    image: ghcr.io/arquisoft/yovi_es3a-webapp:${IMAGE_TAG}-arm64
-    pull_policy: always
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
     ports:
       - "80:80"
     networks:
@@ -24,13 +26,13 @@ services:
 
   gamey:
     container_name: gamey
-    image: ghcr.io/arquisoft/yovi_es3a-gamey:${IMAGE_TAG}-arm64
-    pull_policy: always
+    build:
+      context: ./gamey
+      dockerfile: Dockerfile
     ports:
       - "4000:4000"
     networks:
       - monitor-net
-    restart: on-failure
 
   prometheus:
     container_name: prometheus
