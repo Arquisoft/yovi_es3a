@@ -1,8 +1,7 @@
 services:
   users:
     container_name: users
-    build: ./users
-    image: yovi-users:latest
+    image: yovi-users:${IMAGE_TAG}
     ports:
       - "3000:3000"
     networks:
@@ -13,8 +12,7 @@ services:
 
   webapp:
     container_name: webapp
-    build: ./webapp
-    image: yovi-webapp:latest
+    image: yovi-webapp:${IMAGE_TAG}
     ports:
       - "80:80"
     networks:
@@ -24,8 +22,7 @@ services:
 
   gamey:
     container_name: gamey
-    build: ./gamey
-    image: yovi-gamey:latest
+    image: yovi-gamey:${IMAGE_TAG}
     ports:
       - "4000:4000"
     networks:
@@ -34,7 +31,7 @@ services:
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus
+    image: prom/prometheus:latest
     ports:
       - "9090:9090"
     networks:
@@ -44,7 +41,7 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana
+    image: grafana/grafana:latest
     ports:
       - "9091:3000"
     networks:
