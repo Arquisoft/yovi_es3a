@@ -1,59 +1,104 @@
 import { useState, useEffect } from 'react';
 import './GameBoard.css';
 
-/* Constantes de juego: */
-const N =  7;
-type Player = 1 | 2;
-type CellState = 0 | Player;
+// TODO: Falta poder especificar el tamaño del tablero. 
+// TODO: Falta terminar de refactorizar GameBoard.
 
 
+/**
+ * Empleamos un sistema de coordenadas baricéntricas (bx, by, bz) para representar la posición de las 
+ * casillas en el tablero, donde bx + by + bz deberá ser igual a SIDE_LEN - 1.
+ * 
+ * ----- CONSTANTES DEL TABLERO -----
+ */
+const SIDE_LEN = 7;    // Tamaño del tablero, medido como el número de casillas en un lado del triángulo.
+const HEX_SIZE = 36;   // Tamaño de las casillas del tablero (px).
+const PADDING = 24;    // Distancia mín. entre las casillas y los bordes de su contenedor (px).
+
+const DIST_X = HEX_SIZE * Math.sqrt(3);    // Distancia horizontal entre los centros de las casillas (px).
+const DIST_Y = HEX_SIZE * 1.5;             // Distancia vertical entre los centros de las casillas (px).
+const CELLS = buildCells();                // Inicialización de las casillas del tablero.
+
+const SVG_WIDTH  = 2 * HEX_SIZE + (SIDE_LEN - 1) * DIST_X + 2 * PADDING;   // Anchura mín. del contenedor del tablero (px).
+const SVG_HEIGHT = 2 * HEX_SIZE + (SIDE_LEN - 1) * DIST_Y + 2 * PADDING;   // Altura mín. del contenedor del tablero (px).
 
 
+/**
+ * ----- OTROS CONSTANTES Y TIPOS -----
+ */
+const API_URL = 'http://localhost:8080';  // URL de la API para conectar con GameY.
+const BOT_DELAY_MS = 600;                 // Tiempo de espera entre movimientos del bot (ms).
 
-// Tablero del Juego Y — coordenadas baricéntricas (bx, by, bz) con bx+by+bz = N-1
-// N=7 → 28 celdas (tamaño estándar del motor Rust)
+type Player = 1 | 2;                // Tipado para el jugador con valor 1 o 2.
+type CellState = 0 | Player;        // Estado de las casillas con valor 0 (neutro) o perteneciente a algún jugador.
+type GameMode = 'pvp' | 'vs-bot';   // Modo de juego, contra bots o contra jugadores.
 
-const HEX_SIZE = 36;
-const PADDING = 28;
-const dx = Math.sqrt(3) * HEX_SIZE; // separación horizontal entre centros
-const dy = 1.5 * HEX_SIZE;          // separación vertical entre filas
-
-const SVG_WIDTH  = 2 * HEX_SIZE + (N - 1) * dx + 2 * PADDING;
-const SVG_HEIGHT = 2 * HEX_SIZE + (N - 1) * dy + 2 * PADDING;
+type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';    // Tipo de casilla, si es interior o se encuentra en un borde.
 
 
-
-interface Cell {
-  index: number;
-  bx: number; // N-1-row  (distancia al lado inferior)
-  by: number; // col       (distancia al lado izquierdo)
-  bz: number; // row-col   (distancia al lado derecho)
-  row: number;
-  col: number;
-  cx: number; // centro SVG x
-  cy: number; // centro SVG y
+/**
+ * Interfaz GameState, que representa el estado general del juego.
+ */
+interface GameState {
+  board: number[];          // El estado del tablero en notación YEN.
+  currentPlayer: 1 | 2;     // El jugador activo.
+  winner: number | null;    // Si hay un ganador.
+  gameOver: boolean;        // Si el juego ha finalizado.
 }
 
+/**
+ * Interfaz Cell, que define las características de una casilla del tablero.
+ */
+interface Cell {
+  index: number;    // Índice de la casilla.
+  bx: number;       // Distancia a la base del tablero.
+  by: number;       // Distancia al lado izquierdo.
+  bz: number;       // Distancia al lado derecho.
+  row: number;      // Fila al que pertenece.
+  col: number;      // Columna al que pertenece.
+  cx: number;       // Centro SVG_x.
+  cy: number;       // Centro SVG_y.
+}
+
+
+
+/**
+ * Function buildCells(), que se ejecuta al initializarse GameBoard. Crea las casillas de
+ * juego según los tamaños especificados para el tablero y las casillas. 
+ * 
+ * @returns Cell[], una lista de casillas.
+ */
 function buildCells(): Cell[] {
-  const cells: Cell[] = [];
-  let index = 0;
-  for (let row = 0; row < N; row++) {
+
+  const cells: Cell[] = []; let index = 0;
+
+  for (let row = 0; row < SIDE_LEN; row++) {
     for (let col = 0; col <= row; col++) {
-      const bx = N - 1 - row;
+
+      // Coordenadas de la casilla.
       const by = col;
       const bz = row - col;
-      const cx = PADDING + HEX_SIZE + ((N - 1 - row) * dx) / 2 + col * dx;
-      const cy = PADDING + HEX_SIZE + row * dy;
-      cells.push({ index, bx, by, bz, row, col, cx, cy });
-      index++;
+      const bx = SIDE_LEN - 1 - row;
+
+      // Centro SVG de la casilla.
+      const cx = PADDING + HEX_SIZE + col * DIST_X + (bx * DIST_X) / 2;
+      const cy = PADDING + HEX_SIZE + row * DIST_Y;
+
+      cells.push({ index, bx, by, bz, row, col, cx, cy }); index++;
     }
   }
+
   return cells;
 }
 
-const CELLS = buildCells();
+
+// TODO: Continuar con la refactorización.
+
 
 /** Polígono hexagonal pointy-top centrado en (cx, cy) con radio r */
+/**
+ * 
+ */
 function hexPoints(cx: number, cy: number, r: number): string {
   return Array.from({ length: 6 }, (_, i) => {
     const angle = (Math.PI / 3) * i - Math.PI / 6;
@@ -61,8 +106,12 @@ function hexPoints(cx: number, cy: number, r: number): string {
   }).join(' ');
 }
 
-type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';
-
+/**
+ * 
+ * 
+ * @param cell 
+ * @returns 
+ */
 function getSide(cell: Cell): SideType {
   const onLeft   = cell.by === 0;
   const onRight  = cell.bz === 0;
@@ -75,18 +124,13 @@ function getSide(cell: Cell): SideType {
   return 'interior';
 }
 
-const API_URL = 'http://localhost:8080'; // Ajusta según el puerto del motor gamey
-
-type GameMode = 'pvp' | 'vs-bot';
-
-interface GameState {
-  board: number[];
-  currentPlayer: 1 | 2;
-  winner: number | null;
-  gameOver: boolean;
-}
-
 // Función para detectar victoria localmente (BFS)
+/**
+ * 
+ * @param board 
+ * @param player 
+ * @returns 
+ */
 function checkWinner(board: CellState[], player: Player): boolean {
   // El jugador gana si conecta los tres lados del triángulo
   // Usamos Union-Find para verificar conexión entre los tres lados
@@ -157,8 +201,11 @@ function checkWinner(board: CellState[], player: Player): boolean {
   return false;
 }
 
-const BOT_DELAY_MS = 800; // Delay en milisegundos para simular "pensamiento"
 
+
+/**
+ * 
+ */
 function GameBoard({  username }: { username: string }) {
   const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
   const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
@@ -198,7 +245,7 @@ function GameBoard({  username }: { username: string }) {
       const response = await fetch(`${API_URL}/game/new`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ size: N })
+        body: JSON.stringify({ size: SIDE_LEN })
       });
       const data = await response.json();
       setGameId(data.gameId);
@@ -414,9 +461,6 @@ function GameBoard({  username }: { username: string }) {
       <div className="gb-header">
         <div className="d-flex gap-2">
           <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
-          <button className="gb-back" onClick={() => setShowStats(true)} style={{ backgroundColor: '#4a90e2' }}>
-            <i className="bi bi-graph-up"></i> Stats
-          </button>
         </div>
 
         <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
@@ -497,7 +541,7 @@ function GameBoard({  username }: { username: string }) {
       </svg>
 
       <p className="gb-cells-count">
-        {CELLS.length} celdas · N={N} · {gameMode === 'pvp' ? 'PvP' : 'vs Bot'}
+        {CELLS.length} celdas · N={SIDE_LEN} · {gameMode === 'pvp' ? 'PvP' : 'vs Bot'}
       </p>
     </div>
   );
