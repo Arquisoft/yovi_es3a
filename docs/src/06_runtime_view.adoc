@@ -18,13 +18,14 @@ endif::arc42help[]
 ==== Descripción del escenario
 
 1. El usuario accede a la `webapp` desde el navegador.
-2. Introduce su `username` en el formulario.
+2. Introduce su `username` y `password` en el formulario `RegisterForm`.
 3. El componente `RegisterForm` ejecuta la función `handleSubmit`.
-4. La `webapp` envía una petición HTTP POST a `users` (`/createuser`).
-5. El servicio `users` procesa la petición y simula 1 segundo de latencia.
-6. `users` devuelve un mensaje JSON de bienvenida.
-7. La `webapp` actualiza su estado interno.
-8. El mensaje se muestra en la interfaz.
+4. La `webapp` envía una petición HTTP POST a `users` (ruta `/createuser`).
+5. El servicio `users` procesa la petición, cifra la contraseña y almacena el usuario en MongoDB.
+6. `users` devuelve un mensaje JSON con el resultado (status 201 si es exitoso).
+7. La `webapp` actualiza su estado interno y almacena el usuario en `localStorage`.
+8. El mensaje de éxito se muestra en la interfaz.
+9. El usuario es redirigido automáticamente a la pantalla principal.
 
 ==== Diagrama de secuencia
 
@@ -33,22 +34,56 @@ image::sequence_register.png[Sequence Diagram - User Registration]
 ==== Aspectos arquitectónicamente relevantes
 
 - Comunicación síncrona mediante HTTP REST.
-- Separación clara entre frontend y backend.
-- Gestión asíncrona del estado en React.
+- Separación clara entre frontend (React/TypeScript) y backend (Node.js/Express).
+- Gestión asíncrona del estado en React mediante hooks (`useState`, `fetch`).
+- Validación en cliente antes de enviar la petición.
+- Persistencia de autenticación mediante `localStorage`.
+- Cifrado de contraseñas con bcryptjs antes de almacenarlas.
 - Exposición de métricas Prometheus por parte de `users`.
 - Uso de CORS para permitir comunicación entre servicios.
 
 
-=== Runtime Scenario 2: Solicitud de jugada al motor gamey
+=== Runtime Scenario 2: Autenticación de usuario (Login)
 
 ==== Descripción del escenario
 
-1. El cliente (webapp o cliente de prueba) solicita una jugada al motor `gamey`.
-2. `gamey` recibe la petición HTTP.
-3. Se ejecuta la lógica del bot dentro de `core/game.rs`.
-4. El motor calcula una jugada válida.
-5. Se devuelve la jugada en formato JSON.
-6. El cliente integra la jugada en la interfaz o en la simulación.
+1. El usuario accede a la `webapp` y ve el formulario de `LoginForm`.
+2. Introduce su `username` y `password`.
+3. El componente `LoginForm` ejecuta la función `handleSubmit`.
+4. La `webapp` envía una petición HTTP POST a `users` (ruta `/login`).
+5. El servicio `users` busca el usuario en MongoDB y verifica la contraseña.
+6. Si la autenticación es exitosa, `users` devuelve status 200 con los datos del usuario.
+7. La `webapp` almacena el username en `localStorage` y actualiza el estado de autenticación.
+8. El usuario accede al tablero de juego y componentes autenticados.
+
+==== Diagrama de secuencia
+
+image::sequence_register.png[Sequence Diagram - User Login]
+
+==== Aspectos arquitectónicamente relevantes
+
+- Validación de credenciales con bcryptjs.
+- Persistencia de sesión mediante `localStorage`.
+- Manejo de errores de autenticación (status 401).
+- Separación entre lógica de presentación y de negocio.
+- No se utilizan sesiones del servidor, sino validación stateless.
+
+
+=== Runtime Scenario 3: Solicitud de movimiento al motor gamey mediante WebSocket
+
+==== Descripción del escenario
+
+1. El usuario autenticado accede al componente `GameBoard`.
+2. El cliente establece una conexión WebSocket a `gamey` (puerto 4000, ruta `/ws`).
+3. El usuario coloca una pieza en el tablero mediante interacción con la UI.
+4. El cliente envía el movimiento en formato JSON a través del WebSocket.
+5. `gamey` recibe el movimiento y valida su legalidad.
+6. Se ejecuta la lógica de actualización del tablero en `core/game.rs`.
+7. El servidor `gamey` calcula si hay un ganador (mediante Union-Find).
+8. Se devuelve el estado del juego actualizado (tablero, estado, turno).
+9. Si el modo es PvC (jugador vs computadora), el bot calcula automáticamente su movimiento.
+10. El servidor envía el movimiento del bot al cliente.
+11. La `webapp` actualiza la visualización del tablero en tiempo real.
 
 ==== Diagrama de secuencia
 
@@ -56,23 +91,31 @@ image::sequence_gamey.png[Sequence Diagram - Game Move Request]
 
 ==== Aspectos arquitectónicamente relevantes
 
-- Separación entre capa HTTP y lógica de dominio.
-- Uso de estructuras eficientes (Union-Find).
-- Motor desacoplado y reutilizable (CLI o servidor).
-- Servicio independiente del frontend.
+- Comunicación bidireccional en tiempo real mediante WebSocket.
+- Separación clara entre capa de presentación (React) y lógica de dominio (Rust).
+- Motor desacoplado: funciona como CLI, servidor HTTP o biblioteca.
+- Uso de estructuras eficientes (Union-Find para detección de conectividad).
+- Validación de movimientos en el servidor.
+- Formato de serialización: YEN (notación de juego).
+- Escalabilidad: múltiples clientes simultáneos pueden conectarse.
 
 
-=== Runtime Scenario 3: Inicio del sistema mediante Docker Compose
+=== Runtime Scenario 4: Inicio del sistema mediante Docker Compose
 
 ==== Descripción del escenario
 
-1. El operador ejecuta `docker-compose up --build`.
+1. El operador ejecuta `docker-compose up --build` en la raíz del proyecto.
 2. Docker construye las imágenes de `webapp`, `users` y `gamey`.
-3. Se levantan los contenedores correspondientes.
-4. Se crea la red Docker interna.
-5. `users` comienza a exponer métricas en `/metrics`.
-6. Prometheus comienza a recolectarlas.
-7. Grafana permite visualizar las métricas.
+3. Se levantan los contenedores correspondientes en orden de dependencias:
+   - `users` comienza primero (puerto 3000 interno).
+   - `webapp` comienza después, dependiendo de `users` (puerto 80 interno).
+   - `gamey` inicia en paralelo (puerto 4000 interno).
+4. Se crea la red Docker `monitor-net` para comunicación interna.
+5. `users` comienza a exponer métricas en `/metrics` mediante `express-prom-bundle`.
+6. `prometheus` comienza a recolectarlas (puerto 9090).
+7. `grafana` permite visualizar las métricas (puerto 9091, redirecciona a 3000 internamente).
+8. `webapp` está accesible desde el navegador en `localhost` (puerto 80).
+9. `gamey` está accesible desde `webapp` en `host.docker.internal:4000` o mediante nombre de servicio.
 
 ==== Diagrama de secuencia
 
@@ -80,22 +123,29 @@ image::sequence_startup.png[Sequence Diagram - System Startup]
 
 ==== Aspectos arquitectónicamente relevantes
 
-- Infraestructura reproducible y automatizada.
-- Aislamiento mediante contenedores.
-- Monitorización integrada.
-- Comunicación interna segura mediante red Docker.
+- Infraestructura reproducible e inmutable mediante contenedores.
+- Aislamiento de servicios mediante red Docker interna.
+- Monitorización integrada con stack Prometheus + Grafana.
+- Comunicación segura entre servicios mediante red Docker.
+- Gestión de dependencias entre servicios (`depends_on`).
+- Puertos mapeados para acceso desde el host.
+- Variables de entorno para configuración dinámica (imagen tags, MONGODB_URI, etc.).
 
 
-=== Runtime Scenario 4: Fallo del servicio users
+=== Runtime Scenario 5: Fallo del servicio users
 
 ==== Descripción del escenario
 
-1. El usuario intenta registrarse.
-2. La `webapp` envía la petición a `users`.
-3. El servicio `users` no está disponible (contenedor caído).
-4. La petición falla por timeout o error de red.
-5. La `webapp` muestra un mensaje de error.
-6. Prometheus deja de recibir métricas del servicio.
+1. El usuario intenta registrarse o hacer login.
+2. La `webapp` envía la petición HTTP a `users` (puerto 3000).
+3. El servicio `users` no está disponible (contenedor caído o red inaccesible).
+4. La petición falla por timeout o error de conexión (ERR_CONNECTION_REFUSED).
+5. El componente React captura la excepción en el bloque `catch` del `fetch`.
+6. La `webapp` muestra un mensaje de error al usuario.
+7. Prometheus detiene la recolección de métricas desde `users` (error en scrape).
+8. Grafana muestra un estado de advertencia (series sin datos).
+9. El usuario no puede acceder a funcionalidades que requieren autenticación.
+10. Las funcionalidades locales de `gamey` (si están disponibles) siguen siendo accesibles.
 
 ==== Diagrama de secuencia
 
@@ -103,7 +153,32 @@ image::sequence_failure.png[Sequence Diagram - Users Service Failure]
 
 ==== Aspectos arquitectónicamente relevantes
 
-- Manejo explícito de errores en el frontend.
+- Manejo explícito de errores en React mediante bloques try-catch.
+- Timeouts configurables en cliente para fallos de red.
 - Arquitectura desacoplada que evita fallos en cascada.
-- Detección de fallos mediante monitorización.
-- El sistema sigue parcialmente operativo.
+- Detección de fallos mediante monitorización (Prometheus/Grafana).
+- Degradación elegante: el sistema sigue parcialmente operativo.
+- Resiliencia: el usuario puede reintentar la operación.
+- Logs de error para debugging posterior.
+
+
+=== Runtime Scenario 6: Fallo de gamey (Motor de juego)
+
+==== Descripción del escenario
+
+1. El usuario autenticado intenta jugar una partida.
+2. La `webapp` intenta conectarse a `gamey` mediante WebSocket (puerto 4000).
+3. El servidor `gamey` no está disponible (contenedor caído).
+4. La conexión WebSocket falla con error de conexión.
+5. La `webapp` detecta el error en el manejador `onError` del WebSocket.
+6. Se muestra un mensaje de error al usuario.
+7. Las funcionalidades de registro y login siguen siendo accesibles (independientes de `gamey`).
+8. El usuario no puede jugar hasta que `gamey` se recupere.
+
+==== Aspectos arquitectónicamente relevantes
+
+- Aislamiento de fallos: el fallo de `gamey` no afecta a `users`.
+- Manejo de reconexión automática mediante WebSocket.
+- Mensajes de error informativos al usuario.
+- Monitorización independiente de cada servicio.
+- Recuperación automática cuando el servicio se reinicia.
