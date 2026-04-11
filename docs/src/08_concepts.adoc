@@ -60,20 +60,17 @@ image::DiagramaBD.png[Diagrama de Despliegue]
 
 === Conceptos de Experiencia de Usuario
 
-La experiencia del usuario será una de los pilares de toda la aplicación a desarrollar. Se ofrecerá en versión Web la posibilidad de jugar a diferentes juegos basados en el juego Y.
+La experiencia de usuario se centra en ofrecer una interfaz web clara, accesible y atractiva que permita a los jugadores interactuar de forma fluida con el "Juego Y". El sistema prioriza la facilidad de uso mediante un diseño intuitivo, asegurando que tanto el registro como la participación en las distintas modalidades de juego sean procesos sencillos y directos.
 
 === Conceptos de Seguridad
 
-La seguridad de la aplicación es un tema que aún no se ha indagado dentro del desarrollo de la aplicación. Muy seguramente, haya un sistema de inicio de sesión en el que gire todo este apartado.
+La seguridad de la aplicación se basa actualmente en el aislamiento de componentes mediante una arquitectura de microservicios y el uso de variables de entorno para proteger credenciales sensibles. El proyecto integra además análisis de calidad continuo en su flujo de desarrollo y planea implementar un sistema centralizado de autenticación para gestionar el acceso de forma segura.
 
 === Conceptos de Arquitectura
 
-
-Los conceptos de arquitectura serán más indigados en el siguiente apartado. De forma superficial, la arquitectura está basada en microservicios unidos para comprender toda la aplicación.
+La arquitectura de la aplicación se basa en un sistema de microservicios independientes que desacoplan la interfaz web, el servicio de gestión de usuarios y el motor de lógica de juego desarrollado en Rust. Estos componentes interactúan mediante el intercambio de mensajes JSON y están contenedorizados con Docker para garantizar un despliegue consistente, escalable y reproducible en la nube.
 
 === Conceptos de Desarrollo
 
-La aplicación se basará en su testing, integración y deployment. En este apartado no se puede indagar mucho ya que actualmente la aplicación únicamente de ha desplegado.
-
-El desplegue se realizará con Docker, donde se empaquetará la aplicación en un contenedor estandarizado donde se facilita un despliegue rápido, consistente y reproducible en cualquier entorno.
+El desarrollo de la aplicación se fundamenta en un ciclo de integración y despliegue continuos (CI/CD) que prioriza el testing automatizado y el análisis de calidad con SonarCloud. Todo el proceso se apoya en la contenedorización con Docker y flujos de trabajo en GitHub Actions para asegurar entregas rápidas, consistentes y reproducibles en cualquier entorno.
 
