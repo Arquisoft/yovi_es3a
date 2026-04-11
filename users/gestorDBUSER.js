@@ -270,6 +270,59 @@ class GestorDBUSERS {
             throw new Error(`Error al recuperar ranking: ${err.message}`);
         }
     }
+
+    /**
+     * Obtiene las últimas 5 partidas de un usuario.
+     * Estructura esperada de una partida:
+     * {
+     *     "_id": ObjectId,
+     *     "jugador": ObjectId (ID del usuario),
+     *     "tipo": "local" | "bot",
+     *     "fecha": Date,
+     *     "activa": boolean,
+     *     "puntos": number
+     * }
+     * @param {string} nombreUsuario - El nombre de usuario
+     * @returns {Promise<{success: boolean, message: string, games?: Array}>}
+     */
+    async getUserGames(nombreUsuario) {
+        try {
+            const db = await connectToDatabase();
+            const usersCollection = db.collection('usuarios');
+            const gamesCollection = db.collection('partidas');
+
+            // 1. Buscar al usuario para obtener su ID
+            const usuario = await usersCollection.findOne(
+                { nombreUsuario },
+                { projection: { _id: 1 } }
+            );
+
+            if (!usuario) {
+                return { 
+                    success: false, 
+                    message: `El usuario '${nombreUsuario}' no existe.` 
+                };
+            }
+
+            // 2. Buscar las últimas 5 partidas del usuario
+            const games = await gamesCollection.find(
+                { jugador: usuario._id.toString() }
+            )
+            .sort({ fecha: -1 })  // Ordenar por fecha descendente (más recientes primero)
+            .limit(5)
+            .toArray();
+
+            return { 
+                success: true, 
+                message: 'Partidas recuperadas correctamente.', 
+                games: games 
+            };
+
+        } catch (err) {
+            console.error('Error en getUserGames:', err.message);
+            throw new Error(`Error al recuperar partidas: ${err.message}`);
+        }
+    }
 }
 
 module.exports = GestorDBUSERS;

@@ -385,3 +385,205 @@ body {
     font-size: 0.9rem;
   }
 }
+
+/* Tab Navigation Styles */
+.tabs-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  color: #1f2937;
+}
+
+.tab-button.active {
+  color: #6222E0;
+  border-bottom-color: #6222E0;
+}
+
+.tabs-content {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.tab-pane {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Games Table Styles */
+.games-table-container {
+  margin-top: 16px;
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: white;
+}
+
+.games-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.games-table thead {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.games-table thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.games-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease;
+}
+
+.games-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.games-table tbody tr.result-win {
+  border-left: 4px solid #22c55e;
+}
+
+.games-table tbody tr.result-loss {
+  border-left: 4px solid #ef4444;
+}
+
+.games-table tbody td {
+  padding: 12px 16px;
+  color: #1f2937;
+}
+
+.opponent-cell {
+  font-weight: 500;
+}
+
+.result-cell {
+  text-align: center;
+}
+
+.result-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.result-badge.result-win {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.result-badge.result-loss {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.points-cell {
+  text-align: center;
+  font-weight: 600;
+  color: #6222E0;
+}
+
+.date-cell {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Responsive for Tables */
+@media (max-width: 768px) {
+  .tab-button {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .games-table thead th {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  .games-table tbody td {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .result-badge {
+    padding: 3px 10px;
+    font-size: 0.75rem;
+  }
+
+  .tabs-container {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 640px) {
+  .tab-button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .games-table {
+    font-size: 0.85rem;
+  }
+
+  .games-table thead th {
+    padding: 8px 8px;
+    font-size: 0.75rem;
+  }
+
+  .games-table tbody td {
+    padding: 8px 8px;
+    font-size: 0.85rem;
+  }
+
+  .result-badge {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+  }
+
+  .tabs-container {
+    gap: 2px;
+    margin-bottom: -1px;
+  }
+}

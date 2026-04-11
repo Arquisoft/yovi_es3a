@@ -18,6 +18,15 @@ interface UserStats {
   };
 }
 
+interface Game {
+  _id: string;
+  jugador: string;
+  tipo: 'local' | 'bot';
+  fecha: string;
+  activa: boolean;
+  puntos: number;
+}
+
 const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ wins, losses, draws }) => {
   const total = wins + losses + draws;
   if (total === 0) {
@@ -117,8 +126,12 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
 
 const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
   const [stats, setStats] = useState<UserStats | null>(null);
+  const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(false);
+  const [gamesLoading, setGamesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gamesError, setGamesError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'stats' | 'games'>('stats');
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -160,6 +173,36 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
     }
   }, [username]);
 
+  useEffect(() => {
+    const fetchGames = async () => {
+      if (activeTab !== 'games') return;
+
+      setGamesLoading(true);
+      setGamesError(null);
+
+      try {
+        const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+        const response = await fetch(API_URL + '/games/user/' + username);
+        const data = await response.json();
+
+        if (data.success) {
+          const sortedGames = data.games
+            .sort((a: Game, b: Game) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+            .slice(0, 5);
+          setGames(sortedGames);
+        } else {
+          setGamesError(data.message || 'No se pudieron cargar las partidas.');
+        }
+      } catch {
+        setGamesError('Error de red al conectar con el servidor.');
+      } finally {
+        setGamesLoading(false);
+      }
+    };
+
+    fetchGames();
+  }, [username, activeTab]);
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -176,72 +219,187 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
     }
   };
 
+  const formatDateTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (Number.isNaN(date.getTime())) {
+        return 'Fecha no disponible';
+      }
+      return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return 'Fecha no disponible';
+    }
+  };
+
+  const getGameResult = (game: Game) => {
+    return game.puntos > 0 ? 'Victoria' : 'Derrota';
+  };
+
+  const getGameResultClass = (game: Game) => {
+    return game.puntos > 0 ? 'result-win' : 'result-loss';
+  };
+
+  const getOpponentType = (tipo: string) => {
+    return tipo === 'bot' ? 'Bot IA' : 'Jugador Local';
+  };
+
   return (
     <div className="stats-overlay">
+      <h2 className="stats-title dark-purple-fg fw-bold">
+        Estadísticas del Jugador
+      </h2>
 
-        <h2 className="stats-title dark-purple-fg fw-bold">
-          Estadísticas del Jugador
-        </h2>
+      {/* Tab Navigation */}
+      <div className="tabs-container">
+        <button
+          className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
+          onClick={() => setActiveTab('stats')}
+        >
+          📊 Estadísticas
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'games' ? 'active' : ''}`}
+          onClick={() => setActiveTab('games')}
+        >
+          🎮 Historial de Partidas
+        </button>
+      </div>
 
-        {loading && (
-          <div className="text-center">
-            <div className="spinner-border text-primary" aria-label="Cargando">
-              <span className="visually-hidden">Cargando...</span>
-            </div>
-            <p className="mt-2">Cargando estadísticas...</p>
+      {/* Tab Content */}
+      <div className="tabs-content">
+        {/* Statistics Tab */}
+        {activeTab === 'stats' && (
+          <div className="tab-pane active">
+            {loading && (
+              <div className="text-center">
+                <div className="spinner-border text-primary" aria-label="Cargando">
+                  <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p className="mt-2">Cargando estadísticas...</p>
+              </div>
+            )}
+
+            {error && (
+              <div
+                className="alert alert-danger alert-dismissible fade show d-flex align-items-center border-0 bg-danger bg-opacity-10 text-danger"
+                role="alert"
+              >
+                <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>{error}</div>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setError(null)}
+                  aria-label="Close"
+                ></button>
+              </div>
+            )}
+
+            {stats && (
+              <div className="stats-content">
+                {/* Columna Izquierda */}
+                <div className="stats-column-left">
+                  {/* Usuario */}
+                  <div className="stats-section">
+                    <h5 className="stats-section-title">Nombre de Usuario</h5>
+                    <p className="stats-value">{stats.nombreUsuario}</p>
+                  </div>
+
+                  {/* Fecha de Creación */}
+                  <div className="stats-section">
+                    <h5 className="stats-section-title">Fecha de Creación</h5>
+                    <p className="stats-value">{formatDate(stats.fechaUltimaEdicion)}</p>
+                  </div>
+
+                  {/* Puntos de Ranking */}
+                  <div className="stats-section stats-highlight">
+                    <h5 className="stats-section-title">Puntos de Ranking</h5>
+                    <p className="stats-value stats-points">{stats.estadisticas.puntosRanking}</p>
+                  </div>
+                </div>
+
+                {/* Columna Derecha */}
+                <div className="stats-column-right">
+                  {/* Gráfico de Resultados */}
+                  <div className="stats-section" style={{ width: '100%', margin: 0, padding: 0, border: 'none' }}>
+                    <h5 className="stats-section-title">Resultados</h5>
+                    <PieChart wins={stats.estadisticas.victorias} losses={stats.estadisticas.derrotas} draws={stats.estadisticas.empates} />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {error && (
-          <div
-            className="alert alert-danger alert-dismissible fade show d-flex align-items-center border-0 bg-danger bg-opacity-10 text-danger"
-            role="alert"
-          >
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            <div>{error}</div>
-            <button
-              type="button"
-              className="btn-close"
-              onClick={() => setError(null)}
-              aria-label="Close"
-            ></button>
+        {/* Games History Tab */}
+        {activeTab === 'games' && (
+          <div className="tab-pane active">
+            {gamesLoading && (
+              <div className="text-center">
+                <div className="spinner-border text-primary" aria-label="Cargando">
+                  <span className="visually-hidden">Cargando partidas...</span>
+                </div>
+                <p className="mt-2">Cargando historial de partidas...</p>
+              </div>
+            )}
+
+            {gamesError && (
+              <div
+                className="alert alert-danger alert-dismissible fade show d-flex align-items-center border-0 bg-danger bg-opacity-10 text-danger"
+                role="alert"
+              >
+                <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>{gamesError}</div>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setGamesError(null)}
+                  aria-label="Close"
+                ></button>
+              </div>
+            )}
+
+            {!gamesLoading && !gamesError && (
+              <div className="games-table-container">
+                {games.length === 0 ? (
+                  <p className="text-center text-muted mt-4">No hay partidas disponibles</p>
+                ) : (
+                  <table className="games-table">
+                    <thead>
+                      <tr>
+                        <th>Rival</th>
+                        <th>Resultado</th>
+                        <th>Puntos</th>
+                        <th>Fecha y Hora</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {games.map((game) => (
+                        <tr key={game._id} className={getGameResultClass(game)}>
+                          <td className="opponent-cell">{getOpponentType(game.tipo)}</td>
+                          <td className="result-cell">
+                            <span className={`result-badge ${getGameResultClass(game)}`}>
+                              {getGameResult(game)}
+                            </span>
+                          </td>
+                          <td className="points-cell">{game.puntos}</td>
+                          <td className="date-cell">{formatDateTime(game.fecha)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
           </div>
         )}
-
-        {stats && (
-          <div className="stats-content">
-            {/* Columna Izquierda */}
-            <div className="stats-column-left">
-              {/* Usuario */}
-              <div className="stats-section">
-                <h5 className="stats-section-title">Nombre de Usuario</h5>
-                <p className="stats-value">{stats.nombreUsuario}</p>
-              </div>
-
-              {/* Fecha de Creación */}
-              <div className="stats-section">
-                <h5 className="stats-section-title">Fecha de Creación</h5>
-                <p className="stats-value">{formatDate(stats.fechaUltimaEdicion)}</p>
-              </div>
-
-              {/* Puntos de Ranking */}
-              <div className="stats-section stats-highlight">
-                <h5 className="stats-section-title">Puntos de Ranking</h5>
-                <p className="stats-value stats-points">{stats.estadisticas.puntosRanking}</p>
-              </div>
-            </div>
-
-            {/* Columna Derecha */}
-            <div className="stats-column-right">
-              {/* Gráfico de Resultados */}
-              <div className="stats-section" style={{ width: '100%', margin: 0, padding: 0, border: 'none' }}>
-                <h5 className="stats-section-title">Resultados</h5>
-                <PieChart wins={stats.estadisticas.victorias} losses={stats.estadisticas.derrotas} draws={stats.estadisticas.empates} />
-              </div>
-            </div>
-          </div>
-        )}
-        
+      </div>
     </div>
   );
 };
