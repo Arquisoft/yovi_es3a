@@ -214,35 +214,60 @@ class GestorDBUSERS {
         }
     }
 
-    async globalRanking()
-    {
-        try
-        {
+
+    /**
+     * Obtiene los 3 mejores jugadores ordenados por puntos de ranking.
+     * Devolvera un objeto con el siguiente aspecto:
+     * {
+        "success": true,
+        "message": "Ranking recuperado correctamente.",
+        "ranking": [
+            {
+                "nombreUsuario": "player1",
+                "estadisticas": {
+                    "partidasJugadas": 3,
+                    "victorias": 1,
+                    "derrotas": 1,
+                    "empates": 1,
+                    "puntosRanking": 100
+                }
+            },
+            {
+                "nombreUsuario": "player2",
+                "estadisticas": {}
+            },
+            {
+                "nombreUsuario": "player3",
+                "estadisticas": {}
+            }
+        ]
+     * @param {string} nombreUsuario 
+     * @returns {Promise<{success: boolean, message: string, ranking?: object}>}
+     */
+    async getRankingThreeBest() {
+        try {
             const db = await connectToDatabase();
             const usersCollection = db.collection('usuarios');
 
-            const ranking = await usersCollection
-                .find({})
-                .sort({ "estadisticas.puntosRanking": -1 })
-                .project({
-                    _id: 0,
-                    playerName: "$nombreUsuario",
-                    score: "$estadisticas.puntosRanking"
+            const ranking = await usersCollection.find({}).sort({ "estadisticas.puntosRanking": -1 }) // Obtiene la lista con todos los usuarios y los ordena por puntos de ranking de forma descendente
+                .limit(3)   // Limita el resultado a los 3 primeros 
+                .project({ 
+                    nombreUsuario: 1, 
+                    estadisticas: 1, 
+                    _id: 0 
                 })
-                .toArray();
+                .toArray(); // Selecciona solo el nombre de usuario y las estadísticas, sin el _id y lo convierte a un array
 
-            return {
-                success: true,
-                data: ranking
-            };
-        }
-        catch (err)
-        {
-            console.error('Error en globalRanking:', err.message);
+
             return { 
-                success: false, 
-                message: 'Error al obtener el ranking de la base de datos.' 
+                success: true, 
+                message: 'Ranking recuperado correctamente.', 
+                ranking: ranking
             };
+
+        } catch (err) {
+            console.error('Error en getRankingThreeBest:', err.message);
+            throw new Error(`Error al recuperar ranking: ${err.message}`);
         }
     }
 }

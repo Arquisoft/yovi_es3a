@@ -1,41 +1,55 @@
-//! A simple random bot implementation.
+//! Implementación simple de un bot aleatorio.
 //!
-//! This module provides [`RandomBot`], a bot that makes random valid moves.
-//! It is useful for testing and as a baseline opponent.
+//! Este módulo proporciona [`RandomBot`], un bot que realiza movimientos válidos al azar.
+//! Es útil para pruebas y como oponente base.
 
 use crate::{Coordinates, GameY, YBot};
 use rand::prelude::IndexedRandom;
 
-/// A bot that chooses moves randomly from the available cells.
+/// Bot que elige movimientos aleatorios entre las casillas disponibles.
 ///
-/// This is the simplest possible bot implementation - it simply picks
-/// a random empty cell on the board. While not strategic, it serves as
-/// a useful baseline and testing tool.
-///
-/// # Example
-///
-/// ```
-/// use gamey::{GameY, RandomBot, YBot};
-///
-/// let bot = RandomBot;
-/// let game = GameY::new(5);
-///
-/// // The bot will always return Some when there are available moves
-/// let chosen_move = bot.choose_move(&game);
-/// assert!(chosen_move.is_some());
-/// ```
+/// Es la implementación más simple posible: selecciona una casilla vacía al azar.
+/// No tiene estrategia, pero sirve como referencia base y para testing.
 pub struct RandomBot;
 
 impl YBot for RandomBot {
+
+    /// Devuelve el nombre del bot.
     fn name(&self) -> &str {
         "random_bot"
     }
 
+    /// Elige un movimiento aleatorio entre las casillas disponibles.
+    ///
+    /// Pasos:
+    /// 1. Obtiene las casillas libres del tablero
+    /// 2. Selecciona una al azar
+    /// 3. Convierte el índice en coordenadas
+    /// 4. Devuelve el resultado
+    ///
+    /// Devuelve `None` si no hay movimientos posibles (tablero lleno).
     fn choose_move(&self, board: &GameY) -> Option<Coordinates> {
+
+        // Obtiene las casillas disponibles (índices)
         let available_cells = board.available_cells();
+
+        // Selecciona una casilla aleatoria (puede fallar si está vacío)
         let cell = available_cells.choose(&mut rand::rng())?;
+
+        // Convierte el índice a coordenadas del tablero
         let coordinates = Coordinates::from_index(*cell, board.board_size());
+
         Some(coordinates)
+    }
+
+    /// Devuelve el nivel de dificultad del bot.
+    fn difficulty(&self) -> &str {
+        "Fácil"
+    }
+
+    /// Describe el comportamiento del bot.
+    fn description(&self) -> &str {
+        "Elige una casilla libre al azar en el tablero."
     }
 }
 
@@ -44,12 +58,14 @@ mod tests {
     use super::*;
     use crate::{Movement, PlayerId};
 
+    /// Comprueba que el nombre del bot es correcto.
     #[test]
     fn test_random_bot_name() {
         let bot = RandomBot;
         assert_eq!(bot.name(), "random_bot");
     }
 
+    /// Comprueba que el bot devuelve un movimiento en un tablero vacío.
     #[test]
     fn test_random_bot_returns_move_on_empty_board() {
         let bot = RandomBot;
@@ -59,6 +75,7 @@ mod tests {
         assert!(chosen_move.is_some());
     }
 
+    /// Comprueba que las coordenadas devueltas son válidas.
     #[test]
     fn test_random_bot_returns_valid_coordinates() {
         let bot = RandomBot;
@@ -67,17 +84,17 @@ mod tests {
         let coords = bot.choose_move(&game).unwrap();
         let index = coords.to_index(game.board_size());
 
-        // Index should be within the valid range for a size-5 board
-        // Total cells = (5 * 6) / 2 = 15
+        // Para tamaño 5: (5 * 6) / 2 = 15 celdas
         assert!(index < 15);
     }
 
+    /// Comprueba que devuelve None si el tablero está lleno.
     #[test]
     fn test_random_bot_returns_none_on_full_board() {
         let bot = RandomBot;
         let mut game = GameY::new(2);
 
-        // Fill the board (size 2 has 3 cells)
+        // Rellena completamente el tablero
         let moves = vec![
             Movement::Placement {
                 player: PlayerId::new(0),
@@ -97,18 +114,20 @@ mod tests {
             game.add_move(mv).unwrap();
         }
 
-        // Board is now full
+        // El tablero está lleno → no hay movimientos posibles
         assert!(game.available_cells().is_empty());
+
         let chosen_move = bot.choose_move(&game);
         assert!(chosen_move.is_none());
     }
 
+    /// Comprueba que el bot solo elige entre casillas disponibles.
     #[test]
     fn test_random_bot_chooses_from_available_cells() {
         let bot = RandomBot;
         let mut game = GameY::new(3);
 
-        // Make some moves to reduce available cells
+        // Ocupa una casilla
         game.add_move(Movement::Placement {
             player: PlayerId::new(0),
             coords: Coordinates::new(2, 0, 0),
@@ -118,21 +137,22 @@ mod tests {
         let coords = bot.choose_move(&game).unwrap();
         let index = coords.to_index(game.board_size());
 
-        // The chosen index should be in the available cells
+        // Debe estar entre las casillas libres
         assert!(game.available_cells().contains(&index));
     }
 
+    /// Comprueba múltiples ejecuciones (aleatoriedad consistente).
     #[test]
     fn test_random_bot_multiple_calls_return_valid_moves() {
         let bot = RandomBot;
         let game = GameY::new(7);
 
-        // Call choose_move multiple times to exercise the randomness
+        // Ejecuta varias veces para comprobar consistencia
         for _ in 0..10 {
             let coords = bot.choose_move(&game).unwrap();
             let index = coords.to_index(game.board_size());
 
-            // Total cells for size 7 = (7 * 8) / 2 = 28
+            // Para tamaño 7: (7 * 8) / 2 = 28 celdas
             assert!(index < 28);
             assert!(game.available_cells().contains(&index));
         }

@@ -261,6 +261,32 @@ async fn test_choose_with_empty_bot_registry() {
     assert!(error_response.message.contains("Bot not found"));
 }
 
+#[tokio::test]
+async fn test_choose_with_greedy_bots() {
+    let app = test_app();
+
+    let yen = YEN::new(3, 0, vec!['B', 'R'], "./../...".to_string());
+
+    let bot_ids = vec!["greedy_easy", "greedy_medium", "greedy_hard"];
+
+    for bot_id in bot_ids {
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri(format!("/v1/ybot/choose/{}", bot_id))
+                    .header("content-type", "application/json")
+                    .body(Body::from(serde_json::to_string(&yen).unwrap()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK, "Bot selection failed for {}", bot_id);
+    }
+}
+
 // ============================================================================
 // Route not found tests
 // ============================================================================
