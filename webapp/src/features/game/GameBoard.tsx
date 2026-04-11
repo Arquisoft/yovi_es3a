@@ -350,7 +350,7 @@ function GameBoard({username}: { username: string }) {
                             onClick={() => handleStartGame('pvp')}
                         >
                             <span className="gb-mode-icon">👥</span>
-                            <span className="gb-mode-label">Jugador vs Jugador</span>
+                            <span className="gb-mode-label">Jugador vs Jugador</span><br/>
                             <span className="gb-mode-desc">Juega contra un amigo</span>
                         </button>
                         <button
@@ -358,7 +358,7 @@ function GameBoard({username}: { username: string }) {
                             onClick={() => handleStartGame('vs-bot')}
                         >
                             <span className="gb-mode-icon">🤖</span>
-                            <span className="gb-mode-label">Jugador vs Bot</span>
+                            <span className="gb-mode-label">Jugador vs Bot</span><br/>
                             <span className="gb-mode-desc">Juega contra el bot random</span>
                         </button>
                     </div>
@@ -414,7 +414,7 @@ function GameBoard({username}: { username: string }) {
                 <button
                     className="gb-back"
                     onClick={() => setShowStats(true)}
-                    style={{marginLeft: '10px', backgroundColor: '#4a90e2'}}
+                    style={{marginLeft: '10px'}}
                 >
                     Estadísticas del usuario
                 </button>

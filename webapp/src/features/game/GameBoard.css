@@ -32,17 +32,18 @@
 .gb-turn {
   min-width: 110px;
   justify-content: center;
+  color: #1a1a1a;
 }
 
 .gb-turn.player1 {
   background: rgba(231, 76, 60, 0.12);
-  color: #e74c3c;
+  color: #c0392b;
   border: 1px solid rgba(231, 76, 60, 0.35);
 }
 
 .gb-turn.player2 {
   background: rgba(52, 152, 219, 0.12);
-  color: #3498db;
+  color: #1f5fa0;
   border: 1px solid rgba(52, 152, 219, 0.35);
 }
 
@@ -71,9 +72,9 @@
 
 .gb-reset {
   padding: 0.35rem 0.85rem;
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  color: #1a1a1a;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.8rem;
@@ -81,9 +82,9 @@
 }
 
 .gb-reset:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 1);
+  color: #000000;
+  border-color: rgba(0, 0, 0, 0.35);
 }
 
 /* ─── Leyenda ───────────────────────────────────────────────────────────── */
@@ -94,6 +95,7 @@
   font-weight: 500;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  color: #1a1a1a;
 }
 
 .leg-left { color: #c0392b; opacity: 0.75; }
@@ -207,7 +209,7 @@
 /* ─── Pie ───────────────────────────────────────────────────────────────── */
 .gb-cells-count {
   font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.2);
+  color: #4a4a4a;
   margin: 0;
   letter-spacing: 0.05em;
 }
@@ -218,16 +220,17 @@
   padding: 0.25rem 0.6rem;
   border-radius: 12px;
   font-weight: 500;
+  color: #1a1a1a;
 }
 
 .gb-status.online {
-  background: rgba(39, 174, 96, 0.15);
-  color: #27ae60;
+  background: rgba(39, 174, 96, 0.2);
+  color: #1b6b3a;
 }
 
 .gb-status.offline {
-  background: rgba(231, 76, 60, 0.15);
-  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.2);
+  color: #8b2f1f;
 }
 
 /* ─── Modal de victoria ─────────────────────────────────────────────────── */
@@ -251,7 +254,7 @@
 }
 
 .gb-winner-modal {
-  background: #1c1f2e;
+  background: #f5f5f5;
   border-radius: 20px;
   padding: 2.5rem 3rem;
   text-align: center;
@@ -289,6 +292,7 @@
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
+  color: #1a1a1a;
 }
 
 .player1 .gb-winner-title { color: #e74c3c; }
@@ -296,7 +300,7 @@
 
 .gb-winner-subtitle {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: #555555;
   margin: 0 0 1.5rem;
 }
 
@@ -351,13 +355,13 @@
 .gb-mode-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #fff;
+  color: #1a1a1a;
   margin: 0 0 0.5rem;
 }
 
 .gb-mode-subtitle {
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: #4a4a4a;
   margin: 0 0 2rem;
 }
 
@@ -369,9 +373,10 @@
 }
 
 .gb-mode-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   min-width: 240px;
+  color: #1a1a1a;
 }
 
 .gb-mode-btn:hover {
@@ -397,21 +402,21 @@
 .gb-mode-label {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #fff;
+  color: #1a1a1a;
   margin-bottom: 0.3rem;
 }
 
 .gb-mode-desc {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: #666666;
 }
 
 /* ─── Botón volver ──────────────────────────────────────────────────────── */
 .gb-back {
   padding: 0.35rem 0.85rem;
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  color: #1a1a1a;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.8rem;
@@ -419,8 +424,9 @@
 }
 
 .gb-back:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 1);
+  color: #000000;
+  border-color: rgba(0, 0, 0, 0.35);
 }
 
 /* ─── Tablero deshabilitado ─────────────────────────────────────────────── */
@@ -442,8 +448,8 @@
 .gb-spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #667eea;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #1f5fa0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -454,7 +460,7 @@
 
 .gb-loading-text {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #1a1a1a;
   margin: 0;
   animation: pulse-text 1.5s ease-in-out infinite;
 }
