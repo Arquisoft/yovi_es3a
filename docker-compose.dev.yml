@@ -1,0 +1,20 @@
+# Development compose: builds local images
+# Use with: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+
+services:
+  users:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000
+
+  gamey:
+    build:
+      context: ./gamey
+      dockerfile: Dockerfile
