@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useRef, useEffect } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import './GameBoard.css';
 
 /**
@@ -91,7 +90,7 @@ function buildCells(): Cell[] {
  */
 function hexPoints(cx: number, cy: number, r: number): string {
   return Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 3) * i - Math.PI / 6;
+    const angle = (Math.PI / 3) * i - Math.PI / 6;  
     return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
   }).join(' ');
 }
@@ -129,12 +128,13 @@ function parseBoardFromYEN(yen: any): CellState[] {
             : Array.isArray(yen.layout)
                 ? yen.layout
                 : [];
-
+                
     let index = 0;
-    for (const element of rows) {
-        const line = element;
-        for (const element of line) {
-            const ch = element;
+    for (let row = 0; row < rows.length; row++) {
+        const line = rows[row];
+        for (let col = 0; col < line.length; col++) {
+            const ch = line[col];
+
             if (ch === 'B') board[index] = 1;
             else if (ch === 'R') board[index] = 2;
             index++;
@@ -143,7 +143,7 @@ function parseBoardFromYEN(yen: any): CellState[] {
     return board;
 }
 
-
+// Detect winner from YEN status field
 function getWinnerFromYEN(message: any): Player | null {
     if (!message) return null;
 
@@ -414,7 +414,7 @@ function GameBoard({username}: { username: string }) {
                 <button
                     className="gb-back"
                     onClick={() => setShowStats(true)}
-                    style={{marginLeft: '10px'}}
+                    style={{marginLeft: '10px', backgroundColor: '#4a90e2'}}
                 >
                     Estadísticas del usuario
                 </button>

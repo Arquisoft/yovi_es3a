@@ -1,23 +1,22 @@
 # ------ Fase de Construcción -----
 
-# Usar una imagen ligera Rust para la compilación
-FROM rust:slim AS builder
+# Usar imagen Rust estable
+FROM rust:latest AS builder
 
 WORKDIR /app
+
+# Instalar dependencias de compilación necesarias
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libssl-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copiar manifestos de dependencias
 COPY Cargo.toml Cargo.lock ./
 
-# Copiar benches para evitar fallos de Cargo build
+# Copiar benches y src
 COPY benches ./benches
-
-# Crear directorio para cacheado de dependencias
-RUN mkdir -p src && echo "fn main() {}" > src/main.rs && echo "" > src/lib.rs
-
-# Compilar y cachear dependencias
-RUN cargo build --release
-
-# Copiar archivos restantes
 COPY src ./src
 
 # Compilar el binario final
@@ -25,10 +24,18 @@ RUN cargo build --release
 
 # ----- Fase de Ejecución -----
 
-# Usar una imagen mínima para la ejecución
+# Usar imagen Debian Bookworm para consistencia
 FROM debian:bookworm-slim
 
 WORKDIR /app
+
+# Instalar las librerías necesarias para ejecutar el binario Rust
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libssl3 \
+    libgcc-s1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copiar el binario final
 COPY --from=builder /app/target/release/gamey .
@@ -36,6 +43,12 @@ COPY --from=builder /app/target/release/gamey .
 # Exponer el puerto 4000
 EXPOSE 4000
 
-# Ejecutar el servidor
+# Configurar nivel de logs y desactivar buffering
+ENV RUST_LOG=info
+ENV RUST_BACKTRACE=1
+ENV RUST_LOG_STYLE=always
+
+# Ejecutar el servidor sin sh wrapper
 # (local: cargo run -- --mode server --port 4000)
-CMD ["./gamey", "--mode", "server", "--port", "4000"]
+ENTRYPOINT ["./gamey"]
+CMD ["--mode", "server", "--port", "4000"]
