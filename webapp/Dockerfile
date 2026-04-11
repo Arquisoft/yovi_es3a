@@ -1,7 +1,7 @@
 # ------ Fase de Construcción -----
 
 # Usar imagen compatible con ARM para la compilación
-FROM node:22-bookworm AS builder
+FROM node:22.11-bookworm AS builder
 
 WORKDIR /app
 
