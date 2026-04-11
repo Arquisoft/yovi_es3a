@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
 import './GameBoard.css';
 
-// TODO: Falta poder especificar el tamaño del tablero. 
-// TODO: Falta terminar de refactorizar GameBoard.
-
-
 /**
  * Empleamos un sistema de coordenadas baricéntricas (bx, by, bz) para representar la posición de las 
  * casillas en el tablero, donde bx + by + bz deberá ser igual a SIDE_LEN - 1.
@@ -92,40 +88,28 @@ function buildCells(): Cell[] {
 }
 
 
-// TODO: Continuar con la refactorización.
 
-
-/** Polígono hexagonal pointy-top centrado en (cx, cy) con radio r */
 /**
- * 
+ * Funciones auxiliares para manejar la GameBoard.
  */
-function hexPoints(cx: number, cy: number, r: number): string {
-  return Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 3) * i - Math.PI / 6;
-    return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
-  }).join(' ');
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TODO: Continuar Refactorización
 
 /**
- * 
- * 
- * @param cell 
- * @returns 
- */
-function getSide(cell: Cell): SideType {
-  const onLeft   = cell.by === 0;
-  const onRight  = cell.bz === 0;
-  const onBottom = cell.bx === 0;
-  const count = (onLeft ? 1 : 0) + (onRight ? 1 : 0) + (onBottom ? 1 : 0);
-  if (count >= 2) return 'corner';
-  if (onLeft)   return 'left';
-  if (onRight)  return 'right';
-  if (onBottom) return 'bottom';
-  return 'interior';
-}
-
-// Función para detectar victoria localmente (BFS)
-/**
+ * Función checkWinner(), emplea emplea un algoritmo Breadth-First Seach (BFS) para 
+ * detectar las victorias localmente.
  * 
  * @param board 
  * @param player 
@@ -201,7 +185,34 @@ function checkWinner(board: CellState[], player: Player): boolean {
   return false;
 }
 
+/**
+ * 
+ * 
+ * @param cell 
+ * @returns 
+ */
+function getSide(cell: Cell): SideType {
+  const onLeft   = cell.by === 0;
+  const onRight  = cell.bz === 0;
+  const onBottom = cell.bx === 0;
+  const count = (onLeft ? 1 : 0) + (onRight ? 1 : 0) + (onBottom ? 1 : 0);
+  if (count >= 2) return 'corner';
+  if (onLeft)   return 'left';
+  if (onRight)  return 'right';
+  if (onBottom) return 'bottom';
+  return 'interior';
+}
 
+/** Polígono hexagonal pointy-top centrado en (cx, cy) con radio r */
+/**
+ * 
+ */
+function hexPoints(cx: number, cy: number, r: number): string {
+  return Array.from({ length: 6 }, (_, i) => {
+    const angle = (Math.PI / 3) * i - Math.PI / 6;
+    return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
+  }).join(' ');
+}
 
 /**
  * 
