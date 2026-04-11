@@ -49,4 +49,5 @@ ENV RUST_BACKTRACE=1
 ENV RUST_LOG_STYLE=always
 
 # Ejecutar el servidor sin sh wrapper
-CMD ["./gamey", "--mode", "server", "--port", "4000"]
+ENTRYPOINT ["./gamey"]
+CMD ["--mode", "server", "--port", "4000"]
