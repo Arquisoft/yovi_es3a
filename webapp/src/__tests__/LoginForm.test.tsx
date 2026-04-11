@@ -2,7 +2,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import LoginForm from '../LoginForm'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 
 describe('LoginForm', () => {
 	const originalFetch = global.fetch;
@@ -13,6 +13,8 @@ describe('LoginForm', () => {
 
 	afterEach(() => {
 		global.fetch = originalFetch;
+        
+		cleanup();
 	});
 
 	it('renders without errors', () => {
