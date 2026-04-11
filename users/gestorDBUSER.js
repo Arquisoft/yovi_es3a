@@ -244,6 +244,71 @@ class GestorDBUSERS {
      * @param {string} nombreUsuario 
      * @returns {Promise<{success: boolean, message: string, ranking?: object}>}
      */
+    async globalRanking() {
+        try {
+            const db = await connectToDatabase();
+            const usersCollection = db.collection('usuarios');
+
+            const ranking = await usersCollection.find({})
+                .sort({ "estadisticas.puntosRanking": -1 })
+                .project({ 
+                    nombreUsuario: 1, 
+                    estadisticas: 1,
+                    _id: 0 
+                })
+                .toArray();
+
+            // Transformar los datos al formato esperado
+            const formattedRanking = ranking.map(user => ({
+                playerName: user.nombreUsuario || 'Desconocido',
+                score: (user.estadisticas && user.estadisticas.puntosRanking) || 0
+            }));
+
+            return { 
+                success: true, 
+                message: 'Ranking recuperado correctamente.', 
+                data: formattedRanking
+            };
+
+        } catch (err) {
+            console.error('Error en globalRanking:', err.message);
+            return {
+                success: false,
+                message: `Error al recuperar ranking global: ${err.message}`,
+                data: []
+            };
+        }
+    }
+
+    /**
+     * Obtiene los 3 mejores jugadores ordenados por puntos de ranking.
+     * Devolvera un objeto con el siguiente aspecto:
+     * {
+        "success": true,
+        "message": "Ranking recuperado correctamente.",
+        "ranking": [
+            {
+                "nombreUsuario": "player1",
+                "estadisticas": {
+                    "partidasJugadas": 3,
+                    "victorias": 1,
+                    "derrotas": 1,
+                    "empates": 1,
+                    "puntosRanking": 100
+                }
+            },
+            {
+                "nombreUsuario": "player2",
+                "estadisticas": {}
+            },
+            {
+                "nombreUsuario": "player3",
+                "estadisticas": {}
+            }
+        ]
+     * @param {string} nombreUsuario 
+     * @returns {Promise<{success: boolean, message: string, ranking?: object}>}
+     */
     async getRankingThreeBest() {
         try {
             const db = await connectToDatabase();

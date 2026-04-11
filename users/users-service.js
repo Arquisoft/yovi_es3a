@@ -93,10 +93,10 @@ app.get('/api/ranking', async (req,res) =>
 
     if (!result.success)
       return res
-        .status(500)
-        .json({error : "Error al obtener el ranking"});
+        .status(400)
+        .json(result);
 
-    const ranking = result.data;
+    const ranking = result.data || [];
 
     const response =
     {
@@ -109,11 +109,10 @@ app.get('/api/ranking', async (req,res) =>
   }
   catch (err)
   {
+    console.log(`Error al obtener ranking: ${err.message}`);
     res
       .status(500)
       .json({error : err.message});
-
-    console.log(`Error al obtener raking: ${err.message}`);
   }
 });
 
