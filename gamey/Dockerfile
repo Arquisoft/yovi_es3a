@@ -37,4 +37,5 @@ COPY --from=builder /app/target/release/gamey .
 EXPOSE 4000
 
 # Ejecutar el servidor
+# (local: cargo run -- --mode server --port 4000)
 CMD ["./gamey", "--mode", "server", "--port", "4000"]
