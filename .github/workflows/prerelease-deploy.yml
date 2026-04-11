@@ -3,7 +3,7 @@ name: Prerelease — Test, Build, Publish, Deploy
 on:
   release:
     types: [prereleased]
-  
+
 permissions:
   contents: read
   packages: write
@@ -168,7 +168,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -208,12 +208,11 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           command: |
             wget https://raw.githubusercontent.com/arquisoft/${{ github.event.repository.name }}/${{ github.event.release.target_commitish }}/docker-compose.yml -O docker-compose.yml
-            
-            cat > .env <<EOF
-            IMAGE_TAG=${{ env.IMAGE_TAG }}
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
-            MONGODB_DB=${{ secrets.MONGODB_DB }}
-            EOF
-            
+
+            printf "IMAGE_TAG=%s\nMONGODB_URI=%s\nMONGODB_DB=%s\n" \
+              "${{ env.IMAGE_TAG }}" \
+              "${{ secrets.MONGODB_URI }}" \
+              "${{ secrets.MONGODB_DB }}" > .env
+
             docker compose down
             docker compose up -d --pull always
