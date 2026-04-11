@@ -116,6 +116,48 @@ app.get('/api/ranking', async (req,res) =>
   }
 });
 
+// Update user stats + register match result
+app.post('/api/matches/update', async (req, res) => {
+  const { username, puntos, modo } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ success: false, message: 'username is required' });
+  }
+
+  if (typeof puntos !== 'number') {
+    return res.status(400).json({ success: false, message: 'puntos must be a number' });
+  }
+
+  try {
+    // Update stats
+    const statsResult = await gestor.updateUserStats(username, puntos);
+
+    if (!statsResult.success) {
+      return res.status(400).json(statsResult);
+    }
+
+    // Register match
+    const matchResult = await gestor.addUserMatch(username, puntos, modo || "local");
+
+    if (!matchResult.success) {
+      return res.status(400).json(matchResult);
+    }
+
+    res.json({
+      success: true,
+      message: "Match updated successfully.",
+      nuevosPuntos: statsResult.nuevosPuntos
+    });
+
+  } catch (err) {
+    console.error("Error updating match:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Server error updating match."
+    });
+  }
+});
+
 // backward compatibility
 app.post('/createuser', async (req, res) =>
 {

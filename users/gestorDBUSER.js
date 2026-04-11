@@ -388,6 +388,47 @@ class GestorDBUSERS {
             throw new Error(`Error al recuperar partidas: ${err.message}`);
         }
     }
+
+
+    /**
+     * Registra el resultado de una partida.
+     * 
+     * @param {string} nombreUsuario - El nombre del usuario.
+     * @param {number} puntos - Puntos obtenidos en la partida.
+     * @param {string} tipo - Tipo de partida ("local" o "bot").
+     * @returns {Promise<{success: boolean, message: string, nuevosPuntos?: number}>}
+     */
+    async addUserMatch(nombreUsuario, puntos, tipo = "local") {
+        try {
+            const db = await connectToDatabase();
+            const usersCollection = db.collection('usuarios');
+            const gamesCollection = db.collection('partidas');
+
+            // 1. Buscar al usuario
+            const usuario = await usersCollection.findOne({ nombreUsuario });
+            if (!usuario) {
+                return { success: false, message: `El usuario '${nombreUsuario}' no existe.` };
+            }
+
+            // 2. Registrar la partida en la colección 'partidas'
+            await gamesCollection.insertOne({
+                jugador: usuario._id.toString(),
+                tipo,
+                fecha: new Date(),
+                activa: false,
+                puntos
+            });
+
+            return {
+                success: true,
+                message: "Partida registrada correctamente."
+            };
+
+        } catch (err) {
+            console.error("Error en addUserMatch:", err.message);
+            throw new Error(`Error al registrar partida: ${err.message}`);
+        }
+    }
 }
 
 module.exports = GestorDBUSERS;

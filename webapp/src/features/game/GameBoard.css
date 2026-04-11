@@ -336,12 +336,12 @@
 }
 
 .gb-winner-btn.secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(70, 59, 59, 0.897);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .gb-winner-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(123, 124, 124, 0.897);
 }
 
 /* ─── Selector de modo ──────────────────────────────────────────────────── */
@@ -497,4 +497,25 @@
   50% { content: '..'; }
   75% { content: '...'; }
   100% { content: ''; }
+}
+
+.gb-difficulty-select,
+.gb-board-size-select {
+    display: flex;
+    flex-direction: column;   /* puts label above select */
+    margin-bottom: 16px;      /* space between the two selectors */
+}
+
+.gb-difficulty-select label,
+.gb-board-size-select label {
+    margin-bottom: 6px;       /* space between label and select */
+    font-weight: 600;
+}
+
+.gb-difficulty-select select,
+.gb-board-size-select select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
 }
