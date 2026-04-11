@@ -13,7 +13,7 @@ image::building_blocks_overview.png[Overview Diagram]
 
 Motivation::
 
-El sistema se descompone en tres bloques principales siguiendo una arquitectura de microservicios desacoplados:
+El sistema se descompone en cuatro bloques principales siguiendo una arquitectura de microservicios desacoplados:
 
 - `webapp`: interfaz de usuario
 - `users`: microservicio REST
@@ -28,8 +28,8 @@ Contained Building Blocks::
 [cols="1,2", options="header"]
 |===
 | **Name** | **Responsibility**
-| webapp | Interfaz de usuario desarrollada en React.
-| users | Microservicio Node.js para registro de usuarios.
+| webapp | Interfaz de usuario desarrollada en React con TypeScript.
+| users | Microservicio Node.js/Express para gestión de usuarios.
 | gamey | Motor de juego que implementa la lógica del dominio.
 | Monitoring Stack | Monitorización con Prometheus y Grafana.
 |===
@@ -47,12 +47,14 @@ Important Interfaces::
 
 _Purpose/Responsibility_
 
-Gestiona la interacción con el usuario y realiza llamadas HTTP al backend.
+Gestiona la interacción con el usuario, autenticación (login/registro) y realiza llamadas HTTP al backend.
 
 _Interface(s)_
 
-- POST `/createuser`
-- Solicitudes al motor `gamey`
+- POST `/createuser` - Crear nuevo usuario
+- POST `/login` - Autenticar usuario
+- GET `/metrics` - Métricas de Prometheus
+- Solicitudes HTTP al motor `gamey`
 
 _Directory/File Location_
 
@@ -63,12 +65,17 @@ _Directory/File Location_
 
 _Purpose/Responsibility_
 
-Servicio REST que procesa registros de usuario y expone métricas.
+Servicio REST que gestiona el registro, autenticación y almacenamiento de usuarios. Expone métricas del sistema.
 
 _Interface(s)_
 
-- POST `/createuser`
-- GET `/metrics`
+- POST `/` - Crear usuario
+- GET `/` - Listar usuarios
+- GET `/username/:username` - Obtener usuario por nombre
+- POST `/auth` - Verificar contraseña (autenticación)
+- GET `/:id` - Obtener usuario por ID
+- DELETE `/:id` - Eliminar usuario
+- GET `/metrics` - Métricas de Prometheus
 
 _Directory/File Location_
 
@@ -79,12 +86,12 @@ _Directory/File Location_
 
 _Purpose/Responsibility_
 
-Implementa la lógica del juego y los algoritmos de decisión.
+Implementa la lógica del juego de Y, incluyendo algoritmos de inteligencia artificial para oponentes computacionales.
 
 _Interface(s)_
 
 - API HTTP (modo servidor)
-- CLI
+- CLI (línea de comandos)
 - Biblioteca interna Rust
 
 _Directory/File Location_
@@ -96,11 +103,11 @@ _Directory/File Location_
 
 _Purpose/Responsibility_
 
-Recolecta y visualiza métricas del sistema.
+Recolecta y visualiza métricas del sistema mediante Prometheus y Grafana.
 
 _Interface(s)_
 
-- Scraping `/metrics`
+- Scraping de `/metrics` desde `users` y `gamey`
 
 _Location_
 
@@ -115,14 +122,16 @@ image::webapp_internal_structure.png[Webapp Internal Structure]
 
 Motivation::
 
-Se detalla la estructura interna por ser el punto de entrada del sistema.
+Se detalla la estructura interna por ser el punto de entrada del sistema y responsable de la autenticación de usuarios.
 
 [cols="1,2", options="header"]
 |===
 | **Name** | **Responsibility**
-| main.tsx | Punto de entrada React.
-| App.tsx | Componente raíz.
-| RegisterForm.tsx | Gestión del formulario y llamadas HTTP.
+| main.tsx | Punto de entrada de la aplicación React.
+| App.tsx | Componente raíz que gestiona el estado de autenticación.
+| RegisterForm.tsx | Componente de registro de nuevos usuarios.
+| LoginForm.tsx | Componente de login de usuarios existentes.
+| GameBoard.tsx | Componente para visualizar y jugar al tablero de juego.
 |===
 
 
@@ -132,15 +141,23 @@ image::gamey_internal_structure.png[Gamey Internal Structure]
 
 Motivation::
 
-Contiene la lógica más compleja del sistema.
+Contiene la lógica más compleja del sistema, implementada en Rust para máximo rendimiento.
 
 [cols="1,2", options="header"]
 |===
 | **Name** | **Responsibility**
-| main.rs | Selección de modo de ejecución.
-| lib.rs | Organización modular.
-| core/game.rs | Lógica del juego.
-| bot | Algoritmos de movimiento.
+| main.rs | Selección de modo de ejecución (CLI, servidor HTTP o humano vs IA).
+| lib.rs | Organización modular y re-exportación de tipos públicos.
+| core/mod.rs | Tipos fundamentales del juego.
+| core/game.rs | Lógica del juego y máquina de estados.
+| core/coord.rs | Sistema de coordenadas baricéntricas.
+| core/movement.rs | Representación de movimientos.
+| core/player.rs | Definición de jugadores.
+| core/action.rs | Acciones especiales del juego.
+| bot | Estrategias de inteligencia artificial.
+| bot_server | Servidor HTTP que expone la API del bot.
+| cli | Interfaz de línea de comandos.
+| notation | Formato de notación de juego (YEN).
 |===
 
 
@@ -150,14 +167,42 @@ Contiene la lógica más compleja del sistema.
 
 Motivation::
 
-Contiene el núcleo algorítmico del sistema.
+Contiene el núcleo algorítmico del sistema, implementando la lógica central del juego de Y.
 
 [cols="1,2", options="header"]
 |===
 | **Name** | **Responsibility**
-| GameY | Estado completo de partida.
-| board_map | Representación del tablero.
-| history | Historial de movimientos.
-| Union-Find | Detección eficiente de conectividad.
-| available_cells | Movimientos válidos.
+| GameY | Estructura principal que encapsula el estado completo de una partida.
+| board_size | Tamaño del tablero triangular.
+| board_map | HashMap que mapea coordenadas a jugadores (representación del tablero).
+| history | Vector de movimientos realizados durante la partida.
+| sets | Estructura Union-Find para detección eficiente de conectividad entre piezas.
+| available_cells | Lista de celdas disponibles donde se pueden colocar piezas.
+| GameStatus | Enum que representa si el juego está en progreso o finalizado.
+| Cell | Enum que representa el estado de una celda (vacía u ocupada).
+|===
+
+==== White Box core/coord.rs
+
+Motivation::
+
+Define el sistema de coordenadas utilizado en el tablero triangular.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| Coordinates | Estructura de coordenadas baricéntricas (x, y, z) para ubicar celdas en el tablero triangular.
+|===
+
+==== White Box core/movement.rs
+
+Motivation::
+
+Define los tipos de movimientos que pueden realizarse en el juego.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| Movement | Enum que representa un movimiento: colocación de pieza o acción especial.
+| GameAction | Enum con acciones especiales como intercambio (swap) o abandono (resign).
 |===
