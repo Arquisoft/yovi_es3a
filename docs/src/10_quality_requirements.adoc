@@ -9,22 +9,47 @@ image::../images/10_1_arbol_calidad.png[]["Árbol de calidad"]
 
 === Escenarios de calidad
 
-[options="header",cols="1,2"]
+[options="header",cols="1,2,4"]
 |===
-| Atributo de Calidad | Escenario / Descripción
+| ID | Atributo (Rama) | Escenario / Descripción (Hoja)
 
-| **Funcionalidad (Juego y Notación YEN)**
-| El sistema debe permitir jugar partidas de forma íntegra garantizando el **cumplimiento estricto de la notación YEN**. Cuando un usuario realiza una jugada desde la interfaz web, el motor (Rust) debe procesarla, validarla contra las reglas del juego y devolver el nuevo estado serializado en notación YEN sin errores lógicos.
+| **ESC-F1**
+| Funcionalidad
+| **El juego funciona correctamente:** El sistema permite a los usuarios desarrollar una partida completa, aplicando todas las reglas del juego de principio a fin sin bloqueos ni errores lógicos en el motor.
 
-| **Rendimiento (Tiempo de respuesta de jugada)**
-| El sistema debe garantizar un **tiempo de respuesta de jugada** óptimo. A pesar de estar dividido en microservicios y orquestado a través de un proxy inverso (`nginx`), la comunicación entre el frontend, el API de usuarios y el motor del juego debe procesar y devolver la jugada al usuario en menos de 1 segundo en condiciones normales de red.
+| **ESC-F2**
+| Funcionalidad
+| **Cumplimiento de la notación YEN:** Cuando el estado de la partida cambia, el motor (Rust) lo serializa y el backend lo transmite garantizando el cumplimiento estricto de la notación YEN, rechazando cualquier estado malformado.
 
-| **Seguridad (Validación de entradas y Entorno)**
-| El API debe realizar una validación estricta de las entradas para evitar inyecciones o estados de juego corruptos. Además, la seguridad a nivel de despliegue se garantiza mediante el aislamiento de la base de datos, el uso de proxy inverso (`nginx.conf`) para enrutar el tráfico de forma segura y la gestión de credenciales sensibles mediante variables de entorno (`.env`).
+| **ESC-R1**
+| Rendimiento
+| **Tiempo de respuesta de jugada:** La comunicación entre el frontend, el API de usuarios y el motor del juego procesa y devuelve la jugada al usuario en menos de 1 segundo bajo condiciones normales de red.
 
-| **Disponibilidad (Accesibilidad web pública)**
-| El sistema debe garantizar la **accesibilidad web pública** y alta disponibilidad mediante su contenedorización. El uso de `docker-compose` y `docker-entrypoint.sh` asegura que, en caso de caída de un servicio (frontend, backend o base de datos), el sistema pueda reiniciarse y recuperar el estado operativo con un tiempo de inactividad mínimo.
+| **ESC-R2**
+| Rendimiento
+| **Eficiencia de concurrencia:** El uso del motor en Rust permite procesar de forma simultánea múltiples solicitudes de jugadas de distintas partidas activas sin que el tiempo de respuesta se degrade de forma notable.
 
-| **Mantenibilidad (Separación de componentes)**
-| El código y la infraestructura deben mantener una **separación clara entre frontend (`webapp`), backend (`users`) y motor (`gamey`)**. Esta arquitectura orientada a servicios (orquestada vía Docker) permite actualizar el frontend o añadir nuevas endpoints en el backend de Node/TS sin necesidad de recompilar el motor de reglas estricto escrito en Rust.
+| **ESC-S1**
+| Seguridad
+| **Validación de entradas del API:** El backend realiza una validación estricta de todos los datos recibidos. Si un cliente envía datos malformados o jugadas ilegales, la solicitud es rechazada de forma segura (ej. HTTP 400).
+
+| **ESC-S2**
+| Seguridad
+| **Aislamiento y Proxy inverso:** La arquitectura garantiza que los puertos internos de la aplicación y la base de datos no sean accesibles directamente desde el exterior, utilizando Nginx como proxy inverso para enrutar el tráfico de forma segura.
+
+| **ESC-D1**
+| Disponibilidad
+| **Accesibilidad web pública:** La aplicación web es accesible desde internet mediante una IP/URL pública, permitiendo a los usuarios conectarse y jugar sin interrupciones.
+
+| **ESC-D2**
+| Disponibilidad
+| **Tolerancia a fallos y reinicio rápido:** Gracias al despliegue contenedorizado (`docker-compose`), si uno de los servicios (ej. el backend o la base de datos) sufre una caída inesperada, el sistema es capaz de reiniciarlo rápidamente para minimizar el tiempo de inactividad.
+
+| **ESC-M1**
+| Mantenibilidad
+| **Separación clara frontend/backend/motor:** La arquitectura orientada a servicios permite que un desarrollador actualice la interfaz de usuario (`webapp`) sin necesidad de modificar o recompilar el estricto motor de reglas (`gamey`).
+
+| **ESC-M2**
+| Mantenibilidad
+| **Monitorización de código con SonarQube:** El código fuente se somete a análisis estático mediante SonarQube, lo que permite detectar "code smells", medir la cobertura de pruebas y controlar la deuda técnica antes de cada integración.
 |===
