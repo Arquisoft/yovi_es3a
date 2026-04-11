@@ -47,23 +47,3 @@ services:
 networks:
   monitor-net:
     driver: bridge
-
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
-    networks:
-      - monitor-net
-
-  grafana:
-    container_name: grafana
-    image: grafana/grafana:latest
-    ports:
-      - "9091:3000"
-    networks:
-      - monitor-net
-
-networks:
-  monitor-net:
-    driver: bridge
