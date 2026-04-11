@@ -57,6 +57,7 @@ image::DiagramaBD.png[Diagrama de Despliegue]
 - *Usuarios*: Tendrán nombre, nombre de usuario, contraseña, además de las estadísticas que irán variando según usen *YOVI*. Representan a los usuarios reales.
 - *Bots*: En caso de que un usuario no juegue contra otra persona real, jugará contra un bot, que tendrá nombre y dificultad.
 - *JuegosY*: Juego principal, con modo, jugadores y un resultado que se dará una vez su estado sea finalizado.
+- *Partidas*: Representa las partidas jugadas para facilitar el estado de la aplicación.
 
 === Conceptos de Experiencia de Usuario
 
