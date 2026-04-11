@@ -45,7 +45,8 @@ describe('LoginForm', () => {
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Login' });
+		const submitButton = submitButtons[0];
 		fireEvent.click(submitButton);
 
 		await waitFor(() => {
@@ -66,7 +67,8 @@ describe('LoginForm', () => {
 
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Login' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);
@@ -86,7 +88,8 @@ describe('LoginForm', () => {
 
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Login' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);
@@ -112,7 +115,8 @@ describe('LoginForm', () => {
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Login' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);
