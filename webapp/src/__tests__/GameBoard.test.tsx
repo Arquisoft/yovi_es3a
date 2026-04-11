@@ -62,8 +62,8 @@ describe('GameBoard', () => {
 	it('starts game in pvp mode and shows game view', async () => {
 		render(<GameBoard username="test-username" />);
 
-		const pveButtons = screen.getAllByRole('button', { name: /Jugador vs Bot/i });
-		fireEvent.click(pveButtons[0]);
+		const pvpButtons = screen.getAllByRole('button', { name: /Jugador vs Jugador/i });
+		fireEvent.click(pvpButtons[0]);
 
 		expect(screen.getByText('Conectando al servidor...')).toBeInTheDocument();
 		expect(MockWebSocket.instances).toHaveLength(1);
