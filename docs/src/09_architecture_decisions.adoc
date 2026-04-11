@@ -31,9 +31,6 @@ Consulta https://docs.arc42.org/section-9/[Architecture Decisions] en la documen
 ****
 endif::arc42help[]
 
-_En este apartado se hablará de la motivación y las consecuencias de cada decisión arquitectura que se ha tomado en el desarrollo del proyecto. Por tanto, no se contemplarán las decisiones tomadas por el equipo docente de la asignatura._
-mongodb
-
 === Máquina Ubuntu en la Nube de Oracle
 Se ha decidido desplegar *YOVI* mediante una *Máquina Ubuntu en la Nube de Oracle* por distintas *motivaciones*:
 
@@ -58,3 +55,22 @@ Las *consecuencias* que se pueden llegar a dar son las siguientes:
 
 - *Riesgo de Desestructuración*: En caso de diseñar incorrectamente la Base de Datos, la flexibilidad se convertirá en un problema ya que generará documentos inconsistentes.
 
+=== Arquitectura de Microservicios Políglota
+- *Motivación*: Separar la lógica de negocio y gestión de usuarios _(Node.js)_ del motor de juego de alto rendimiento _(Rust)_. *Rust* ofrece seguridad de memoria y velocidad para las reglas del juego, mientras que Node.js permite un desarrollo rápido del servicio de usuarios.
+- *Consecuencias*: Aumenta la complejidad del despliegue y la comunicación entre servicios, pero permite escalar cada componente de forma independiente.
+
+=== Contenedorización con Docker y Docker Compose
+- *Motivación*: Garantizar que la aplicación funcione exactamente igual en desarrollo, testing y producción _(Oracle Cloud)_. Facilita el despliegue de toda la infraestructura _(servicios, base de datos, monitoreo)_ con un solo comando.
+- *Consecuencias*: requiere gestionar imágenes y volúmenes, además de una ligera sobrecarga de recursos en comparación con ejecuciones nativas.
+
+=== Uso de Vite + React + TypeScript para el Frontend
+- *Motivación*: Vite ofrece tiempos de compilación extremadamente rápidos. TypeScript proporciona seguridad de tipos, reduciendo errores en tiempo de ejecución y mejorando la mantenibilidad del código a largo plazoñ
+- *Consecuencias*: Curva de aprendizaje inicial para TypeScript y necesidad de configurar tipos para librerías externas.
+
+=== Estrategia de CI/CD con Github Actions y SonarCloud
+- *Motivación*: Automatizar las pruebas y el despliegue para detectar errores pronto. SOnarCloud asegura que el código mantenga estándares de calidad y seguridad antes de ser integrado.
+- *Consecuencais*: El flujo de desarrollo depende de la disponibilidad de estos servicios externos y los tiempos de ejecución de los *workflows*.
+
+=== Observabilidad con Prometheus y Grafana
+- *Motivación*: Tener visibilidad en tiempo real sobre el estasdo de los servicios y el uso de recursos. Permite identificar cuellos de botella o fallos en producción de manera proactiva.
+- *Consecuencias*: añade componentes adicionales a la arquitectura que deben ser configurados y mantenidos _(exportadores de métricas, almacenamientos de datos)_.
