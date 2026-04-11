@@ -75,8 +75,29 @@ En esencia las características principales que se consigan al desplegar son:
 Mapeo de Bloques de Construcción a Infraestructura::
 En el estado actual del proyecto, el despliegue de la aplicación se realiza mediante la infraestructura proporcionada por GitHub, concretamente a través de GitHub Actions y el sistema de Releases.
 
-*El proceso de despliegue sigue los siguientes pasos:*
-
+Proceso de despliegue::
 - Se accede al repositorio del proyecto en Github, en la sección de código.
 - Desde la interfaz del repositorio, se navega a la sección de *Releases*.
 - Se crea una nueva release, lo que implica:
+-- Crear una nueva etiqueta _(tag)_ asociada a una versión del proyecto.
+-- Definir un título, y, opcionalmente, una descripción de los cambios.
+-- Seleccionar la rama sobre la que se desea realizar el despliegue.
+- En caso de tratarse de una versión no definitiva, se marca como pre-release, indicando que es una versión de pruebas.
+- Una vez creada la release, se inicia automáticamente el proceso de despliegue medainte workflows definidos en Github Actions.
+- El sistema ejecuta las tareas necesarias (compilación, tests, empaquetado y despliegue).
+- Si el proceso finaliza correctamente, la aplicación queda accesible a través del enlace generado, disponible en la sección de *Actions* o asociado a la propia release.
+
+Este enfoque permite automatizar completamente el despliegue, garantizando consistencia entre versiones y facilitando la integración continua y entrega continua.
+
+Mapeo conceptual::
+- *Repositorio Github* -> Código fuentre de la aplicación.
+- *Github Actions* -> Ejecución de pipelines de despliegue.
+- *Releases* -> Versionado y activación del proceso de despliegue.
+- *Infraestructura en la nuve* _(Oracle)_ -> Entorno final donde se ejecuta la aplicación.
+- *MongoDB* -> Sistema de almacenamiento de datos persistentes.
+
+Este modelo permite desacoplar el desarrollo de despliegue, facilitando la evolución del sistema y asegurando trazabilidad entre versiones desplegadas.
+
+
+
+
