@@ -35,3 +35,18 @@ jobs:
       uses: SonarSource/sonarqube-scan-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  test-carga:
+    name: Run Load Tests (Gatling)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21' # o la que uses
+
+      - name: Run Gatling Tests
+        run: mvn gatling:test -Dgatling.simulationClass=io.gatling.demo.UserList
