@@ -5,6 +5,7 @@ interface NavbarProps
 {
   user: string | null;
   onLogout: () => void;
+  onSwitchView?: (view: "login" | "register") => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>

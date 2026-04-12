@@ -3,6 +3,7 @@ import './UserStats.css';
 
 interface StatsProps {
   username: string;
+  onClose?: () => void;
 }
 
 interface UserStats {

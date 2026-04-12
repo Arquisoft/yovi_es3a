@@ -78,7 +78,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
 
     <>
       {/* Success/error alerts container */}
-      {(error || responseMessage) && createPortal(
+      {(error || responseMessage) && alertRoot && createPortal(
         <div className="alert-container">
           {responseMessage &&
           (
