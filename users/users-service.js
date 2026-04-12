@@ -153,6 +153,44 @@ app.get('/stats/:username', async (req, res) => {
   }
 });
 
+// Endpoint para que juegue un bot contra la aplicacion
+app.get('/play', async (req, res) => {
+  const { position, bot_id } = req.query;
+  if (!position) return res.status(400).json({ error: 'position is required' });
+  try {
+    const apiVersion = 'v1'; 
+    const selectedBotId = bot_id || 'random_bot';
+    const gameyUrl = `http://gamey:4000/${apiVersion}/ybot/choose/${selectedBotId}`; // URL para aplicacion desplegada en Docker
+    // const gameyUrl = `http://localhost:4000/${apiVersion}/ybot/choose/${selectedBotId}`; // URL para desarrollo local
+
+    const yenBody = typeof position === 'string' ? position : JSON.stringify(position);
+    const response = await fetch(gameyUrl, {
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: yenBody
+    });
+
+    if (!response.ok) {
+      // Si Axum devuelve un ErrorResponse, intentamos leerlo
+      const errorData = await response.json().catch(() => null);
+      if (errorData) {
+        return res.status(response.status).json({ error: 'Gamey engine error', details: errorData });
+      }
+      throw new Error(`Gamey service error: ${response.statusText}`);
+    }
+
+    
+    const result = await response.json();    
+    // result tendrá la forma: { coords: { x: 0, y: 1, z: 2 } }
+    res.json({ coords: result.coords });
+    
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`User Service listening at http://localhost:${port}`);

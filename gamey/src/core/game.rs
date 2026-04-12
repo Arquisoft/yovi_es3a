@@ -171,17 +171,15 @@ impl GameY {
         // Base win condition: The piece itself touches all required sides
         let mut won = self.sets[current_set_idx].is_winning_configuration();
 
-        //
         let neighbors = self.get_neighbors(&coords);
 
         for neighbor in neighbors {
-            if let Some((neighbor_idx, neighbor_player)) = self.board_map.get(&neighbor)
-                && *neighbor_player == player
-            {
-                // Union returns true if the merge resulted in a winning connection
-                //
-                let connection_won = self.union(current_set_idx, *neighbor_idx);
-                won = won || connection_won;
+            if let Some((neighbor_idx, neighbor_player)) = self.board_map.get(&neighbor) {
+                if *neighbor_player == player {
+                    // Union returns true if the merge resulted in a winning connection
+                    let connection_won = self.union(current_set_idx, *neighbor_idx);
+                    won = won || connection_won;
+                }
             }
         }
         won
@@ -306,72 +304,6 @@ impl GameY {
         }
         result
     }
-    /*pub fn render(&self, options: &RenderOptions) -> String {
-        let mut result = String::new();
-        let coords_size = self.board_size.to_string().len() as u32;
-
-        let _ = writeln!(result, "--- Game of Y (Size {}) ---", self.board_size);
-
-        for row in 0..self.board_size {
-            let x = self.board_size - 1 - row;
-
-            let indent_multiplier = match (options.show_3d_coords, options.show_idx) {
-                (true, true) => 8,
-                (true, false) => 4,
-                (false, true) => 4,
-                (false, false) => 2,
-            };
-
-            indent(&mut result, x * indent_multiplier);
-
-            for y in 0..=row {
-                let z = row - y;
-
-                let coords = Coordinates::new(x, y, z);
-                let player = self.board_map.get(&coords).map(|(_, p)| *p);
-
-                let mut symbol = match player {
-                    Some(p) => format!("{}", p),
-                    None => ".".to_string(),
-                };
-
-                if options.show_3d_coords {
-                    symbol.push_str(
-                        format!(
-                            "({:0width$},{:0width$},{:0width$})",
-                            x,
-                            y,
-                            z,
-                            width = coords_size as usize
-                        )
-                        .as_str(),
-                    );
-                }
-                if options.show_idx {
-                    let idx = coords.to_index(self.board_size);
-                    symbol.push_str(format!("({}) ", idx).as_str());
-                }
-                if options.show_colors {
-                    match player {
-                        Some(p) if p.id() == 0 => {
-                            symbol = format!("\x1b[34m{}\x1b[0m", symbol); // Blue for player 0
-                        }
-                        Some(p) if p.id() == 1 => {
-                            symbol = format!("\x1b[31m{}\x1b[0m", symbol); // Red for player 1
-                        }
-                        _ => {}
-                    }
-                }
-
-                let _ = write!(result, "{}   ", symbol);
-            }
-            result.push('\n');
-            if options.show_idx || options.show_3d_coords {
-                result.push('\n');
-            }
-        }
-        result
-    }*/
 
     fn get_indent_multiplier(&self, options: &RenderOptions) -> u32 {
         match (options.show_3d_coords, options.show_idx) {
@@ -528,7 +460,6 @@ impl From<&GameY> for YEN {
 }
 
 fn other_player(player: PlayerId) -> PlayerId {
-    // Assuming two players with IDs 0 and 1
     if player.id() == 0 {
         PlayerId::new(1)
     } else {
@@ -577,7 +508,6 @@ mod tests {
         }
     }
 
-    // Helper function to compare neighbor sets
     fn assert_neighbors_match(actual: Vec<Coordinates>, expected: Vec<Coordinates>) {
         let actual_set: HashSet<_> = actual.into_iter().collect();
         let expected_set: HashSet<_> = expected.into_iter().collect();
@@ -705,7 +635,6 @@ mod tests {
         assert_eq!(yen.layout(), yen_loaded.layout());
     }
 
-    // Test loading a YEN representation of a finished game
     #[test]
     fn test_load_yen_end2() {
         let yen_str = r#"{
@@ -724,7 +653,6 @@ mod tests {
         }
     }
 
-    // Test loading a YEN representation of a finished game
     #[test]
     fn test_load_yen_end3() {
         let yen_str = r#"{
@@ -743,7 +671,6 @@ mod tests {
         }
     }
 
-    // Test loading a YEN representation of a finished game
     #[test]
     fn test_load_yen_single_full() {
         let yen_str = r#"{
@@ -762,7 +689,6 @@ mod tests {
         }
     }
 
-    // Test loading a YEN representation of a finished game
     #[test]
     fn test_load_yen_single_empty() {
         let yen_str = r#"{
