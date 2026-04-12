@@ -23,6 +23,32 @@ type CellState = 0 | Player;        // Estado de las casillas con valor 0 (neutr
 type GameMode = 'pvp' | 'vs-bot';   // Modo de juego, contra bots o contra jugadores.
 type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';    // Tipo de casilla, si es interior o se encuentra en un borde.
 
+const BOTS = [
+    {
+        name: "random_bot",
+        difficulty: "Fácil",
+        description: "Random Movement Bot"
+    },
+    {
+        name: "greedy_easy",
+        difficulty: "Fácil",
+        description: "Starter Greedy Bot"
+    },
+    {
+        name: "greedy_medium",
+        difficulty: "Media",
+        description: "Experienced Greedy Bot!"
+    },
+    {
+        name: "greedy_hard",
+        difficulty: "Difícil",
+        description: "Advanced Greedy Bot!!"
+    },
+    {
+        name: "random_strategy_bot",
+        difficulty: "Variable",
+        description: "Variable Strategy Bot"
+    }];
 
 /**
  * Interfaz Cell, que define las características de una casilla del tablero.
@@ -37,7 +63,6 @@ interface Cell {
   cx: number;       // Centro SVG_x.
   cy: number;       // Centro SVG_y.
 }
-
 
 /**
  * Function buildCells(), que se ejecuta al initializarse GameBoard. Crea las casillas de
@@ -196,19 +221,14 @@ function GameBoard({username}: { username: string }) {
     const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
     const [connected, setConnected] = useState<boolean>(false);
     const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
-    const [difficulty, setDifficulty] = useState<'greedy_easy' | 'greedy_medium' | 'greedy_hard'>('greedy_easy');
+    const [botID, setBotID] = useState<string>("greedy_easy");
     const [sideLen, setSideLen] = useState<number>(7);
-
-
-    
 
     const SVG_WIDTH = useMemo(
         () => 2 * HEX_SIZE + (sideLen - 1) * DIST_X + 2 * PADDING, [sideLen]);
 
     const SVG_HEIGHT = useMemo(
         () => 2 * HEX_SIZE + (sideLen - 1) * DIST_Y + 2 * PADDING, [sideLen]);
-
-
 
     const wsRef = useRef<WebSocket | null>(null);
     // track last move sender to detect bot reply
@@ -253,8 +273,14 @@ function GameBoard({username}: { username: string }) {
 
         ws.onopen = () => {
             setConnected(true);
-            const msg: any = {type: 'start', size: sideLen};
-            if (mode === 'vs-bot') msg.bot_id = difficulty;
+            const msg: any = {
+                type: 'start',
+                size: sideLen
+            };
+            if (mode === 'vs-bot') 
+            {
+                msg.bot_id = botID;
+            }
 
             ws.send(JSON.stringify(msg));
         };
@@ -341,7 +367,7 @@ function GameBoard({username}: { username: string }) {
 
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
             const msg: any = {type: 'start', size: sideLen};
-            if (gameMode === 'vs-bot') msg.bot_id = 'random_bot';
+            if (gameMode === 'vs-bot') msg.bot_id = botID;
             wsRef.current.send(JSON.stringify(msg));
         } else {
             connectWS(gameMode);
@@ -369,49 +395,52 @@ function GameBoard({username}: { username: string }) {
         connectWS(mode);
     }
 
-    // ── Render ───────────────────────────────────────────────────────────────
+    // ── Render ────────────────────────────────────────────────────────────────────────────────────────────
     if (!isGameStarted) {
         return (
             <div className="gb-wrapper">
                 <div className="gb-mode-select">
                     <h2 className="gb-mode-title">Juego Y</h2>
                     <p className="gb-mode-subtitle">Selecciona el modo de juego</p>
-                    <div className="gb-mode-buttons">
-                        <button
-                            className="gb-mode-btn pvp"
-                            onClick={() => handleStartGame('pvp')}>
-                            <span className="gb-mode-icon">👥</span>
-                            <span className="gb-mode-label">Jugador vs Jugador</span><br/>
-                            <span className="gb-mode-desc">Juega contra un amigo</span>
-                        </button>
-                        <button
-                            className="gb-mode-btn vs-bot"
-                            onClick={() => handleStartGame('vs-bot')}>
-                            <span className="gb-mode-icon">🤖</span>
-                            <span className="gb-mode-label">Jugador vs Bot</span><br/>
-                            <span className="gb-mode-desc">Juega contra el bot random</span>
+                    
+                    <div className="gb-mode-cards">
+                        <button  className="gb-card" onClick={() => handleStartGame('pvp')}>
+                            <div className="gb-card-icon">👥</div>
+                            <div className="gb-card-title">Jugador vs Jugador</div>
+                            <div className="gb-card-desc">Juega contra un Amigo en Local</div>
+                        </button >
+                        <button  className="gb-card" onClick={() => handleStartGame('vs-bot')}>
+                            <div className="gb-card-icon">🤖</div>
+                            <div className="gb-card-title">Jugador vs Bot</div>
+                            <div className="gb-card-desc">Desafía a un Bot Inteligente</div>
                         </button>
                     </div>
-                    <div className="gb-options">
-                        <div className="gb-difficulty-select">
-                            <label>Dificultad del Bot:</label>
-                            <select
-                                value={difficulty}
-                                onChange={(e) => setDifficulty(e.target.value as "greedy_easy" | "greedy_medium" | "greedy_hard")}>
-                                <option value="greedy_easy">Fácil</option>
-                                <option value="greedy_medium">Media</option>
-                                <option value="greedy_hard">Difícil</option>
-                            </select>
-                        </div>
-                        <div className="gb-board-size-select">
-                            <label>Tamaño del Tablero:</label>
-                            <select
-                                value={sideLen}
-                                onChange={(e) => setSideLen(Number(e.target.value))}>
-                                <option value={7}>7</option>
-                                <option value={9}>9</option>
-                                <option value={11}>11</option>
-                            </select>
+
+                    <div className="gb-options-panel">
+                        <h2>Opciones de Partida</h2>
+
+                        <div className="gb-option-row">
+                            <div className="gb-select-block">
+                                <label>Dificultad del Bot:</label>
+
+                                <select value={botID} onChange={(e) => setBotID(e.target.value)}>
+                                    {BOTS.map(bot => (
+                                        <option key={bot.name} value={bot.name}>
+                                            {bot.difficulty.toUpperCase()} — {bot.description}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="gb-select-block">
+                                <label>Tamaño del Tablero:</label>
+
+                                <select value={sideLen} onChange={(e) => setSideLen(Number(e.target.value))}>
+                                    <option value={7}>7 (28 Casillas)</option>
+                                    <option value={9}>9 (45 Casillas)</option>
+                                    <option value={11}>11 (66 Casillas)</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>

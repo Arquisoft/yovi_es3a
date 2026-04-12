@@ -4,7 +4,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem;
+  padding: 0.5rem;
   background: transparent; 
   border: none;
   box-shadow: none;
@@ -518,4 +518,85 @@
     border-radius: 6px;
     border: 1px solid #ccc;
     font-size: 14px;
+}
+
+.gb-mode-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+.gb-card {
+    background: #1e1e1e;
+    border-radius: 14px;
+    padding: 24px;
+    width: 220px;
+    cursor: pointer;
+    text-align: center;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    border: 2px solid transparent;
+}
+
+.gb-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    border-color: #ff4d4d;
+}
+
+.gb-card-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.gb-card-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.gb-card-desc {
+    opacity: 0.8;
+    font-size: 14px;
+}
+.gb-options-panel {
+    margin-top: 30px;
+    padding: 20px;
+    background: #222;
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+.gb-options-panel h2 {
+    color: #fff;
+    margin-bottom: 15px;
+    font-size: 18px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.gb-option-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.gb-select-block select {
+    padding: 10px;
+    border-radius: 8px;
+    background: #2c2c2c;
+    color: #fff;
+    border: 1px solid #666;
+    font-size: 14px;
+}
+
+.gb-select-block select:hover {
+    border-color: #ff4d4d;
+}
+.gb-card:focus {
+    outline: 2px solid #ff4d4d;
+}
+.gb-select-block label {
+    color: #ffffff;
+    font-weight: 400;
 }
