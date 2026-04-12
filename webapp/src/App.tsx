@@ -12,7 +12,6 @@ function App()
 {
 	const storedUser = sessionStorage.getItem('username');
 	const [loggedInUser, setLoggedInUser] = useState<string | null>(storedUser);
-	const [, setView] = useState<'login' | 'register'>(storedUser ? 'login' : 'register');
 
 	const handleAuthSuccess = (username: string) =>
 	{
@@ -35,7 +34,6 @@ function App()
 				<Navbar
 					user = {loggedInUser}
 					onLogout = {handleLogout}
-					onSwitchView = {setView}
 				/>
 
 				<main id="mainContainer" className="container d-flex justify-content-center align-items-center flex-grow-1 py-4">
