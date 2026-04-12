@@ -2,7 +2,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import RegisterForm from './RegisterForm'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 
 describe('RegisterForm', () => {
     const originalFetch = global.fetch;
@@ -13,6 +13,7 @@ describe('RegisterForm', () => {
 
     afterEach(() => {
         global.fetch = originalFetch;
+        cleanup();
     });
 
     it('renders without errors', () =>
@@ -48,7 +49,8 @@ describe('RegisterForm', () => {
         fireEvent.change(usernameInput, { target: { value: 'test-username' } });
         fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-        const submitButton = screen.getByRole('button', { name: 'Lets go!' });
+        const submitButtons = screen.getAllByRole('button', { name: 'Lets go!' });
+        const submitButton = submitButtons[0];
         fireEvent.click(submitButton);
 
         await waitFor(() => {
@@ -77,7 +79,8 @@ describe('RegisterForm', () => {
         fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
         // Encontrar el botón de submit
-        const submitButton = screen.getByRole('button', { name: 'Lets go!' });
+        const submitButtons = screen.getAllByRole('button', { name: 'Lets go!' });
+        const submitButton = submitButtons[0];
         expect(submitButton).toBeInTheDocument();
 
         // Hacer clic en el botón
@@ -101,7 +104,8 @@ describe('RegisterForm', () => {
         fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 
         // Encontrar el botón de submit
-        const submitButton = screen.getByRole('button', { name: 'Lets go!' });
+        const submitButtons = screen.getAllByRole('button', { name: 'Lets go!' });
+        const submitButton = submitButtons[0];
         expect(submitButton).toBeInTheDocument();
 
         // Hacer clic en el botón
@@ -125,7 +129,8 @@ describe('RegisterForm', () => {
         fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
         // Encontrar el botón de submit
-        const submitButton = screen.getByRole('button', { name: 'Lets go!' });
+        const submitButtons = screen.getAllByRole('button', { name: 'Lets go!' });
+        const submitButton = submitButtons[0];
         expect(submitButton).toBeInTheDocument();
 
         // Hacer clic en el botón

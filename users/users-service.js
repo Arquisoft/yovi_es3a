@@ -15,6 +15,12 @@ const fs = require('node:fs');
 const YAML = require('js-yaml');
 const promBundle = require('express-prom-bundle');
 const GestorDBUSERS = require('./gestorDBUSER');
+const {
+  addUser,
+  listUsers,
+  getUserById,
+  deleteUser,
+} = require('./user-service.js');
 
 const userModel = require('./user-model').default.default;
 const gestor = new GestorDBUSERS();
@@ -46,7 +52,9 @@ app.get('/ready', (req, res) => res.json({ ready: true }));
 // RESTful users endpoints
 app.post('/api/users', async (req, res) => {
   const username = req.body && req.body.username;
+  const password = req.body && req.body.password;
   if (!username) return res.status(400).json({ error: 'username is required' });
+  if (!password) return res.status(400).json({ error: 'password is required' });
 
   try {
     const user = await userModel.addUser(username);
@@ -222,13 +230,13 @@ app.get('/stats/:username', async (req, res) => {
 // User games history endpoint
 app.get('/games/user/:username', async (req, res) => {
   const { username } = req.params;
-  
+
   if (!username) {
     return res.status(400).json({ success: false, message: 'El nombre de usuario es obligatorio' });
   }
 
   try {
-    const result = await gestor.getUserGames(username); 
+    const result = await gestor.getUserGames(username);
 
     if (result.success) {
       res.status(200).json(result);
@@ -237,6 +245,44 @@ app.get('/games/user/:username', async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Endpoint para que juegue un bot contra la aplicacion
+app.get('/play', async (req, res) => {
+  const { position, bot_id } = req.query;
+  if (!position) return res.status(400).json({ error: 'position is required' });
+  try {
+    const apiVersion = 'v1';
+    const selectedBotId = bot_id || 'random_bot';
+    const gameyUrl = `http://gamey:4000/${apiVersion}/ybot/choose/${selectedBotId}`; // URL para aplicacion desplegada en Docker
+    // const gameyUrl = `http://localhost:4000/${apiVersion}/ybot/choose/${selectedBotId}`; // URL para desarrollo local
+
+    const yenBody = typeof position === 'string' ? position : JSON.stringify(position);
+    const response = await fetch(gameyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: yenBody
+    });
+
+    if (!response.ok) {
+      // Si Axum devuelve un ErrorResponse, intentamos leerlo
+      const errorData = await response.json().catch(() => null);
+      if (errorData) {
+        return res.status(response.status).json({ error: 'Gamey engine error', details: errorData });
+      }
+      throw new Error(`Gamey service error: ${response.statusText}`);
+    }
+
+
+    const result = await response.json();
+    // result tendrá la forma: { coords: { x: 0, y: 1, z: 2 } }
+    res.json({ coords: result.coords });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

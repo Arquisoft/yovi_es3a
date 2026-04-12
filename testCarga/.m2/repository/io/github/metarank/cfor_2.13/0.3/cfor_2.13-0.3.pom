@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.github.metarank</groupId>
+    <artifactId>cfor_2.13</artifactId>
+    <packaging>jar</packaging>
+    <description>cfor</description>
+    <url>https://github.com/metarank/cfor</url>
+    <version>0.3</version>
+    <licenses>
+        <license>
+            <name>APL2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>cfor</name>
+    <organization>
+        <name>io.github.metarank</name>
+        <url>https://github.com/metarank/cfor</url>
+    </organization>
+    <scm>
+        <url>https://github.com/metarank/cfor</url>
+        <connection>scm:git@github.com:metarank/cfor.git</connection>
+    </scm>
+    <developers>
+        <developer>
+            <id>romangrebennikov</id>
+            <name>Roman Grebennikov</name>
+            <url>https://dfdx.me/</url>
+            <email>grv@dfdx.me</email>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.13.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>2.13.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.13</artifactId>
+            <version>3.2.14</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

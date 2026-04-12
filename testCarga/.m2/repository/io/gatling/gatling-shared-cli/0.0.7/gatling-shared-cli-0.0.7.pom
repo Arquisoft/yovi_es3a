@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.gatling</groupId>
+    <artifactId>gatling-shared-cli</artifactId>
+    <packaging>jar</packaging>
+    <description>gatling-shared-cli</description>
+    <url>https://gatling.io</url>
+    <version>0.0.7</version>
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>gatling-shared-cli</name>
+    <inceptionYear>2011</inceptionYear>
+    <organization>
+        <name>Gatling Corp</name>
+        <url>https://gatling.io</url>
+    </organization>
+    <scm>
+        <url>https://github.com/gatling/gatling-shared-cli</url>
+        <connection>scm:git:https://github.com/gatling/gatling-shared-cli.git</connection>
+        <developerConnection>scm:git:git@github.com/gatling/gatling-shared-cli.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>slandelle@gatling.io</id>
+            <name>Stephane Landelle</name>
+            <organization>Gatling Corp</organization>
+            <organizationUrl>https://gatling.io</organizationUrl>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+</project>
