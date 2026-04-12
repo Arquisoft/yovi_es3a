@@ -22,7 +22,12 @@ const {
   deleteUser,
 } = require('./user-service.js');
 
-const userModel = require('./user-model').default;
+const userService = {
+  addUser,
+  listUsers,
+  getUserById,
+  deleteUser,
+};
 const gestor = new GestorDBUSERS();
 
 const metricsMiddleware = promBundle({ includeMethod: true });
@@ -57,7 +62,7 @@ app.post('/api/users', async (req, res) => {
   if (!password) return res.status(400).json({ error: 'password is required' });
 
   try {
-    const user = await userModel.addUser(username);
+    const user = await userService.addUser(username, username, password);
     res.status(201).json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -66,7 +71,7 @@ app.post('/api/users', async (req, res) => {
 
 app.get('/api/users', async (req, res) => {
   try {
-    const users = await userModel.listUsers(req.query.limit || 100);
+    const users = await userService.listUsers(req.query.limit || 100);
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -75,7 +80,7 @@ app.get('/api/users', async (req, res) => {
 
 app.get('/api/users/:id', async (req, res) => {
   try {
-    const user = await userModel.getUserById(req.params.id);
+    const user = await userService.getUserById(req.params.id);
     if (!user) return res.status(404).json({ error: 'not found' });
     res.json(user);
   } catch (err) {
@@ -85,8 +90,8 @@ app.get('/api/users/:id', async (req, res) => {
 
 app.delete('/api/users/:id', async (req, res) => {
   try {
-    const ok = await userModel.deleteUser(req.params.id);
-    if (!ok) return res.status(404).json({ error: 'not found' });
+    const result = await userService.deleteUser(req.params.id);
+    if (!result) return res.status(404).json({ error: 'not found' });
     res.status(204).end();
   } catch (err) {
     res.status(500).json({ error: err.message });
