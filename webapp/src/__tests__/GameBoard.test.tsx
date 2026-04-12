@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 import GameBoard from '../GameBoard'
 
 class MockWebSocket {
@@ -47,6 +47,7 @@ describe('GameBoard', () => {
 
 	afterEach(() => {
 		global.WebSocket = originalWebSocket;
+		cleanup();
 	});
 
 	it('renders mode selection view without errors', () => {
@@ -61,8 +62,8 @@ describe('GameBoard', () => {
 	it('starts game in pvp mode and shows game view', async () => {
 		render(<GameBoard username="test-username" />);
 
-		const pvpButton = screen.getByRole('button', { name: /Jugador vs Jugador/i });
-		fireEvent.click(pvpButton);
+		const pvpButtons = screen.getAllByRole('button', { name: /Jugador vs Jugador/i });
+		fireEvent.click(pvpButtons[0]);
 
 		expect(screen.getByText('Conectando al servidor...')).toBeInTheDocument();
 		expect(MockWebSocket.instances).toHaveLength(1);
@@ -81,8 +82,8 @@ describe('GameBoard', () => {
 	it('starts game in vs bot mode and shows game view', async () => {
 		render(<GameBoard username="test-username" />);
 
-		const botButton = screen.getByRole('button', { name: /Jugador vs Bot/i });
-		fireEvent.click(botButton);
+		const pveButtons = screen.getAllByRole('button', { name: /Jugador vs Bot/i });
+		fireEvent.click(pveButtons[0]);
 
 		expect(screen.getByText('Conectando al servidor...')).toBeInTheDocument();
 		expect(MockWebSocket.instances).toHaveLength(1);
@@ -101,7 +102,8 @@ describe('GameBoard', () => {
 	it('sends command when clicking an empty cell in pvp', async () => {
 		const { container } = render(<GameBoard username="test-username" />);
 
-		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Jugador/i }));
+		const pvpButtons = screen.getAllByRole('button', { name: /Jugador vs Jugador/i });
+		fireEvent.click(pvpButtons[0]);
 		const ws = MockWebSocket.instances[0];
 		ws.open();
 
@@ -120,7 +122,8 @@ describe('GameBoard', () => {
 	it('does not send command if game is not connected yet', () => {
 		const { container } = render(<GameBoard username="test-username" />);
 
-		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Jugador/i }));
+		const pvpButtons = screen.getAllByRole('button', { name: /Jugador vs Jugador/i });
+		fireEvent.click(pvpButtons[0]);
 		const ws = MockWebSocket.instances[0];
 
 		const firstHexCell = container.querySelector('polygon');

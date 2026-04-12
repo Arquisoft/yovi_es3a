@@ -2,7 +2,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import LoginForm from '../LoginForm'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 
 describe('LoginForm', () => {
 	const originalFetch = global.fetch;
@@ -13,6 +13,8 @@ describe('LoginForm', () => {
 
 	afterEach(() => {
 		global.fetch = originalFetch;
+        
+		cleanup();
 	});
 
 	it('renders without errors', () => {
@@ -45,7 +47,8 @@ describe('LoginForm', () => {
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Login' });
+		const submitButton = submitButtons[0];
 		fireEvent.click(submitButton);
 
 		await waitFor(() => {
@@ -66,7 +69,8 @@ describe('LoginForm', () => {
 
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Login' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);
@@ -86,7 +90,8 @@ describe('LoginForm', () => {
 
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Login' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);
@@ -112,7 +117,8 @@ describe('LoginForm', () => {
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Login' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);

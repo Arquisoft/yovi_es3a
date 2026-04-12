@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.suzaku</groupId>
+    <artifactId>boopickle_2.13</artifactId>
+    <packaging>jar</packaging>
+    <description>boopickle</description>
+    <url>https://github.com/suzaku-io/boopickle</url>
+    <version>1.5.0</version>
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>boopickle</name>
+    <organization>
+        <name>io.suzaku</name>
+        <url>https://github.com/suzaku-io/boopickle</url>
+    </organization>
+    <scm>
+        <url>https://github.com/suzaku-io/boopickle</url>
+        <connection>scm:git:git@github.com:suzaku-io/boopickle.git</connection>
+        <developerConnection>scm:git:git@github.com:suzaku-io/boopickle.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>ochrons</id>
+            <name>Otto Chrons</name>
+            <url>https://github.com/boopickle</url>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.13.14</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lihaoyi</groupId>
+            <artifactId>utest_2.13</artifactId>
+            <version>0.8.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>2.13.14</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
