@@ -12,7 +12,7 @@ function App()
 {
 	const storedUser = sessionStorage.getItem('username');
 	const [loggedInUser, setLoggedInUser] = useState<string | null>(storedUser);
-	const [setView] = useState<'login' | 'register'>(storedUser ? 'login' : 'register');
+	const [, setView] = useState<'login' | 'register'>(storedUser ? 'login' : 'register');
 
 	const handleAuthSuccess = (username: string) =>
 	{
