@@ -22,6 +22,24 @@ type Player = 1 | 2;                // Tipado para el jugador con valor 1 o 2.
 type CellState = 0 | Player;        // Estado de las casillas con valor 0 (neutro) o perteneciente a algún jugador.
 type GameMode = 'pvp' | 'vs-bot';   // Modo de juego, contra bots o contra jugadores.
 type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';    // Tipo de casilla, si es interior o se encuentra en un borde.
+type WinnerInfo = { id?: number };
+type GameStatusInfo = {
+    Finished?: { winner?: WinnerInfo };
+    Ongoing?: { next_player?: WinnerInfo };
+};
+type YenBoard = {
+    layout?: string | string[];
+    turn?: number;
+    status?: GameStatusInfo;
+};
+type ServerMessage = {
+    type?: string;
+    status?: GameStatusInfo;
+    yen?: YenBoard;
+    message?: string;
+    render?: string;
+};
+type StartCommand = { type: 'start'; size: number; bot_id?: string };
 
 const BOTS = [
     {
@@ -131,22 +149,36 @@ function getSide(cell: Cell): SideType {
 // Each char: '.' = empty, '1' = player 1, '2' = player 2.
 
 
-async function updateMatch(username: string, puntos: number, modo: string) {
-  await fetch("http://localhost:3000/api/matches/update", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, puntos, modo })
-  });
+async function updateMatch(username: string, puntos: number, modo: string): Promise<boolean> {
+  const API_URL = import.meta.env.VITE_API_URL ?? window.location.origin;
+
+  try {
+    const response = await fetch(new URL('/api/matches/update', API_URL), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, puntos, modo })
+    });
+
+    if (!response.ok) {
+      console.warn('Match update failed:', response.status, response.statusText);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.warn('Unable to update match:', error);
+    return false;
+  }
 }
 
 // Detect winner from YEN status field
-async function getWinnerFromYEN(message: any, username:string,
+async function getWinnerFromYEN(message: ServerMessage | undefined, username: string,
      gameMode: string): Promise<Player | null> {
 
     if (!message) return null;
 
     // Buscar status en el mensaje principal
-    if (message.status && message.status.Finished) {
+    if (message.status?.Finished) {
         const id = message.status.Finished?.winner?.id;
         
         if (id === 0) {
@@ -163,7 +195,7 @@ async function getWinnerFromYEN(message: any, username:string,
 
     // Fallback: check YEN si existe
     const yen = message.yen;
-    if (yen && yen.status && yen.status.Finished) {
+    if (yen?.status?.Finished) {
         const id = yen.status.Finished?.winner?.id;
         
         if (id === 0)
@@ -183,19 +215,19 @@ async function getWinnerFromYEN(message: any, username:string,
 }
 
 // Detect whose turn it is from YEN
-function getCurrentPlayerFromYEN(message: any): Player {
+function getCurrentPlayerFromYEN(message: ServerMessage | undefined): Player {
     if (!message) return 1;
 
-    const yen = message.yen || message;
+    const yen = message.yen ?? message;
 
     // Check status Ongoing
-    if (message.status && message.status.Ongoing) {
+    if (message.status?.Ongoing) {
         const id = message.status.Ongoing?.next_player?.id;
         if (id === 1) return 2;
     }
 
     // Usar turn field de YEN como fallback (0=player1, 1=player2)
-    if (yen && yen.turn !== undefined) {
+    if ('turn' in yen && yen.turn !== undefined) {
         return yen.turn === 0 ? 1 : 2;
     }
     return 1;
@@ -212,7 +244,6 @@ function getWebSocketURL(): string {
     return wsUrl;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function GameBoard({username}: { username: string }) {
     const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
     const [hovered, setHovered] = useState<number | null>(null);
@@ -237,7 +268,7 @@ function GameBoard({username}: { username: string }) {
     const CELLS = useMemo(() => buildCells(sideLen), [sideLen]);
     const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
 
-    function parseBoardFromYEN(yen: any): CellState[] {
+    function parseBoardFromYEN(yen: YenBoard | undefined): CellState[] {
         const board: CellState[] = new Array(CELLS.length).fill(0);
         if (!yen?.layout) return board;
 
@@ -249,10 +280,8 @@ function GameBoard({username}: { username: string }) {
                     : [];
                     
         let index = 0;
-        for (const element of rows) {
-            const line = element;
-            for (const element of line) {
-                const ch = element
+        for (const line of rows) {
+            for (const ch of line) {
 
                 if (ch === 'B') board[index] = 1;
                 else if (ch === 'R') board[index] = 2;
@@ -273,7 +302,7 @@ function GameBoard({username}: { username: string }) {
 
         ws.onopen = () => {
             setConnected(true);
-            const msg: any = {
+            const msg: StartCommand = {
                 type: 'start',
                 size: sideLen
             };
@@ -287,7 +316,7 @@ function GameBoard({username}: { username: string }) {
 
         ws.onmessage = async (ev) => {
             try {
-                const v = JSON.parse(ev.data);
+                const v: ServerMessage = JSON.parse(ev.data);
 
                 if (v.type === 'state' && v.yen) {
                     const newBoard = parseBoardFromYEN(v.yen);
@@ -366,7 +395,7 @@ function GameBoard({username}: { username: string }) {
         awaitingBotRef.current = false;
 
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            const msg: any = {type: 'start', size: sideLen};
+            const msg: StartCommand = {type: 'start', size: sideLen};
             if (gameMode === 'vs-bot') msg.bot_id = botID;
             wsRef.current.send(JSON.stringify(msg));
         } else {

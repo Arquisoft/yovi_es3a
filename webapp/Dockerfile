@@ -24,6 +24,9 @@ FROM nginx:stable-alpine
 # Copiar el binario final
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# Asegurar fallback para rutas de SPA como /game
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Exponer el puerto 80
 EXPOSE 80
 

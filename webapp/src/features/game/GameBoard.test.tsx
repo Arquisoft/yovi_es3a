@@ -14,7 +14,6 @@ class MockWebSocket {
 	onopen: (() => void) | null = null;
 	onmessage: ((event: MessageEvent) => void) | null = null;
 	onclose: (() => void) | null = null;
-	onerror: (() => void) | null = null;
 	send = vi.fn();
 	close = vi.fn(() => {
 		this.readyState = MockWebSocket.CLOSED;
@@ -38,15 +37,18 @@ class MockWebSocket {
 
 describe('GameBoard', () => {
 	const originalWebSocket = global.WebSocket;
+	const originalFetch = global.fetch;
 
 	beforeEach(() => {
 		vi.restoreAllMocks();
 		MockWebSocket.instances = [];
 		global.WebSocket = MockWebSocket as unknown as typeof WebSocket;
+		global.fetch = vi.fn();
 	});
 
 	afterEach(() => {
 		global.WebSocket = originalWebSocket;
+		global.fetch = originalFetch;
 		cleanup();
 	});
 
@@ -127,5 +129,31 @@ describe('GameBoard', () => {
 		const firstHexCell = container.querySelector('polygon');
 		expect(firstHexCell).not.toBeInTheDocument();
 		expect(ws.send).not.toHaveBeenCalledWith(JSON.stringify({ type: 'command', line: '0' }));
+	});
+
+	it('shows winner even if match update fails', async () => {
+		const fetchMock = vi.fn().mockRejectedValueOnce(new Error('network down'));
+		global.fetch = fetchMock as unknown as typeof fetch;
+
+		render(<GameBoard username="test-username" />);
+
+		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Jugador/i }));
+		const ws = MockWebSocket.instances[0];
+		ws.open();
+
+		await waitFor(() => {
+			expect(screen.getByText(/Online/i)).toBeInTheDocument();
+		});
+
+		await ws.emitMessage({
+			type: 'state',
+			yen: { layout: ['.'] },
+			status: { Finished: { winner: { id: 0 } } },
+			render: ''
+		});
+
+		await waitFor(() => {
+			expect(screen.getByText('¡Jugador 1 gana!')).toBeInTheDocument();
+		});
 	});
 });
