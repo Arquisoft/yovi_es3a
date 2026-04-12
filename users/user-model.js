@@ -1,5 +1,6 @@
-import mongoose, { Schema, model } from 'mongoose';
-import 'dotenv/config';
+const mongoose = require('mongoose');
+const { Schema, model } = mongoose;
+require('dotenv/config');
 
 // Try to connect to MongoDB using MONGODB_URI from environment, default to local.
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/yovi';
@@ -19,5 +20,6 @@ const userSchema = new Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-const User = model('User', userSchema);
-export default User;
+const User = mongoose.models.User || model('User', userSchema);
+
+module.exports = User;

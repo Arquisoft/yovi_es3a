@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.gatling.highcharts</groupId>
+    <artifactId>gatling-charts-highcharts</artifactId>
+    <packaging>jar</packaging>
+    <description>gatling-charts-highcharts</description>
+    <url>https://gatling.io</url>
+    <version>3.15.0</version>
+    <licenses>
+        <license>
+            <name>Gatling Highcharts</name>
+            <url>https://raw.githubusercontent.com/gatling/gatling-highcharts/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>gatling-charts-highcharts</name>
+    <inceptionYear>2011</inceptionYear>
+    <organization>
+        <name>Gatling Corp</name>
+        <url>https://gatling.io</url>
+    </organization>
+    <scm>
+        <url>https://github.com/gatling/gatling-highcharts</url>
+        <connection>scm:git:https://github.com/gatling/gatling-highcharts.git</connection>
+        <developerConnection>scm:git:git@github.com/gatling/gatling-highcharts.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>slandelle@gatling.io</id>
+            <name>Stephane Landelle</name>
+            <organization>Gatling Corp</organization>
+            <organizationUrl>https://gatling.io</organizationUrl>
+        </developer>
+        <developer>
+            <id>gcorre@gatling.io</id>
+            <name>Guillaume Corré</name>
+            <organization>Gatling Corp</organization>
+            <organizationUrl>https://gatling.io</organizationUrl>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.13.18</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gatling</groupId>
+            <artifactId>gatling-app</artifactId>
+            <version>3.15.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gatling</groupId>
+            <artifactId>gatling-recorder</artifactId>
+            <version>3.15.0</version>
+        </dependency>
+    </dependencies>
+</project>

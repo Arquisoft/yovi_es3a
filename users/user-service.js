@@ -1,5 +1,5 @@
-import User from './user-model.js';
-import bcrypt from 'bcryptjs';
+const User = require('./user-model.js');
+const bcrypt = require('bcryptjs');
 
 /**
  * Creates a new user and add it to the database.
@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs';
  * @throws {Error} If required fields are missing.
  * @returns {Promise<Object>} Saved user document.
  */
-export const addUser = async (username, alias, password) =>
+const addUser = async (username, alias, password) =>
 {
     if (!username) throw new Error('Username expected but found null or empty');
     if (!alias) throw new Error('Display name expected but found null or empty');
@@ -28,11 +28,11 @@ export const addUser = async (username, alias, password) =>
  *  @param {number} limit - Maximum nmber of users to return; 100 by default.
  * @returns {Promise<Array>} List of user documents.
  */
-export const listUsers = async (limit = 100) =>
+const listUsers = async (limit = 100) =>
 {
     // Parse limit before reading.
     const parsedLimit = parseInt(limit);
-    if (NaN(parsedLimit) || parsedLimit <= 0)
+    if (Number.isNaN(parsedLimit) || parsedLimit <= 0)
         throw new Error("Limit must be a positive number.");
 
     return await User.find().limit(parsedLimit);
@@ -44,7 +44,7 @@ export const listUsers = async (limit = 100) =>
  * @throws {Error} If ID is not provided.
  * @returns {Promise<Object|null>} User document or null if not found.
  */
-export const getUserById = async (id) =>
+const getUserById = async (id) =>
 {
     if (!id) throw new Error("User ID expected but found null or empty");
 
@@ -57,7 +57,7 @@ export const getUserById = async (id) =>
  * @throws {Error} If username is not provided.
  * @returns {Promise<Object|null>} User document or null if not found.
  */
-export const getUserByUsername = async (username) =>
+const getUserByUsername = async (username) =>
 {
     if (!username) throw new Error("Username expected but found null or empty");
 
@@ -70,7 +70,7 @@ export const getUserByUsername = async (username) =>
  * @throws {Error} If ID is not provided.
  * @returns {Promise<Object|null>} The deleted document.
  */
-export const deleteUser = async (id) =>
+const deleteUser = async (id) =>
 {
     if (!id) throw new Error("User ID is required for deletion.");
 
@@ -83,7 +83,7 @@ export const deleteUser = async (id) =>
  * @param {*} password - Given password to compare.
  * @returns {Promise<boolean>} Whether the passwords match or not.
  */
-export const checkPassword = async (username, password) =>
+const checkPassword = async (username, password) =>
 {
     if (!username) throw new Error('Username expected but found null or empty');
     if (!password) throw new Error('Password expected but found null or empty');
@@ -95,3 +95,12 @@ export const checkPassword = async (username, password) =>
     const hashed = await bcrypt.hash(password, 10);
     return await bcrypt.compare(hashed, user.password);
 }
+
+module.exports = {
+    addUser,
+    listUsers,
+    getUserById,
+    getUserByUsername,
+    deleteUser,
+    checkPassword,
+};

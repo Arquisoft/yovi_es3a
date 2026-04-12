@@ -1,102 +1,103 @@
-import './App.css'
-import { useState } from 'react'
-import RegisterForm from './RegisterForm'
-import LoginForm from './LoginForm'
-import reactLogo from './assets/react.svg'
-import GameBoard from './GameBoard'
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Navbar, Footer } from './components/layout';
+import './App.css';
+import RegisterForm from './features/auth/register/RegisterForm';
+import LoginForm from './features/auth/login/LoginForm';
+import GameBoard from './features/game/GameBoard';
+import UserStats from './features/user-stats/UserStats';
+import Ranking from './features/ranking/Ranking';
 
-function App() {
-  const storedUser = localStorage.getItem('username')
+function App()
+{
+	const storedUser = sessionStorage.getItem('username');
+	const [loggedInUser, setLoggedInUser] = useState<string | null>(storedUser);
 
-  const [showRegister, setShowRegister] = useState(false)
-  const [showLogin, setShowLogin] = useState(!storedUser)
-  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(storedUser))
-  const [loggedInUser, setLoggedInUser] = useState<string | null>(storedUser)
+	const handleAuthSuccess = (username: string) =>
+	{
+		setLoggedInUser(username);
+		sessionStorage.setItem('username', username);
+	};
 
-  const handleAuthSuccess = (username: string) => {
-    setLoggedInUser(username)
-    setIsAuthenticated(true)
-    setShowLogin(false)
-    setShowRegister(false)
-    localStorage.setItem('username', username)
-  }
+	const handleLogout = () =>
+	{
+		setLoggedInUser(null);
+		sessionStorage.removeItem('username');
+	};
 
-  const handleLogout = () => {
-    setIsAuthenticated(false)
-    setLoggedInUser(null)
-    setShowLogin(true)
-    setShowRegister(false)
-    localStorage.removeItem('username')
-  }
+	return (
+		<Router>
 
-  return (
-    <div className="App">
-      {isAuthenticated && (
-        <div className="user-header">
-          <span className="user-name">{loggedInUser}</span>
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      )}
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
+				<div className="spectrum-background">
+		
+				{/* Upper navigation bar */}
+				<Navbar
+					user = {loggedInUser}
+					onLogout = {handleLogout}
+				/>
 
-      <h2>Welcome to the Software Arquitecture 2025-2026 course</h2>
+				<main id="mainContainer" className="container d-flex justify-content-center align-items-center flex-grow-1 py-4">
+					<div className="card card-transparent w-100 shadow-lg" style={{ 
+						maxWidth: location.pathname === '/game' ? '900px' : '500px', 
+						transition: 'max-width 0.4s ease-in-out' 
+					}}>
+						<div className="card-body p-4">
+								
+							<Routes>
+								<Route path="/login" element=
+								{
+									!loggedInUser
+										? <LoginForm onSuccess={handleAuthSuccess} />
+										: <Navigate to="/game" />
+								}/>
+								
+								<Route path="/register" element=
+								{
+									!loggedInUser
+										? <RegisterForm onSuccess={handleAuthSuccess} />
+										: <Navigate to="/game" />
+								}/>
 
-      {!isAuthenticated && (
-        <div className="auth-buttons">
-          <button
-            onClick={() => {
-              setShowLogin(true)
-              setShowRegister(false)
-            }}
-            className="submit-button"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => {
-              setShowRegister(true)
-              setShowLogin(false)
-            }}
-            className="submit-button"
-          >
-            Register
-          </button>
-        </div>
-      )}
+								<Route path="/game" element=
+								{
+									loggedInUser
+										? <GameBoard username={loggedInUser} />
+										: <Navigate to="/login" />
+								}/>
+								
+								<Route path="/stats" element=
+								{
+									loggedInUser
+										? <UserStats username={loggedInUser} onClose={function (): void {
+											throw new Error('Function not implemented.');
+										} } />
+										: <Navigate to="/stats" />
+								}/>
 
-      {!isAuthenticated && showLogin && (
-        <div className="form-container">
-          <h3>Login</h3>
-          {/* SIN PARÉNTESIS AQUÍ */}
-          <LoginForm onSuccess={handleAuthSuccess} />
-        </div>
-      )}
+								<Route path="/ranking" element=
+								{
+									loggedInUser
+										? <Ranking/>
+										: <Navigate to="/login" />
+								}/>
 
-      {!isAuthenticated && showRegister && (
-        <div className="form-container">
-          <h3>Register</h3>
-          {/* SIN PARÉNTESIS AQUÍ */}
-          <RegisterForm onSuccess={handleAuthSuccess} />
-        </div>
-      )}
+								{/* Redirect to login or game if URL not found or root */}
+								<Route path="/" element=
+								{
+									<Navigate to={loggedInUser ? "/game" : "/login"} />
+								}/>
+							</Routes>
 
-      {isAuthenticated && (
-        <div className="form-container">
-          {/* Pasamos el usuario a GameBoard si lo configuraste para recibirlo */}
-          <GameBoard username={loggedInUser || "Invitado"} />
-        </div>
-      )}
-    </div>
-  )
+						</div>
+					</div>
+				</main>
+
+				{/* Sticky footer */}
+				<Footer/>
+			</div>
+
+		</Router>
+	);
 }
 
-export default App
+export default App;

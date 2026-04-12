@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.gatling</groupId>
+    <artifactId>gatling-scanner</artifactId>
+    <packaging>jar</packaging>
+    <description>gatling-scanner</description>
+    <url>https://gatling.io</url>
+    <version>1.6.7</version>
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>gatling-scanner</name>
+    <inceptionYear>2011</inceptionYear>
+    <organization>
+        <name>Gatling Corp</name>
+        <url>https://gatling.io</url>
+    </organization>
+    <scm>
+        <url>https://github.com/gatling/gatling-scanner</url>
+        <connection>scm:git:https://github.com/gatling/gatling-scanner.git</connection>
+        <developerConnection>scm:git:git@github.com/gatling/gatling-scanner.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>tpetillot@gatling.io</id>
+            <name>Thomas Petillot</name>
+            <organization>Gatling Corp</organization>
+            <organizationUrl>https://gatling.io</organizationUrl>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>io.gatling</groupId>
+            <artifactId>gatling-asm-shaded</artifactId>
+            <version>9.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>6.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>6.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>6.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.sbt.junit</groupId>
+            <artifactId>jupiter-interface</artifactId>
+            <version>0.17.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

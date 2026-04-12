@@ -1,0 +1,47 @@
+.table-ranking-custom {
+    --bs-table-bg: transparent !important;
+    --bs-table-accent-bg: transparent !important;
+    --bs-table-striped-bg: transparent !important;
+    --bs-table-hover-bg: rgba(0, 0, 0, 0.05) !important;
+    
+    color: #212529 !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.table-ranking-custom thead th {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
+    color: #212529 !important;
+}
+
+.table-ranking-custom, 
+.table-ranking-custom td, 
+.table-ranking-custom th
+{
+    background: transparent !important;
+}
+
+.table-ranking-custom tbody td {
+    background-color: transparent !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+    color: #212529 !important;
+    padding: 12px;
+}
+
+.ranking-dark-text {
+    color: #212529 !important;
+    text-shadow: none !important;
+}
+
+.podium-player-name {
+    color: #212529 !important;
+    font-weight: 600;
+}
+
+.podium-score {
+    color: #495057 !important;
+}
+
+.table-ranking-custom tbody tr:hover td {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+}
