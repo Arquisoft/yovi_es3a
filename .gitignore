@@ -4,6 +4,7 @@ gamey/target
 lcov.info
 docs/build
 .env
+users/.env
 webapp/.env
 .vscode/
 testCarga/target/
