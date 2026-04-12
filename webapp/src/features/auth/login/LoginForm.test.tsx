@@ -2,29 +2,41 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import LoginForm from './LoginForm'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
+
+function ensureAlertPortal() {
+	if (!document.getElementById('alert-portal')) {
+		const portal = document.createElement('div')
+		portal.id = 'alert-portal'
+		document.body.appendChild(portal)
+	}
+}
 
 describe('LoginForm', () => {
 	const originalFetch = global.fetch;
 
 	beforeEach(() => {
 		vi.restoreAllMocks();
+		ensureAlertPortal();
 	});
 
 	afterEach(() => {
 		global.fetch = originalFetch;
+        
+		cleanup();
 	});
 
 	it('renders without errors', () => {
-		render(<LoginForm />);
+		render(<MemoryRouter><LoginForm /></MemoryRouter>);
 
-		let label = document.querySelector('label[for="login-username"]');
+		let label = document.querySelector('label[for="username"]');
 		expect(label).toBeInTheDocument();
-		expect(label).toHaveTextContent('Username:');
+		expect(label).toHaveTextContent('Nombre de usuario:');
 
-		label = document.querySelector('label[for="login-password"]');
+		label = document.querySelector('label[for="password"]');
 		expect(label).toBeInTheDocument();
-		expect(label).toHaveTextContent('Password:');
+		expect(label).toHaveTextContent('Contraseña:');
 	});
 
 	it('login existing user', async () => {
@@ -34,18 +46,19 @@ describe('LoginForm', () => {
 			json: async () => ({ message: 'Welcome back, test-username!' }),
 		} as Response);
 
-		render(<LoginForm onSuccess={onSuccess} />);
+		render(<MemoryRouter><LoginForm onSuccess={onSuccess} /></MemoryRouter>);
 
-		const usernameInput = screen.getByLabelText('Username:');
+		const usernameInput = screen.getByLabelText('Nombre de usuario:');
 		expect(usernameInput).toBeInTheDocument();
 
-		const passwordInput = screen.getByLabelText('Password:');
+		const passwordInput = screen.getByLabelText('Contraseña:');
 		expect(passwordInput).toBeInTheDocument();
 
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Entrar' });
+		const submitButton = submitButtons[0];
 		fireEvent.click(submitButton);
 
 		await waitFor(() => {
@@ -56,17 +69,18 @@ describe('LoginForm', () => {
 	});
 
 	it('try login without password', () => {
-		render(<LoginForm />);
+		render(<MemoryRouter><LoginForm /></MemoryRouter>);
 
-		const usernameInput = screen.getByLabelText('Username:');
+		const usernameInput = screen.getByLabelText('Nombre de usuario:');
 		expect(usernameInput).toBeInTheDocument();
 
-		const passwordInput = screen.getByLabelText('Password:');
+		const passwordInput = screen.getByLabelText('Contraseña:');
 		expect(passwordInput).toBeInTheDocument();
 
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Entrar' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);
@@ -76,17 +90,18 @@ describe('LoginForm', () => {
 	});
 
 	it('try login without username', () => {
-		render(<LoginForm />);
+		render(<MemoryRouter><LoginForm /></MemoryRouter>);
 
-		const usernameInput = screen.getByLabelText('Username:');
+		const usernameInput = screen.getByLabelText('Nombre de usuario:');
 		expect(usernameInput).toBeInTheDocument();
 
-		const passwordInput = screen.getByLabelText('Password:');
+		const passwordInput = screen.getByLabelText('Contraseña:');
 		expect(passwordInput).toBeInTheDocument();
 
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Entrar' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);
@@ -101,18 +116,19 @@ describe('LoginForm', () => {
 			json: async () => ({ error: 'User not found' }),
 		} as Response);
 
-		render(<LoginForm />);
+		render(<MemoryRouter><LoginForm /></MemoryRouter>);
 
-		const usernameInput = screen.getByLabelText('Username:');
+		const usernameInput = screen.getByLabelText('Nombre de usuario:');
 		expect(usernameInput).toBeInTheDocument();
 
-		const passwordInput = screen.getByLabelText('Password:');
+		const passwordInput = screen.getByLabelText('Contraseña:');
 		expect(passwordInput).toBeInTheDocument();
 
 		fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 		fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-		const submitButton = screen.getByRole('button', { name: 'Login' });
+		const submitButtons = screen.getAllByRole('button', { name: 'Entrar' });
+		const submitButton = submitButtons[0];
 		expect(submitButton).toBeInTheDocument();
 
 		fireEvent.click(submitButton);
