@@ -22,7 +22,7 @@ const {
   deleteUser,
 } = require('./user-service.js');
 
-const userModel = require('./user-model').default.default;
+const userModel = require('./user-model').default;
 const gestor = new GestorDBUSERS();
 
 const metricsMiddleware = promBundle({ includeMethod: true });

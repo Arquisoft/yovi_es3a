@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 import GameBoard from './GameBoard'
 
 class MockWebSocket {
@@ -47,6 +47,7 @@ describe('GameBoard', () => {
 
 	afterEach(() => {
 		global.WebSocket = originalWebSocket;
+		cleanup();
 	});
 
 	it('renders mode selection view without errors', () => {
@@ -94,7 +95,7 @@ describe('GameBoard', () => {
 			expect(screen.getByText(/Online/i)).toBeInTheDocument();
 		});
 
-		expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 7, bot_id: 'random_bot' }));
+		expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 7, bot_id: 'greedy_easy' }));
 		expect(screen.getByText('28 celdas · N=7 · vs Bot')).toBeInTheDocument();
 	});
 
