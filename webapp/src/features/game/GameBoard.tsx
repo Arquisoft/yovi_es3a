@@ -1,115 +1,184 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import './GameBoard.css';
-import UserStats from './UserStats';
 
-const N = 7;
-const HEX_SIZE = 36;
-const PADDING = 28;
-const dx = Math.sqrt(3) * HEX_SIZE;
-const dy = 1.5 * HEX_SIZE;
+/**
+ * Empleamos un sistema de coordenadas baricéntricas (bx, by, bz) para representar la posición de las 
+ * casillas en el tablero, donde bx + by + bz deberá ser igual a SIDE_LEN - 1.
+ * 
+ * ----- CONSTANTES DEL TABLERO -----
+ */
+const HEX_SIZE = 36;   // Tamaño de las casillas del tablero (px).
+const PADDING = 24;    // Distancia mín. entre las casillas y los bordes de su contenedor (px).
 
-const SVG_WIDTH = 2 * HEX_SIZE + (N - 1) * dx + 2 * PADDING;
-const SVG_HEIGHT = 2 * HEX_SIZE + (N - 1) * dy + 2 * PADDING;
+const DIST_X = HEX_SIZE * Math.sqrt(3);    // Distancia horizontal entre los centros de las casillas (px).
+const DIST_Y = HEX_SIZE * 1.5;             // Distancia vertical entre los centros de las casillas (px).
 
-type Player = 1 | 2;
-type CellState = 0 | Player;
+/**
+ * ----- OTROS CONSTANTES Y TIPOS -----
+ */
+const WS_URL = getWebSocketURL();   // Inicialización de la WebSocket para conectar con GameY.
 
+type Player = 1 | 2;                // Tipado para el jugador con valor 1 o 2.
+type CellState = 0 | Player;        // Estado de las casillas con valor 0 (neutro) o perteneciente a algún jugador.
+type GameMode = 'pvp' | 'vs-bot';   // Modo de juego, contra bots o contra jugadores.
+type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';    // Tipo de casilla, si es interior o se encuentra en un borde.
+
+const BOTS = [
+    {
+        name: "random_bot",
+        difficulty: "Fácil",
+        description: "Random Movement Bot"
+    },
+    {
+        name: "greedy_easy",
+        difficulty: "Fácil",
+        description: "Starter Greedy Bot"
+    },
+    {
+        name: "greedy_medium",
+        difficulty: "Media",
+        description: "Experienced Greedy Bot!"
+    },
+    {
+        name: "greedy_hard",
+        difficulty: "Difícil",
+        description: "Advanced Greedy Bot!!"
+    },
+    {
+        name: "random_strategy_bot",
+        difficulty: "Variable",
+        description: "Variable Strategy Bot"
+    }];
+
+/**
+ * Interfaz Cell, que define las características de una casilla del tablero.
+ */
 interface Cell {
-    index: number;
-    bx: number;
-    by: number;
-    bz: number;
-    row: number;
-    col: number;
-    cx: number;
-    cy: number;
+  index: number;    // Índice de la casilla.
+  bx: number;       // Distancia a la base del tablero.
+  by: number;       // Distancia al lado izquierdo.
+  bz: number;       // Distancia al lado derecho.
+  row: number;      // Fila al que pertenece.
+  col: number;      // Columna al que pertenece.
+  cx: number;       // Centro SVG_x.
+  cy: number;       // Centro SVG_y.
 }
 
-function buildCells(): Cell[] {
-    const cells: Cell[] = [];
-    let index = 0;
-    for (let row = 0; row < N; row++) {
-        for (let col = 0; col <= row; col++) {
-            const bx = N - 1 - row;
-            const by = col;
-            const bz = row - col;
-            const cx = PADDING + HEX_SIZE + ((N - 1 - row) * dx) / 2 + col * dx;
-            const cy = PADDING + HEX_SIZE + row * dy;
-            cells.push({index, bx, by, bz, row, col, cx, cy});
-            index++;
-        }
+/**
+ * Function buildCells(), que se ejecuta al initializarse GameBoard. Crea las casillas de
+ * juego según los tamaños especificados para el tablero y las casillas. 
+ * 
+ * @returns Cell[], una lista de casillas.
+ */
+function buildCells(sideLen: number): Cell[] {
+
+  const cells: Cell[] = []; let index = 0;
+
+  for (let row = 0; row < sideLen; row++) {
+    for (let col = 0; col <= row; col++) {
+
+      // Coordenadas de la casilla.
+      const by = col;
+      const bz = row - col;
+      const bx = sideLen - 1 - row;
+
+      // Centro SVG de la casilla.
+      const cx = PADDING + HEX_SIZE + col * DIST_X + (bx * DIST_X) / 2;
+      const cy = PADDING + HEX_SIZE + row * DIST_Y;
+
+      cells.push({ index, bx, by, bz, row, col, cx, cy }); index++;
     }
-    return cells;
+  }
+
+  return cells;
 }
 
-const CELLS = buildCells();
+/**
+ * Funciones auxiliares para manejar la GameBoard.
+ */
 
+/** Polígono hexagonal pointy-top centrado en (cx, cy) con radio r */
+/**
+ * 
+ */
 function hexPoints(cx: number, cy: number, r: number): string {
-    return Array.from({length: 6}, (_, i) => {
-        const angle = (Math.PI / 3) * i - Math.PI / 6;
-        return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
-    }).join(' ');
+  return Array.from({ length: 6 }, (_, i) => {
+    const angle = (Math.PI / 3) * i - Math.PI / 6;  
+    return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
+  }).join(' ');
 }
 
-type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';
-
+/**
+ * 
+ * 
+ * @param cell 
+ * @returns 
+ */
 function getSide(cell: Cell): SideType {
-    const onLeft = cell.by === 0;
-    const onRight = cell.bz === 0;
-    const onBottom = cell.bx === 0;
-    const count = (onLeft ? 1 : 0) + (onRight ? 1 : 0) + (onBottom ? 1 : 0);
-    if (count >= 2) return 'corner';
-    if (onLeft) return 'left';
-    if (onRight) return 'right';
-    if (onBottom) return 'bottom';
-    return 'interior';
+  const onLeft   = cell.by === 0;
+  const onRight  = cell.bz === 0;
+  const onBottom = cell.bx === 0;
+  const count = (onLeft ? 1 : 0) + (onRight ? 1 : 0) + (onBottom ? 1 : 0);
+  if (count >= 2) return 'corner';
+  if (onLeft)   return 'left';
+  if (onRight)  return 'right';
+  if (onBottom) return 'bottom';
+  return 'interior';
 }
 
 // ── YEN parser ────────────────────────────────────────────────────────────────
 // YEN layout field is an array of strings, one per row.
 // Each char: '.' = empty, '1' = player 1, '2' = player 2.
-function parseBoardFromYEN(yen: any): CellState[] {
-    const board: CellState[] = new Array(CELLS.length).fill(0);
-    if (!yen || !yen.layout) return board;
 
-    const rows: string[] =
-        typeof yen.layout === "string"
-            ? yen.layout.split('/')
-            : Array.isArray(yen.layout)
-                ? yen.layout
-                : [];
 
-    let index = 0;
-    for (let row = 0; row < rows.length; row++) {
-        const line = rows[row];
-        for (let col = 0; col < line.length; col++) {
-            const ch = line[col];
-            if (ch === 'B') board[index] = 1;
-            else if (ch === 'R') board[index] = 2;
-            index++;
-        }
-    }
-    return board;
+async function updateMatch(username: string, puntos: number, modo: string) {
+  await fetch("http://localhost:3000/api/matches/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, puntos, modo })
+  });
 }
 
 // Detect winner from YEN status field
-function getWinnerFromYEN(message: any): Player | null {
+async function getWinnerFromYEN(message: any, username:string,
+     gameMode: string): Promise<Player | null> {
+
     if (!message) return null;
 
     // Buscar status en el mensaje principal
     if (message.status && message.status.Finished) {
         const id = message.status.Finished?.winner?.id;
-        if (id === 0) return 1;
-        if (id === 1) return 2;
+        
+        if (id === 0) {
+            await updateMatch(username, +10, gameMode);
+            return 1;
+        }
+        
+        if (id === 1) 
+        {
+            await updateMatch(username, -10, gameMode);
+            return 2;
+        }
     }
 
     // Fallback: check YEN si existe
     const yen = message.yen;
     if (yen && yen.status && yen.status.Finished) {
         const id = yen.status.Finished?.winner?.id;
-        if (id === 0) return 1;
-        if (id === 1) return 2;
+        
+        if (id === 0)
+        {
+            await updateMatch(username, +10, gameMode);
+            return 1;
+        }
+        
+        if (id === 1) 
+        {
+            await updateMatch(username, -10, gameMode);
+            return 2;
+        }
     }
+
     return null;
 }
 
@@ -132,9 +201,6 @@ function getCurrentPlayerFromYEN(message: any): Player {
     return 1;
 }
 
-
-type GameMode = 'pvp' | 'vs-bot';
-
 // Construct WebSocket URL - resolved at runtime, not at build time
 function getWebSocketURL(): string {
     // In production/Docker, all services are on the same network
@@ -146,10 +212,8 @@ function getWebSocketURL(): string {
     return wsUrl;
 }
 
-const WS_URL = getWebSocketURL();
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function GameBoard({username}: { username: string }) {
-    const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
     const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
     const [hovered, setHovered] = useState<number | null>(null);
     const [winner, setWinner] = useState<Player | null>(null);
@@ -157,12 +221,46 @@ function GameBoard({username}: { username: string }) {
     const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
     const [connected, setConnected] = useState<boolean>(false);
     const [isBotThinking, setIsBotThinking] = useState<boolean>(false);
-    const [showStats, setShowStats] = useState<boolean>(false);
-    //const [renderText, setRenderText] = useState<string | null>(null);
+    const [botID, setBotID] = useState<string>("greedy_easy");
+    const [sideLen, setSideLen] = useState<number>(7);
+
+    const SVG_WIDTH = useMemo(
+        () => 2 * HEX_SIZE + (sideLen - 1) * DIST_X + 2 * PADDING, [sideLen]);
+
+    const SVG_HEIGHT = useMemo(
+        () => 2 * HEX_SIZE + (sideLen - 1) * DIST_Y + 2 * PADDING, [sideLen]);
 
     const wsRef = useRef<WebSocket | null>(null);
     // track last move sender to detect bot reply
     const awaitingBotRef = useRef<boolean>(false);
+
+    const CELLS = useMemo(() => buildCells(sideLen), [sideLen]);
+    const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
+
+    function parseBoardFromYEN(yen: any): CellState[] {
+        const board: CellState[] = new Array(CELLS.length).fill(0);
+        if (!yen?.layout) return board;
+
+        const rows: string[] =
+            typeof yen.layout === "string"
+                ? yen.layout.split('/')
+                : Array.isArray(yen.layout)
+                    ? yen.layout
+                    : [];
+                    
+        let index = 0;
+        for (const element of rows) {
+            const line = element;
+            for (const element of line) {
+                const ch = element
+
+                if (ch === 'B') board[index] = 1;
+                else if (ch === 'R') board[index] = 2;
+                index++;
+            }
+        }
+        return board;
+    }   
 
     // ── WebSocket lifecycle ──────────────────────────────────────────────────
     function connectWS(mode: GameMode) {
@@ -175,18 +273,25 @@ function GameBoard({username}: { username: string }) {
 
         ws.onopen = () => {
             setConnected(true);
-            const msg: any = {type: 'start', size: N};
-            if (mode === 'vs-bot') msg.bot_id = 'random_bot';
+            const msg: any = {
+                type: 'start',
+                size: sideLen
+            };
+            if (mode === 'vs-bot') 
+            {
+                msg.bot_id = botID;
+            }
+
             ws.send(JSON.stringify(msg));
         };
 
-        ws.onmessage = (ev) => {
+        ws.onmessage = async (ev) => {
             try {
                 const v = JSON.parse(ev.data);
 
                 if (v.type === 'state' && v.yen) {
                     const newBoard = parseBoardFromYEN(v.yen);
-                    const newWinner = getWinnerFromYEN(v);
+                    const newWinner = await getWinnerFromYEN(v, username, gameMode);
                     const newPlayer = getCurrentPlayerFromYEN(v);
 
                     setBoard(newBoard);
@@ -261,8 +366,8 @@ function GameBoard({username}: { username: string }) {
         awaitingBotRef.current = false;
 
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            const msg: any = {type: 'start', size: N};
-            if (gameMode === 'vs-bot') msg.bot_id = 'random_bot';
+            const msg: any = {type: 'start', size: sideLen};
+            if (gameMode === 'vs-bot') msg.bot_id = botID;
             wsRef.current.send(JSON.stringify(msg));
         } else {
             connectWS(gameMode);
@@ -290,30 +395,53 @@ function GameBoard({username}: { username: string }) {
         connectWS(mode);
     }
 
-    // ── Render ───────────────────────────────────────────────────────────────
+    // ── Render ────────────────────────────────────────────────────────────────────────────────────────────
     if (!isGameStarted) {
         return (
             <div className="gb-wrapper">
                 <div className="gb-mode-select">
                     <h2 className="gb-mode-title">Juego Y</h2>
                     <p className="gb-mode-subtitle">Selecciona el modo de juego</p>
-                    <div className="gb-mode-buttons">
-                        <button
-                            className="gb-mode-btn pvp"
-                            onClick={() => handleStartGame('pvp')}
-                        >
-                            <span className="gb-mode-icon">👥</span>
-                            <span className="gb-mode-label">Jugador vs Jugador</span>
-                            <span className="gb-mode-desc">Juega contra un amigo</span>
+                    
+                    <div className="gb-mode-cards">
+                        <button  className="gb-card" onClick={() => handleStartGame('pvp')}>
+                            <div className="gb-card-icon">👥</div>
+                            <div className="gb-card-title">Jugador vs Jugador</div>
+                            <div className="gb-card-desc">Juega contra un Amigo en Local</div>
+                        </button >
+                        <button  className="gb-card" onClick={() => handleStartGame('vs-bot')}>
+                            <div className="gb-card-icon">🤖</div>
+                            <div className="gb-card-title">Jugador vs Bot</div>
+                            <div className="gb-card-desc">Desafía a un Bot Inteligente</div>
                         </button>
-                        <button
-                            className="gb-mode-btn vs-bot"
-                            onClick={() => handleStartGame('vs-bot')}
-                        >
-                            <span className="gb-mode-icon">🤖</span>
-                            <span className="gb-mode-label">Jugador vs Bot</span>
-                            <span className="gb-mode-desc">Juega contra el bot random</span>
-                        </button>
+                    </div>
+
+                    <div className="gb-options-panel">
+                        <h2>Opciones de Partida</h2>
+
+                        <div className="gb-option-row">
+                            <div className="gb-select-block">
+                                <label>Dificultad del Bot:</label>
+
+                                <select value={botID} onChange={(e) => setBotID(e.target.value)}>
+                                    {BOTS.map(bot => (
+                                        <option key={bot.name} value={bot.name}>
+                                            {bot.difficulty.toUpperCase()} — {bot.description}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="gb-select-block">
+                                <label>Tamaño del Tablero:</label>
+
+                                <select value={sideLen} onChange={(e) => setSideLen(Number(e.target.value))}>
+                                    <option value={7}>7 (28 Casillas)</option>
+                                    <option value={9}>9 (45 Casillas)</option>
+                                    <option value={11}>11 (66 Casillas)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -333,10 +461,6 @@ function GameBoard({username}: { username: string }) {
 
     return (
         <div className="gb-wrapper">
-            {showStats && (
-                <UserStats username={username} onClose={() => setShowStats(false)}/>
-            )}
-
             {winner && (
                 <div className="gb-winner-overlay">
                     <div className={`gb-winner-modal player${winner}`}>
@@ -368,13 +492,6 @@ function GameBoard({username}: { username: string }) {
 
             <div className="gb-header">
                 <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
-                <button
-                    className="gb-back"
-                    onClick={() => setShowStats(true)}
-                    style={{marginLeft: '10px', backgroundColor: '#4a90e2'}}
-                >
-                    Estadísticas del usuario
-                </button>
                 <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
                     <span className="gb-dot"/>
                     {isBotThinking ? (
@@ -464,7 +581,7 @@ function GameBoard({username}: { username: string }) {
             </svg>
 
             <p className="gb-cells-count">
-                {CELLS.length} celdas · N={N} · {gameMode === 'pvp' ? 'PvP' : 'vs Bot'}
+                {CELLS.length} celdas · N={sideLen} · {gameMode === 'pvp' ? 'PvP' : 'vs Bot'}
             </p>
         </div>
     );

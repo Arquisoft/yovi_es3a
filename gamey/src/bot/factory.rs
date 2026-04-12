@@ -11,6 +11,7 @@ use crate::bot::{
     ybot::YBot,
     strategies::random::RandomBot,
     strategies::greedy::GreedyBot,
+    strategies::greedy::Difficulty,
     strategies::random_strategy::RandomStrategyBot,
 };
 
@@ -28,15 +29,15 @@ pub fn create_all_bots() -> YBotRegistry {
     info!("Registrando bot: {}", random_bot.name());
     registry = registry.with_bot(random_bot);
 
-    let easy_greedy = Arc::new(GreedyBot::new("easy"));
+    let easy_greedy = Arc::new(GreedyBot::new(Difficulty::Easy));
     info!("Registrando bot: {}", easy_greedy.name());
     registry = registry.with_bot(easy_greedy);
 
-    let medium_greedy = Arc::new(GreedyBot::new("medium"));
+    let medium_greedy = Arc::new(GreedyBot::new(Difficulty::Medium));
     info!("Registrando bot: {}", medium_greedy.name());
     registry = registry.with_bot(medium_greedy);
 
-    let hard_greedy = Arc::new(GreedyBot::new("hard"));
+    let hard_greedy = Arc::new(GreedyBot::new(Difficulty::Hard));
     info!("Registrando bot: {}", hard_greedy.name());
     registry = registry.with_bot(hard_greedy);
 

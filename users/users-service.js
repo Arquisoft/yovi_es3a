@@ -85,6 +85,79 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
+app.get('/api/ranking', async (req,res) =>
+{
+  try
+  {
+    const result = await gestor.globalRanking();
+
+    if (!result.success)
+      return res
+        .status(400)
+        .json(result);
+
+    const ranking = result.data || [];
+
+    const response =
+    {
+      gold : ranking[0] || null,
+      silver : ranking[1] || null,
+      bronze : ranking[2] || null,
+      rest : ranking.slice(3)
+    }
+    res.json(response);
+  }
+  catch (err)
+  {
+    console.log(`Error al obtener ranking: ${err.message}`);
+    res
+      .status(500)
+      .json({error : err.message});
+  }
+});
+
+// Update user stats + register match result
+app.post('/api/matches/update', async (req, res) => {
+  const { username, puntos, modo } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ success: false, message: 'username is required' });
+  }
+
+  if (typeof puntos !== 'number') {
+    return res.status(400).json({ success: false, message: 'puntos must be a number' });
+  }
+
+  try {
+    // Update stats
+    const statsResult = await gestor.updateUserStats(username, puntos);
+
+    if (!statsResult.success) {
+      return res.status(400).json(statsResult);
+    }
+
+    // Register match
+    const matchResult = await gestor.addUserMatch(username, puntos, modo || "local");
+
+    if (!matchResult.success) {
+      return res.status(400).json(matchResult);
+    }
+
+    res.json({
+      success: true,
+      message: "Match updated successfully.",
+      nuevosPuntos: statsResult.nuevosPuntos
+    });
+
+  } catch (err) {
+    console.error("Error updating match:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Server error updating match."
+    });
+  }
+});
+
 // backward compatibility
 app.post('/createuser', async (req, res) =>
 {
@@ -135,6 +208,27 @@ app.get('/stats/:username', async (req, res) => {
 
   try {
     const result = await gestor.getUserStats(username); 
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json(result);
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// User games history endpoint
+app.get('/games/user/:username', async (req, res) => {
+  const { username } = req.params;
+  
+  if (!username) {
+    return res.status(400).json({ success: false, message: 'El nombre de usuario es obligatorio' });
+  }
+
+  try {
+    const result = await gestor.getUserGames(username); 
 
     if (result.success) {
       res.status(200).json(result);
