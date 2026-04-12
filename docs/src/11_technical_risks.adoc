@@ -1,0 +1,80 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-technical-risks]]
+== Riesgos y deuda técnica
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+.Contents
+A list of identified technical risks or technical debts, ordered by priority
+****
+endif::arc42help[]
+
+=== Riesgos
+
+[options="header", cols="2,2,1,1,2"]
+|===
+|Riesgo|Descripción|Impacto|Probabilidad|Mitigación
+
+| **Complejidad tecnológica (Rust + Node/TS + React)** 
+| El uso combinado de lenguajes de sistemas estrictos (Rust para el motor) y lenguajes web (TypeScript/Node) requiere distintos paradigmas. Esto eleva la curva de aprendizaje y dificulta que un desarrollador Full-Stack pueda resolver bugs transversales rápidamente. 
+| Alto 
+| Media 
+| Fomentar la revisión de código cruzada (Code Reviews) y mantener las interfaces (API REST / Notación YEN) estrictamente documentadas.
+
+| **Orquestación y Despliegue (Docker / Nginx)** 
+| El sistema depende de múltiples contenedores (webapp, users, gamey, db) orquestados por `docker-compose` y enrutados por Nginx. Una mala configuración en las redes de Docker o en el proxy inverso puede dejar el sistema inaccesible o exponer puertos internos. 
+| Alto 
+| Baja 
+| Mantener los archivos `docker-compose.yml` y `nginx.conf` bajo control de versiones estricto, usar `.env` para secretos y realizar pruebas de despliegue en entornos locales (`docker-compose.dev.yml`).
+
+| **Sincronización del estado del juego (Notación YEN)** 
+| El estado del juego viaja desde el motor en Rust hasta el frontend pasando por el backend de usuarios. Cualquier fallo en el parseo o validación estricta de la notación YEN puede corromper la partida de los jugadores. 
+| Alto 
+| Media 
+| Implementar validaciones robustas en la entrada del API y tests unitarios exhaustivos en el motor de Rust que verifiquen casos límite de la notación YEN.
+
+| **Uso de base de datos no relacional (MongoDB)** 
+| Al ser una base de datos orientada a documentos (schema-less), MongoDB no impone integridad referencial estricta (como las claves foráneas en SQL). Si la lógica del backend falla al gestionar relaciones (ej. entre usuarios y sus historiales de partidas), se pueden generar datos huérfanos o estados inconsistentes. 
+| Alto 
+| Media 
+| Forzar esquemas estrictos y validaciones a nivel de aplicación (ej. usando un ODM como Mongoose en el servicio `users`) y gestionar respaldos periódicos del volumen local de la base de datos (`dataBaseFiles`).
+
+| **Reducción de la capacidad operativa (Salida de un miembro)** 
+| Al ser un equipo reducido de 5 personas donde todos los miembros participan en todas las áreas del proyecto (full-stack), la salida de un integrante no genera silos de conocimiento bloqueantes, pero aumenta considerablemente la carga de trabajo del resto. Esto reduciría la velocidad de desarrollo, alargando el tiempo necesario para lanzar nuevas versiones (releases).
+| Medio 
+| Baja 
+| Ajustar ágilmente el alcance (scope) de las iteraciones si se reduce el equipo, automatizar el mayor número de tareas posibles (CI/CD) para ahorrar tiempo y mantener un ritmo de trabajo sostenible para evitar el agotamiento (burnout) del resto.
+|===
+
+=== Deuda técnica
+
+[options="header", cols="2,2,1,1,2"]
+|===
+|Deuda técnica|Descripción|Impacto|Probabilidad|Mitigación
+
+| **Code Smells y métricas de SonarQube** 
+| Al utilizar herramientas de análisis estático (configuradas en `sonar-project.properties`), se acumula deuda técnica visible (code smells, código duplicado o complejidad ciclomática alta) en los repositorios de TypeScript/JavaScript. 
+| Medio 
+| Alta 
+| Establecer umbrales de calidad (Quality Gates) en el CI/CD y dedicar tiempo en cada sprint para resolver las advertencias de SonarQube antes de integrar código.
+
+| **Cobertura de Tests End-to-End (E2E)** 
+| Dada la arquitectura de microservicios, mantener pruebas funcionales automáticas que crucen desde el frontend (`webapp`), pasen por el API (`users`) y lleguen al motor (`gamey`) requiere un esfuerzo continuo. Las interfaces cambian y los flujos pueden romperse.
+| Alto 
+| Alta 
+| Mantener y ampliar la cobertura de pruebas de integración y E2E utilizando **Cucumber (BDD/Gherkin)** y **Playwright** (actualmente configurados en el proyecto) para automatizar los flujos críticos de interacción del usuario en la interfaz web.
+
+| **Pruebas de Carga y Rendimiento (Gatling)** 
+| Al ser un juego multijugador orquestado en contenedores, existe la deuda técnica de validar cómo se comporta el sistema bajo alta concurrencia. Actualmente el límite real de usuarios simultáneos sin degradación es desconocido. 
+| Alto 
+| Alta 
+| Implementar escenarios de estrés utilizando **Gatling**. Se aprovechará su Recorder y su DSL basado en Scala/JVM para simular múltiples partidas concurrentes y descubrir cuellos de botella reales en la infraestructura.
+
+| **Gestión básica de autenticación / Sesiones** 
+| La implementación inicial de la autenticación puede carecer de mecanismos avanzados (refresco de tokens automáticos, invalidación de sesiones al cambiar roles, etc.), limitando la escalabilidad de seguridad. 
+| Medio 
+| Media 
+| Refactorizar el módulo de `users` para estandarizar el uso de JWT de corta duración y asegurar que los secretos solo residan en las variables de entorno (`.env`).
+|===

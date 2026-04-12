@@ -1,0 +1,140 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-introduction-and-goals]]
+
+== Introducción
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+Describes the relevant requirements and the driving forces that software architects and development team must consider. 
+These include
+
+* underlying business goals, 
+* essential features, 
+* essential functional requirements, 
+* quality goals for the architecture and
+* relevant stakeholders and their expectations
+****
+endif::arc42help[]
+
+Este documento describe la aplicación web YOVI, encargada por la empresa desarrolladora de juegos Micrati. La aplicación permite a sus usuarios jugar a variantes del juego de conexión Y, con la opción de jugar contra bots o contra otros jugadores.
+
+Además, dispone de una API abierta que permite acceder al historial de partida y a las estadísticas de jugador, a través de la misma aplicación web o mediante llamadas a la API.
+
+La aplicación está basada en un sistema de prueba desarrollada por la misma empresa, sobre la que implementamos las funcionalidades necesarias para llevar la aplicación al mercado.
+
+
+=== Resumen de Requisitos
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+.Contents
+Short description of the functional requirements, driving forces, extract (or abstract)
+of requirements. Link to (hopefully existing) requirements documents
+(with version number and information where to find it).
+
+.Motivation
+From the point of view of the end users a system is created or modified to
+improve support of a business activity and/or improve the quality.
+
+.Form
+Short textual description, probably in tabular use-case format.
+If requirements documents exist this overview should refer to these documents.
+
+Keep these excerpts as short as possible. Balance readability of this document with potential redundancy w.r.t to requirements documents.
+
+
+.Further Information
+
+See https://docs.arc42.org/section-1/[Introduction and Goals] in the arc42 documentation.
+
+****
+endif::arc42help[]
+
+Los requisitos de alto nivel para la aplicación YOVI son:
+
+[options="header", cols="1, 2"]
+|===
+|Prioridad|Requisito
+|1| Debe soportar el modo de juego clásico que enfrenta a un jugador con la máquina.
+|2| Debe estar desplegada en la nube y ser públicamente accesible a través de la web. 
+|3| Debe contar con una interfaz web que permita a los usuarios jugar al juego Y.
+|4| Debe ofrecer varias estrategias de juego que los usuarios puedan seleccionar junto a un nivel de dificultad para la máquina.
+|5| Debe proporcionar un sistema de registro y autenticación, que permita a los usuarios consultar sus estadísticas e histórico de participación en el sistema.
+|6| Debe exponer una API que permita el acceso y la gestión de la información de los usuarios.
+|7| Debe posibilitar que se juege a través de la API, ya sea para implementaciones públicas o a través de bots.
+|===
+
+=== Objetivos de Calidad
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+.Contents
+The top three (max five) quality goals for the architecture whose fulfillment is of highest importance to the major stakeholders. 
+We really mean quality goals for the architecture. Don't confuse them with project goals.
+They are not necessarily identical.
+
+Consider this overview of potential topics (based upon the ISO 25010 standard):
+
+image::01_2_iso-25010-topics-EN.drawio.png["Categories of Quality Requirements"]
+
+.Motivation
+You should know the quality goals of your most important stakeholders, since they will influence fundamental architectural decisions. 
+Make sure to be very concrete about these qualities, avoid buzzwords.
+If you as an architect do not know how the quality of your work will be judged...
+
+.Form
+A table with quality goals and concrete scenarios, ordered by priorities
+****
+endif::arc42help[]
+
+Los objetivos de calidad principales para la aplicación YOVI son:
+
+[options="header", cols="1, 1, 2"]
+|===
+|Prioridad|Objetivo|Descripción
+|Alta|Interoperabilidad|La aplicación web y el módulo Rust deben comunicarse de forma fiable mediante los estados de juego YEN en mensajes JSON.
+|Alta|Mantenibilidad|La arquitectura debe permitir añadir nuevas estrategias y variantes de juego, además de mejoras en la API sin afectar al núcleo del sistema.
+|Alta|Fiabilidad|La lógica de juego del módulo Rust debe ofrecer respuestas correctas y consistentes para la evaluación de partidas.
+|Media|Escalabilidad|El sistema debe soportar múltiples usuarios y bots interactuando con la aplicación de forma simultánea.
+|Media|Usabilidad|La aplicación debe presentar una interfaz web clara, accesible y fácil de usar.
+|===
+
+=== Grupos de Interés
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+.Contents
+Explicit overview of stakeholders of the system, i.e. all person, roles or organizations that
+
+* should know the architecture
+* have to be convinced of the architecture
+* have to work with the architecture or with code
+* need the documentation of the architecture for their work
+* have to come up with decisions about the system or its development
+
+.Motivation
+You should know all parties involved in development of the system or affected by the system.
+Otherwise, you may get nasty surprises later in the development process.
+These stakeholders determine the extent and the level of detail of your work and its results.
+
+.Form
+Table with role names, person names, and their expectations with respect to the architecture and its documentation.
+****
+endif::arc42help[]
+
+Los grupos de interés en el desarrollo de la aplicación YOVI son:
+
+[options="header", cols="1, 2"]
+|===
+|Grupo|Interés
+| Usuarios finales | Poder accedar al juego Y con una experiencia atractiva y fluida.
+| Bots externos | Interactuar con el sistema mediant un API estable y documentado correctamente.
+| Equipo de desarrollo | Trabajar con una arquitectura clara, modular y mantenible.
+| Profesores | Verificar la calidad arquitectónica, la documentación y la implementación del sistema.
+| Micrati | Disponer de un producto que cumpla con los requisitos deseados.
+|===

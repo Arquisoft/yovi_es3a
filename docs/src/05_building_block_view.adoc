@@ -1,0 +1,279 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-building-block-view]]
+== Building Block View
+
+La vista de bloques muestra la descomposición estática del sistema y sus dependencias principales.
+
+=== Whitebox Overall System
+
+_**Overview Diagram**_
+
+image::building_blocks_overview.png[Overview Diagram]
+
+Motivation::
+
+El sistema se descompone en cuatro bloques principales siguiendo una arquitectura de microservicios desacoplados:
+
+- `webapp`: interfaz de usuario
+- `users`: microservicio REST
+- `gamey`: motor de juego en Rust
+- Stack de monitorización
+
+Esta separación permite bajo acoplamiento, escalabilidad independiente y separación clara entre lógica de dominio y presentación.
+
+
+Contained Building Blocks::
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| webapp | Interfaz de usuario desarrollada en React con TypeScript.
+| users | Microservicio Node.js/Express para gestión de usuarios.
+| gamey | Motor de juego que implementa la lógica del dominio.
+| Monitoring Stack | Monitorización con Prometheus y Grafana.
+|===
+
+
+Important Interfaces::
+
+- HTTP REST entre `webapp` y `users` (puertos 3000)
+- WebSocket entre `webapp` y `gamey` (puerto 4000)
+- Endpoint `/metrics` para Prometheus
+- Comunicación interna mediante red Docker `monitor-net`
+
+
+==== webapp
+
+_Purpose/Responsibility_
+
+Gestiona la interacción con el usuario, autenticación (login/registro) y realiza llamadas HTTP al backend y WebSocket al motor de juego.
+
+_Interface(s)_
+
+- POST `/createuser` - Crear nuevo usuario (a `users`)
+- POST `/login` - Autenticar usuario (a `users`)
+- WebSocket `/ws` (a `gamey`, puerto 4000)
+
+_Directory/File Location_
+
+`webapp/`
+
+
+==== users
+
+_Purpose/Responsibility_
+
+Servicio REST que gestiona el registro, autenticación y almacenamiento de usuarios. Expone métricas del sistema mediante Prometheus.
+
+_Interface(s)_
+
+- POST `/createuser` - Crear usuario
+- POST `/login` - Autenticar usuario
+- GET `/` - Listar usuarios
+- GET `/username/:username` - Obtener usuario por nombre
+- GET `/:id` - Obtener usuario por ID
+- DELETE `/:id` - Eliminar usuario
+- GET `/metrics` - Métricas de Prometheus
+
+_Directory/File Location_
+
+`users/`
+
+
+==== gamey
+
+_Purpose/Responsibility_
+
+Implementa la lógica del juego de Y, incluyendo algoritmos de inteligencia artificial para oponentes computacionales. Funciona como servidor HTTP con soporte WebSocket.
+
+_Interface(s)_
+
+- WebSocket `/ws` - Comunicación bidireccional de juego (puerto 4000)
+- GET `/status` - Health check
+- GET `/bots` - Listar bots disponibles
+- GET `/metrics` - Métricas de Prometheus
+- CLI - Línea de comandos para juego local
+- Biblioteca Rust - API interna reutilizable
+
+_Directory/File Location_
+
+`gamey/`
+
+
+==== Monitoring Stack
+
+_Purpose/Responsibility_
+
+Recolecta y visualiza métricas del sistema mediante Prometheus y Grafana.
+
+_Interface(s)_
+
+- Scraping de `/metrics` desde `users` y `gamey`
+- Dashboards en Grafana (puerto 9091)
+
+_Location_
+
+`docker-compose.yml`
+
+
+=== Level 2
+
+==== White Box webapp
+
+image::webapp_internal_structure.png[Webapp Internal Structure]
+
+Motivation::
+
+Se detalla la estructura interna por ser el punto de entrada del sistema y responsable de la autenticación de usuarios, gestión de sesión y visualización del tablero de juego.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| main.tsx | Punto de entrada de la aplicación React.
+| App.tsx | Componente raíz que gestiona el estado de autenticación.
+| RegisterForm.tsx | Componente de registro de nuevos usuarios con validación.
+| LoginForm.tsx | Componente de login de usuarios existentes.
+| GameBoard.tsx | Componente principal para visualizar y jugar al tablero de juego.
+| UserStats.tsx | Componente para mostrar estadísticas del usuario.
+|===
+
+
+==== White Box users
+
+Motivation::
+
+El servicio `users` es un microservicio REST independiente que gestiona toda la lógica de autenticación y persistencia de usuarios. Su separación permite escalabilidad independiente y reutilización por otros servicios.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| users-service.js | Punto de entrada. Configura Express, CORS, middleware de métricas y rutas.
+| user-routes.js | Definición de rutas REST (`/`, `/login`, `/auth`, etc.).
+| user-controller.js | Controladores que procesan las peticiones HTTP.
+| user-service.js | Lógica de negocio (validación, autenticación, CRUD).
+| user-model.js | Esquema Mongoose para la base de datos.
+| userDB.js | Conexión y operaciones de base de datos.
+| gestorDBUSER.js | Gestor alternativo para operaciones en base de datos.
+|===
+
+
+==== White Box gamey
+
+image::gamey_internal_structure.png[Gamey Internal Structure]
+
+Motivation::
+
+Contiene la lógica más compleja del sistema, implementada en Rust para máximo rendimiento. Está estructurada en módulos claramente separados: lógica de juego (core), estrategias de IA (bot), servidor HTTP (bot_server), interfaz de usuario (cli) y serialización (notation).
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| main.rs | Selección de modo de ejecución (CLI, servidor HTTP en puerto 4000, o humano vs IA).
+| lib.rs | Organización modular y re-exportación de tipos públicos.
+| core/ | Tipos fundamentales del juego: lógica, coordenadas, movimientos, jugadores.
+| bot/ | Estrategias de inteligencia artificial y decisión de movimientos.
+| bot_server/ | Servidor Axum con WebSocket en `/ws` para comunicación real-time.
+| cli/ | Interfaz de línea de comandos para juego interactivo.
+| notation/ | Formato YEN para serialización de estado de juego.
+|===
+
+
+=== Level 3
+
+==== White Box core (Núcleo del Juego)
+
+Motivation::
+
+El módulo `core` encapsula toda la lógica fundamental del juego de Y, incluyendo representación del tablero, gestión de estados y detección de victoria.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| game.rs | Estructura principal `GameY` con estado del juego, validación de movimientos y máquina de estados.
+| coord.rs | Sistema de coordenadas baricéntricas (x, y, z) para tablero triangular.
+| movement.rs | Tipos `Movement` (colocación de pieza) y `GameAction` (swap, resign).
+| player.rs | Tipos `PlayerId` y `Player` para representación de jugadores.
+| action.rs | Definición de acciones especiales (`Swap`, `Resign`).
+| player_set.rs | Estructura Union-Find privada para detección eficiente de conectividad.
+| render_options.rs | Opciones para visualización del tablero.
+|===
+
+==== White Box game.rs (Lógica Central)
+
+Motivation::
+
+Contiene el núcleo algorítmico del sistema, implementando toda la lógica del juego de Y: validación de movimientos, gestión de estado y detección de victorias mediante Union-Find.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| `GameY` (struct) | Encapsula el estado completo de una partida en progreso.
+| `board_size` (u32) | Tamaño del tablero triangular (ej: 7).
+| `board_map` (HashMap) | Mapea coordenadas baricéntricas a (SetIdx, PlayerId) - representa celdas ocupadas.
+| `history` (Vec) | Historial de movimientos realizados en orden cronológico.
+| `sets` (Vec<PlayerSet>) | Vector de estructuras Union-Find, una por jugador, para detectar cadenas conectadas.
+| `available_cells` (Vec<u32>) | Lista de índices de celdas disponibles donde se pueden colocar piezas.
+| `GameStatus` (enum) | Representa si el juego está `Ongoing` o `Finished` (con ganador).
+| `Cell` (enum) | Estado de una celda: `Empty` u `Occupied(PlayerId)`.
+| `check_game_over()` | Método que retorna true si el juego ha terminado.
+| `add_move()` | Método que valida, aplica y registra un movimiento.
+|===
+
+==== White Box coord.rs (Sistema de Coordenadas)
+
+Motivation::
+
+Define el sistema de coordenadas baricéntricas utilizado para ubicar celdas en el tablero triangular. Este sistema es fundamental para la representación del estado del juego.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| `Coordinates` (struct) | Tupla (x, y, z) con la invariante x + y + z = board_size. Ubicación única de cada celda.
+| `new()` | Constructor que valida la invariante baricéntrica.
+| `to_index()` | Convierte coordenadas baricéntricas a índice lineal.
+| `from_index()` | Convierte índice lineal a coordenadas baricéntricas.
+|===
+
+==== White Box movement.rs (Tipos de Movimientos)
+
+Motivation::
+
+Define los tipos de movimientos que pueden realizarse en el juego, permitiendo operaciones más allá de colocación de piezas (ej: intercambios, abandonos).
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| `Movement` (enum) | Movimiento del juego: `Placement {player, coords}` o `Action {player, action}`.
+| `GameAction` (enum) | Acción especial: `Swap` (intercambiar colores en movimiento inicial) o `Resign` (abandonar partida).
+|===
+
+==== White Box bot (Inteligencia Artificial)
+
+Motivation::
+
+Contiene las estrategias de decisión para jugadores controlados por computadora, permitiendo diferentes niveles de dificultad y estilos de juego.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| ybot.rs | Interfaz `YBot` trait que define el comportamiento de un bot: `choose_move()`.
+| strategies/ | Directorio con diferentes estrategias implementadas (random, minimax, heurística, etc.).
+| ybot_registry.rs | Registro de bots disponibles para creación y administración.
+|===
+
+==== White Box bot_server (Servidor WebSocket)
+
+Motivation::
+
+Servidor Axum que expone la lógica del juego mediante WebSocket para comunicación real-time con clientes, permitiendo juego multijugador y contra IA.
+
+[cols="1,2", options="header"]
+|===
+| **Name** | **Responsibility**
+| mod.rs | Configuración del servidor Axum, rutas, y manejadores WebSocket.
+| choose.rs | Lógica de selección de movimiento del bot y respuesta al cliente.
+| state.rs | Estado compartido de la aplicación (registro de bots, sesiones).
+| error.rs | Tipos de error y respuestas HTTP/WebSocket.
+| version.rs | Gestión de versiones de API.
+|===

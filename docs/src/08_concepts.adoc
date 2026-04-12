@@ -1,0 +1,77 @@
+ifndef::imagesdir[:imagesdir: ../images]
+
+[[section-concepts]]
+== Conceptos Transversales
+
+ifdef::arc42help[]
+[role="arc42help"]
+****
+.Contenido
+Esta sección describe normas generales, ideas de solución y regulaciones principales que son relevantes en múltiples partes (= transversales) de tu sistema. Tales conceptos suelen estar relacionados con varios bloques de construcción. Pueden incluir muchos temas diferentes, como
+
+* modelos, especialmente modelos del dominio
+* patrones de arquitectura o de diseño
+* reglas para el uso de tecnologías específicas
+* decisiones principales, a menudo técnicas, de carácter general (= transversal)
+* reglas de implementación
+
+.Motivación
+Los conceptos forman la base de la *integridad conceptual* (consistencia, homogeneidad) de la arquitectura.  
+Por lo tanto, son una contribución importante para lograr las cualidades internas de tu sistema.
+
+Algunos de estos conceptos no pueden asignarse a bloques de construcción individuales, por ejemplo seguridad o protección.
+
+.Forma
+La forma puede variar:
+
+* documentos de concepto con cualquier tipo de estructura
+* extractos de modelos transversales o escenarios usando notaciones de las vistas de arquitectura
+* implementaciones de ejemplo, especialmente para conceptos técnicos
+* referencias al uso típico de frameworks estándar (por ejemplo, usar Hibernate para el mapeo objeto/relacional)
+
+.Estructura
+Una posible (pero no obligatoria) estructura para esta sección podría ser:
+
+* Conceptos de dominio
+* Conceptos de experiencia de usuario (UX)
+* Conceptos de seguridad y protección
+* Patrones de arquitectura y de diseño
+* “Bajo el capó”
+* Conceptos de desarrollo
+* Conceptos operativos
+
+Nota: puede ser difícil asignar conceptos individuales a un tema específico de esta lista.
+
+image::08-concepts-EN.drawio.png["Posibles temas para conceptos transversales"]
+
+.Más Información
+
+Consulta https://docs.arc42.org/section-8/[Concepts] en la documentación de arc42.
+****
+endif::arc42help[]
+
+=== Concepto de Dominio
+
+image::DiagramaBD.png[Diagrama de Despliegue]
+
+- *Usuarios*: Tendrán nombre, nombre de usuario, contraseña, además de las estadísticas que irán variando según usen *YOVI*. Representan a los usuarios reales.
+- *Bots*: En caso de que un usuario no juegue contra otra persona real, jugará contra un bot, que tendrá nombre y dificultad.
+- *JuegosY*: Juego principal, con modo, jugadores y un resultado que se dará una vez su estado sea finalizado.
+- *Partidas*: Representa las partidas jugadas para facilitar el estado de la aplicación.
+
+=== Conceptos de Experiencia de Usuario
+
+La experiencia de usuario se centra en ofrecer una interfaz web clara, accesible y atractiva que permita a los jugadores interactuar de forma fluida con el "Juego Y". El sistema prioriza la facilidad de uso mediante un diseño intuitivo, asegurando que tanto el registro como la participación en las distintas modalidades de juego sean procesos sencillos y directos.
+
+=== Conceptos de Seguridad
+
+La seguridad de la aplicación se basa actualmente en el aislamiento de componentes mediante una arquitectura de microservicios y el uso de variables de entorno para proteger credenciales sensibles. El proyecto integra además análisis de calidad continuo en su flujo de desarrollo y planea implementar un sistema centralizado de autenticación para gestionar el acceso de forma segura.
+
+=== Conceptos de Arquitectura
+
+La arquitectura de la aplicación se basa en un sistema de microservicios independientes que desacoplan la interfaz web, el servicio de gestión de usuarios y el motor de lógica de juego desarrollado en Rust. Estos componentes interactúan mediante el intercambio de mensajes JSON y están contenedorizados con Docker para garantizar un despliegue consistente, escalable y reproducible en la nube.
+
+=== Conceptos de Desarrollo
+
+El desarrollo de la aplicación se fundamenta en un ciclo de integración y despliegue continuos (CI/CD) que prioriza el testing automatizado y el análisis de calidad con SonarCloud. Todo el proceso se apoya en la contenedorización con Docker y flujos de trabajo en GitHub Actions para asegurar entregas rápidas, consistentes y reproducibles en cualquier entorno.
+
