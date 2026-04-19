@@ -46,16 +46,16 @@ function App()
 							<Routes>
 								<Route path="/login" element=
 								{
-									!loggedInUser
-										? <LoginForm onSuccess={handleAuthSuccess} />
-										: <Navigate to="/game" />
+									loggedInUser
+										? <Navigate to="/game" />
+										: <LoginForm onSuccess={handleAuthSuccess} />
 								}/>
 								
 								<Route path="/register" element=
 								{
-									!loggedInUser
-										? <RegisterForm onSuccess={handleAuthSuccess} />
-										: <Navigate to="/game" />
+									loggedInUser
+										? <Navigate to="/game" />
+										: <RegisterForm onSuccess={handleAuthSuccess} />
 								}/>
 
 								<Route path="/game" element=

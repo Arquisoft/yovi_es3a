@@ -65,7 +65,21 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
 
           {/* Auth-related links */}
           <ul className="navbar-nav ms-auto">
-            {!user ? (
+            {user ? (
+              <li className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle btn border-0" href="#" role="button" data-bs-toggle="dropdown">
+                  <i className="bi bi-person-circle me-1"></i> {user}
+                </a>
+
+                <ul className="dropdown-menu dropdown-menu-end shadow">
+                  <li>
+                    <button className="dropdown-item text-danger d-flex align-items-center" onClick={handleLogout}>
+                      <i className="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+                    </button>
+                  </li>
+                </ul>
+              </li>
+            ) : (
               <>
                 {/* GOTO: log in */}
                 <li className="nav-item">
@@ -81,20 +95,6 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
                   </NavLink>
                 </li>
               </>
-            ) : (
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle btn border-0" href="#" role="button" data-bs-toggle="dropdown">
-                  <i className="bi bi-person-circle me-1"></i> {user}
-                </a>
-
-                <ul className="dropdown-menu dropdown-menu-end shadow">
-                  <li>
-                    <button className="dropdown-item text-danger d-flex align-items-center" onClick={handleLogout}>
-                      <i className="bi bi-box-arrow-right me-2"></i> Cerrar sesión
-                    </button>
-                  </li>
-                </ul>
-              </li>
             )}
           </ul>
         </div>

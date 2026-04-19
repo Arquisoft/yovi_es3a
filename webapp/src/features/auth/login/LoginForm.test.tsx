@@ -14,7 +14,7 @@ function ensureAlertPortal() {
 }
 
 describe('LoginForm', () => {
-	const originalFetch = global.fetch;
+	const originalFetch = globalThis.fetch;
 
 	beforeEach(() => {
 		vi.restoreAllMocks();
@@ -22,7 +22,7 @@ describe('LoginForm', () => {
 	});
 
 	afterEach(() => {
-		global.fetch = originalFetch;
+		globalThis.fetch = originalFetch;
         
 		cleanup();
 	});
@@ -41,7 +41,7 @@ describe('LoginForm', () => {
 
 	it('login existing user', async () => {
 		const onSuccess = vi.fn();
-		global.fetch = vi.fn().mockResolvedValue({
+		globalThis.fetch = vi.fn().mockResolvedValue({
 			ok: true,
 			json: async () => ({ message: 'Welcome back, test-username!' }),
 		} as Response);
@@ -111,7 +111,7 @@ describe('LoginForm', () => {
 	});
 
 	it('try login non-existent user', async () => {
-		global.fetch = vi.fn().mockResolvedValue({
+		globalThis.fetch = vi.fn().mockResolvedValue({
 			ok: false,
 			json: async () => ({ error: 'User not found' }),
 		} as Response);

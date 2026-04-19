@@ -21,6 +21,13 @@ Before(async function () {
 })
 
 After(async function () {
-  if (this.page) await this.page.close()
-  if (this.browser) await this.browser.close()
+  try {
+    if (this.page) await this.page.close()
+  } catch (_) {
+  }
+
+  try {
+    if (this.browser) await this.browser.close()
+  } catch (_) {
+  }
 })

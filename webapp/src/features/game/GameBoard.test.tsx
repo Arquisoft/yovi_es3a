@@ -37,16 +37,16 @@ class MockWebSocket {
 }
 
 describe('GameBoard', () => {
-	const originalWebSocket = global.WebSocket;
+	const originalWebSocket = globalThis.WebSocket;
 
 	beforeEach(() => {
 		vi.restoreAllMocks();
 		MockWebSocket.instances = [];
-		global.WebSocket = MockWebSocket as unknown as typeof WebSocket;
+		globalThis.WebSocket = MockWebSocket as unknown as typeof WebSocket;
 	});
 
 	afterEach(() => {
-		global.WebSocket = originalWebSocket;
+		globalThis.WebSocket = originalWebSocket;
 		cleanup();
 	});
 

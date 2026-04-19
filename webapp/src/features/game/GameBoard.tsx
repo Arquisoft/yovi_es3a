@@ -146,7 +146,7 @@ async function getWinnerFromYEN(message: any, username:string,
     if (!message) return null;
 
     // Buscar status en el mensaje principal
-    if (message.status && message.status.Finished) {
+    if (message.status?.Finished) {
         const id = message.status.Finished?.winner?.id;
         
         if (id === 0) {
@@ -163,7 +163,7 @@ async function getWinnerFromYEN(message: any, username:string,
 
     // Fallback: check YEN si existe
     const yen = message.yen;
-    if (yen && yen.status && yen.status.Finished) {
+    if (yen?.status?.Finished) {
         const id = yen.status.Finished?.winner?.id;
         
         if (id === 0)
@@ -189,13 +189,13 @@ function getCurrentPlayerFromYEN(message: any): Player {
     const yen = message.yen || message;
 
     // Check status Ongoing
-    if (message.status && message.status.Ongoing) {
+    if (message.status?.Ongoing) {
         const id = message.status.Ongoing?.next_player?.id;
         if (id === 1) return 2;
     }
 
     // Usar turn field de YEN como fallback (0=player1, 1=player2)
-    if (yen && yen.turn !== undefined) {
+    if (yen?.turn !== undefined) {
         return yen.turn === 0 ? 1 : 2;
     }
     return 1;
@@ -205,8 +205,8 @@ function getCurrentPlayerFromYEN(message: any): Player {
 function getWebSocketURL(): string {
     // In production/Docker, all services are on the same network
     // Use the same hostname as the webapp and port 4000 for gamey
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const host = window.location.hostname;
+    const protocol = globalThis.location.protocol === 'https:' ? 'wss' : 'ws';
+    const host = globalThis.location.hostname;
     const wsUrl = `${protocol}://${host}:4000/ws`;
     console.log('WebSocket URL:', wsUrl);
     return wsUrl;
@@ -339,7 +339,7 @@ function GameBoard({username}: { username: string }) {
 
     // ── Game actions ─────────────────────────────────────────────────────────
     function sendCommand(line: string) {
-        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+        if (wsRef.current?.readyState !== WebSocket.OPEN) return;
         wsRef.current.send(JSON.stringify({type: 'command', line}));
     }
 
@@ -365,7 +365,7 @@ function GameBoard({username}: { username: string }) {
         setIsBotThinking(false);
         awaitingBotRef.current = false;
 
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
             const msg: any = {type: 'start', size: sideLen};
             if (gameMode === 'vs-bot') msg.bot_id = botID;
             wsRef.current.send(JSON.stringify(msg));
