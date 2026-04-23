@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="403f5569-a846-48a5-856e-ba9f36321990" name="Changes" comment="Algo pasa con conexion a BD" />
+    <list default="true" id="403f5569-a846-48a5-856e-ba9f36321990" name="Changes" comment="Intento arreglo Security Hotspots 2">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/users/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/src/styles/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/src/features/auth/login/LoginForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/src/features/auth/login/LoginForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/src/features/auth/register/RegisterForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/src/features/auth/register/RegisterForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/src/features/game/GameBoard.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/src/features/game/GameBoard.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/src/features/ranking/Ranking.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/src/features/ranking/Ranking.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/src/features/user-stats/UserStats.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/src/features/user-stats/UserStats.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/src/styles/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/src/styles/index.css" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,6 +25,7 @@
   <component name="CopilotPersistence">
     <persistenceIdMap>
       <entry key="_C:/Users/Uni/git/yovi_es3a" value="3A1tNuDXEEG6xlC9QpoZEUHBOH6" />
+      <entry key="_C:/Users/namas/UNI/3 curso/ASW/WS/yovi_es3a" value="3CH5BnDGbkT9SVKyA9ezSz3Z2G2" />
     </persistenceIdMap>
   </component>
   <component name="CopilotUserSelectedChatMode">
@@ -20,9 +33,12 @@
   </component>
   <component name="CopilotUserSelectedModel">
     <selectedModels>
-      <entry key="chat-panel" value="Claude Haiku 4.5" />
       <entry key="agent-panel" value="Claude Haiku 4.5" />
+      <entry key="chat-panel" value="Claude Haiku 4.5" />
     </selectedModels>
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="4475" />
   </component>
   <component name="Git.Merge.Settings">
     <option name="BRANCH" value="developer" />
@@ -30,7 +46,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="frontend-usuarios" />
+        <entry key="$PROJECT_DIR$" value="ArreglosSonarcube" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -44,7 +60,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Arquisoft/yovi_es3a.git&quot;,
-    &quot;accountId&quot;: &quot;6ffade0f-918f-4045-b15a-2806c5190c32&quot;
+    &quot;accountId&quot;: &quot;35b36eb5-cb97-4892-a1b7-6efc324cbc74&quot;
   }
 }</component>
   <component name="McpProjectServerCommands">
@@ -76,6 +92,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "VistaTelefonos",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/Uni/git/yovi_es3a",
     "node.js.detected.package.eslint": "true",
@@ -83,10 +100,15 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Users\\Uni\\git\\yovi_es3a\\webapp\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "C:\\Users\\namas\\UNI\\3 curso\\ASW\\WS\\yovi_es3a\\webapp\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\namas\UNI\3 curso\ASW\WS\yovi_es3a\webapp\src\styles" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="pruebaDBUSER.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/users/pruebaDBUSER.js" working-dir="$PROJECT_DIR$/users">
       <method v="2" />
@@ -104,8 +126,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
       </set>
     </attachedChunks>
   </component>
@@ -140,6 +162,9 @@
       <workItem from="1775905749195" duration="4247000" />
       <workItem from="1775990879293" duration="2103000" />
       <workItem from="1776007232627" duration="98000" />
+      <workItem from="1776029509585" duration="1194000" />
+      <workItem from="1776073846762" duration="6000" />
+      <workItem from="1776956818373" duration="8629000" />
     </task>
     <task id="LOCAL-00001" summary="Implementacion del LoginForm.tsx">
       <option name="closed" value="true" />
@@ -285,7 +310,31 @@
       <option name="project" value="LOCAL" />
       <updated>1775908750876</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Merge branch 'pruebasUnitarias' of https://github.com/Arquisoft/yovi_es3a into pruebasUnitarias&#10;&#10;# Conflicts:&#10;#&#9;.gitignore">
+      <option name="closed" value="true" />
+      <created>1776028755397</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1776028755397</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Intento arreglo Security Hotspots">
+      <option name="closed" value="true" />
+      <created>1776957645418</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1776957645418</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Intento arreglo Security Hotspots 2">
+      <option name="closed" value="true" />
+      <created>1776957967828</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1776957967828</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -293,6 +342,17 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Implementacion del LoginForm.tsx" />
@@ -310,7 +370,10 @@
     <MESSAGE value="Cambio prerelease-deploy.yml" />
     <MESSAGE value="Duplicacion docker-compose.yml" />
     <MESSAGE value="Algo pasa con conexion a BD" />
-    <option name="LAST_COMMIT_MESSAGE" value="Algo pasa con conexion a BD" />
+    <MESSAGE value="Merge branch 'pruebasUnitarias' of https://github.com/Arquisoft/yovi_es3a into pruebasUnitarias&#10;&#10;# Conflicts:&#10;#&#9;.gitignore" />
+    <MESSAGE value="Intento arreglo Security Hotspots" />
+    <MESSAGE value="Intento arreglo Security Hotspots 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Intento arreglo Security Hotspots 2" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

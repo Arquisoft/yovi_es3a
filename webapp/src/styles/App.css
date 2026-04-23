@@ -1,0 +1,249 @@
+/* ✅ FIX: usa dvh/svh para que el 100% real en móvil incluya/excluya la barra del navegador correctamente */
+html, body, #root {
+    height: 100%;
+    /* ✅ FIX: en iOS Safari, 100vh es incorrecto; dvh es el valor dinámico correcto */
+    min-height: 100dvh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    /* ✅ FIX: overflow hidden solo en desktop; en móvil permitimos scroll si el contenido lo necesita */
+    overflow: hidden;
+}
+
+/* ✅ FIX: en pantallas muy pequeñas o cuando el teclado virtual está abierto, permitir scroll */
+@media (max-height: 500px) {
+    html, body, #root {
+        overflow-y: auto;
+    }
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Títulos dentro del contenedor card */
+.card-transparent h1,
+.card-transparent h2,
+.card-transparent h3 {
+    flex: 0 0 auto;
+    /* ✅ FIX: clamp más agresivo para pantallas muy pequeñas */
+    font-size: clamp(1rem, 2.5vh, 1.8rem);
+    text-align: center;
+    margin: 0 0 clamp(6px, 1vh, 15px) 0;
+    padding: clamp(2px, 0.4vh, 6px) 0;
+    line-height: 1.2;
+}
+
+/* Paneles dentro de card */
+.card-transparent .card-body > .d-flex {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    /* ✅ FIX: scroll suave en iOS */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fondo */
+.spectrum-background {
+    height: 100%;
+    width: 100%;
+    background:
+            linear-gradient(to top right, rgba(255, 0, 0, 0.6), transparent),
+            linear-gradient(to top left, rgba(0, 255, 0, 0.6), transparent),
+            linear-gradient(to bottom, rgba(0, 0, 255, 0.6), transparent);
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    color: #f5f6fa;
+}
+
+/* 🔥 TARJETA ADAPTATIVA */
+.card-transparent {
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+    max-height: 100%;
+
+    /* ✅ FIX: padding más conservador en pantallas pequeñas */
+    padding: clamp(6px, 1vh, 16px);
+    box-sizing: border-box;
+    gap: clamp(3px, 0.6vh, 8px);
+}
+
+/* 🔥 SIN SCROLL en desktop, con scroll controlado en móvil */
+.card-transparent .card-body {
+    flex: 1 1 auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* ✅ FIX: necesario para que flex hijos no desborden */
+}
+
+/* Formularios para login/register */
+.card-transparent .card-body form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+}
+
+/* 🔥 BOTONES QUE SE ADAPTAN */
+.card-transparent button,
+.card-transparent .btn {
+    font-size: clamp(0.75rem, 1vh, 1rem);
+    padding: clamp(4px, 0.6vh, 10px) clamp(8px, 1vh, 14px);
+    line-height: 1.2;
+    font-weight: 500;
+    max-width: 100%;
+    box-sizing: border-box;
+    /* ✅ FIX: mínimo de área táctil recomendado por WCAG para móvil */
+    min-height: 36px;
+}
+
+/* 🔥 DISTRIBUCIÓN INTELIGENTE */
+.card-transparent .d-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(4px, 0.8vh, 10px);
+    justify-content: center;
+    width: 100%;
+}
+
+/* Colores */
+.purple-bg {
+    background: linear-gradient(90deg, #5723c3 0%, #6222e0 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(98, 34, 224, 0.3);
+    transition: all 0.3s ease;
+}
+
+.dark-purple-fg {
+    color: #6222e0;
+    text-shadow: 0 0 20px rgba(162, 155, 254, 0.2);
+}
+
+.purple-fg {
+    color: #a29bfe;
+    text-shadow: 0 0 20px rgba(162, 155, 254, 0.2);
+}
+
+.purple-outline {
+    border: 2px solid #6222e0;
+    color: #6222e0;
+    background-color: transparent;
+}
+
+/* Footer */
+footer {
+    background-color: #6222e0;
+    flex-shrink: 0;
+    padding: clamp(4px, 0.8vh, 10px) 0;
+    color: #ffffff;
+    text-align: center;
+    font-size: clamp(0.65rem, 1.3vh, 1rem);
+}
+
+/* 🔥 CONTENEDOR PRINCIPAL */
+#mainContainer {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+    padding: clamp(4px, 0.8vh, 15px);
+    box-sizing: border-box; /* ✅ FIX: el padding no suma al ancho total */
+}
+
+/* Iconos nav */
+.nav-link i {
+    font-size: clamp(0.75rem, 1.3vh, 1.1rem);
+}
+
+.nav-link {
+    font-size: clamp(0.8rem, 1.5vh, 1.1rem) !important;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* Error */
+.error-message {
+    background-color: #f3b1b1;
+    color: #cc0000;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: clamp(0.65rem, 1.2vh, 0.9rem);
+}
+
+/* Alerts */
+.alert-container {
+    position: fixed;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    width: 100%;
+    max-width: 500px;
+    padding: 0 1rem;
+    pointer-events: none;
+    /* ✅ FIX: en móvil, acercar al top para evitar solapar contenido */
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .alert-container {
+        top: 60px;
+        max-width: calc(100% - 2rem);
+    }
+}
+
+.alert-container .alert {
+    pointer-events: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    color: #ffffff;
+    border: 1px solid;
+    animation: slideDown 0.4s ease-out;
+    font-size: clamp(0.65rem, 1.2vh, 0.9rem);
+}
+
+/* Animación */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* ✅ FIX: orientación landscape en móvil — reduce alturas para que todo quepa */
+@media (max-height: 450px) and (orientation: landscape) {
+    .card-transparent {
+        padding: clamp(4px, 1vw, 10px);
+        gap: 4px;
+    }
+
+    .card-transparent h1,
+    .card-transparent h2,
+    .card-transparent h3 {
+        font-size: clamp(0.9rem, 3vw, 1.3rem);
+        margin-bottom: 4px;
+    }
+
+    footer {
+        padding: 3px 0;
+        font-size: 0.6rem;
+    }
+}

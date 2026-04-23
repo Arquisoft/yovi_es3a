@@ -70,7 +70,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) =>
         </label>
         <div className="input-group">
           <span className="input-group-text bg-transparent border-end-0">
-            <i className="bi bi-key-fill"></i>
+            <i className="bi bi-person-fill"></i>
           </span>
           <input
             type="text"
@@ -88,7 +88,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) =>
         </label>
         <div className='input-group'>
           <span className="input-group-text bg-transparent border-end-0">
-            <i className="bi bi-person-fill"></i>
+            <i className="bi bi-key-fill"></i>
           </span>
           <input
             type="password"
