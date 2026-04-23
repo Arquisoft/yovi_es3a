@@ -149,7 +149,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
 
         <div className="text-center mt-4">
           <p className="d-flex align-items-center justify-content-center">
-            <span className='me-1'> ¿Ya estás registrado? </span>
+            <span className='me-1'> ¿No tienes cuenta? </span>
             <NavLink to="/register" className="dark-purple-fg fw-bold text-decoration-none ms-2">
               Crear cuenta
             </NavLink>
