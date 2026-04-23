@@ -22,7 +22,7 @@ USER node
 WORKDIR /app
 
 # Copiar dependencias y código desde builder
-COPY --chown=node:node --from=builder /app /app
+COPY --from=builder /app /app
 
 # Exponer el puerto 3000
 EXPOSE 3000
