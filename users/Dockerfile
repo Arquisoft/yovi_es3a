@@ -16,10 +16,13 @@ COPY . .
 
 FROM node:22-bookworm
 
+# Cambiar al usuario "node" para mayor seguridad y evitar correr la app como root
+USER node
+
 WORKDIR /app
 
 # Copiar dependencias y código desde builder
-COPY --from=builder /app /app
+COPY --chown=node:node --from=builder /app /app
 
 # Exponer el puerto 3000
 EXPOSE 3000
