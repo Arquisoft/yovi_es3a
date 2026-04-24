@@ -593,3 +593,109 @@ describe('POST /api/matches/update', () =>
         expect(finalStats.body.estadisticas.puntosRanking).toBe(110)
     })
 })
+
+describe('GET /games/user/:username', () =>
+{
+    afterEach(async () =>
+    {
+        vi.restoreAllMocks()
+        await cleanupUsers('ApiUserTest1')
+    })
+
+    it('returns 200 and a list of user games', async () =>
+    {
+        await request(app)
+            .post('/createuser') 
+            .send({ username: 'ApiUserTest1', password: 'passtest123' })
+            .set('Accept', 'application/json')
+
+        const gamesRes = await request(app)
+            .get(`/games/user/ApiUserTest1`)
+            .set('Accept', 'application/json')
+
+        
+        expect(gamesRes.status).toBe(200)
+        expect(gamesRes.body.games).toBeInstanceOf(Array)
+    })
+
+    it('returns 400 for an unknown username', async () =>
+    {
+        const gamesRes = await request(app)
+            .get(`/games/user/UnknownUsername`)
+            .set('Accept', 'application/json')
+
+        expect(gamesRes.status).toBe(404)
+        expect(gamesRes.body.message).toMatch(/El usuario 'UnknownUsername' no existe./i)
+        expect(gamesRes.body).toHaveProperty('success', false)
+    })
+})
+
+describe('GET /play', () =>
+{
+    afterEach(async () =>
+    {
+        vi.restoreAllMocks()
+        await cleanupUsers('ApiUserTest1')
+    })
+
+    it('returns 200 and the coords of the bot moves', async () =>
+    {
+        const res = await request(app)
+            .get(`/play`)
+            .query({
+                position: JSON.stringify({
+                    size: 3,
+                    turn: 0,
+                    players: ['B', 'R'],
+                    layout: './B./...'
+                }),
+                bot_id: 'random_bot'
+            })
+            .set('Accept', 'application/json')
+
+        
+        expect(res.body).toHaveProperty('coords')
+        expect(res.body.coords).toHaveProperty('x')
+        expect(res.body.coords).toHaveProperty('y')
+        expect(res.body.coords).toHaveProperty('z')
+        expect(res.status).toBe(200)
+        
+    })
+
+    it('returns 200 and the coords of the bot moves, whithout bot_id ', async () =>
+    {
+        const res = await request(app)
+            .get(`/play`)
+            .query({
+                position: JSON.stringify({
+                    size: 3,
+                    turn: 0,
+                    players: ['B', 'R'],
+                    layout: './B./...'
+                })                
+            })
+            .set('Accept', 'application/json')
+
+        
+        expect(res.status).toBe(200)
+        expect(res.body).toHaveProperty('coords')
+        expect(res.body.coords).toHaveProperty('x')
+        expect(res.body.coords).toHaveProperty('y')
+        expect(res.body.coords).toHaveProperty('z')
+    })
+
+    it('returns 400 for an unknown position', async () =>
+    {
+        const res = await request(app)
+            .get(`/play`)
+            .query({
+                bot_id: 'random_bot'
+            })
+            .set('Accept', 'application/json')
+
+        
+        expect(res.status).toBe(400)
+        expect(res.body).toHaveProperty('error')
+        expect(res.body.error).toMatch(/position is required/i)
+    })
+})
