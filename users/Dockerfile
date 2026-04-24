@@ -16,6 +16,9 @@ COPY . .
 
 FROM node:22-bookworm
 
+# Cambiar al usuario "node" para mayor seguridad y evitar correr la app como root
+USER node
+
 WORKDIR /app
 
 # Copiar dependencias y código desde builder
