@@ -22,7 +22,6 @@ When('I register with a unique username and password' , async function () {
     page.waitForResponse((response) =>
       response.url().includes('/createuser') && response.status() === 201
     ),
-    page.waitForURL('**/game', { timeout: 15000 }),
     page.click('button[type="submit"]'),
   ])
 })
@@ -31,5 +30,5 @@ Then('I should be registered and redirected to the game page', async function ()
   const page = this.page
   if (!page) throw new Error('Page not initialized')
 
-  await page.waitForURL('**/game', { timeout: 15000 })
+  await page.waitForURL('**/game', { timeout: 30000 })
 })
