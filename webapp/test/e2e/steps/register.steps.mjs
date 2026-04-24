@@ -1,6 +1,4 @@
 import { Given, When, Then } from '@cucumber/cucumber'
-import assert from 'node:assert'
-import { fetch as nodeFetch } from 'undici'
 
 
 Given('the register page is open', async function () {
@@ -20,12 +18,18 @@ When('I register with a unique username and password' , async function () {
 
   await page.fill('#username', uniqueUser)
   await page.fill('#password', uniquePass)
-  await page.click('button[type="submit"]')
+  await Promise.all([
+    page.waitForResponse((response) =>
+      response.url().includes('/createuser') && response.status() === 201
+    ),
+    page.waitForURL('**/game', { timeout: 15000 }),
+    page.click('button[type="submit"]'),
+  ])
 })
 
 Then('I should be registered and redirected to the game page', async function () {
   const page = this.page
   if (!page) throw new Error('Page not initialized')
 
-  await page.waitForURL('**/game', { timeout: 5000 })
+  await page.waitForURL('**/game', { timeout: 15000 })
 })
