@@ -4,7 +4,30 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_yovi_es3a&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Arquisoft_yovi_es3a)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_yovi_es3a&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Arquisoft_yovi_es3a)
 
-Este proyecto es una plantilla con funcionalidad básica para los laboratorios de ASW.
+[![Logo](/webapp/src/assets/react.svg)](https://github.com/Arquisoft/yovi_es3a)
+
+Este es un proyecto base para la asignatura de Arquitectura del Software en 2024/2025.
+Yovi es una aplicación centrada en [RELLENAR]
+
+## Miembros del Equipo
+👤Colaborador | 🌐Cuenta Git | 📧Email de contacto  
+-- | -- | -- 
+Andrés Zhou Blanco Rodríguez| <a href="https://github.com/AndresZbr">AndresZbr</a> | UO300351@uniovi.es  
+Ben James Coleman Kheyyali| <a href="https://github.com/uo284238">uo284238</a> | UO284238@uniovi.es  
+Carlos Cabrera Moral| <a href="https://github.com/latiose">uo288595</a> | UO288595@uniovi.es  
+Carmen Méndez Camino | <a href="https://github.com/Carmenmndzcmno">Carmenmndzcmno</a> | UO295526@uniovi.es  
+Emilio García Fernández| <a href="https://github.com/pispidu">pispidu</a> | UO???@uniovi.es  
+
+## Resumen de la aplicación
+
+### Funcionalidad principal
+[RELLENAR]
+
+### Otras características de la aplicación
+[RELLENAR]
+
+### Vídeo
+AQUÍ IRÁ EL VÍDEO DEL PROYECTO
 
 ## Estructura del Proyecto
 
