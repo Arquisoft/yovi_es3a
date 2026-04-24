@@ -7,7 +7,7 @@
 [![Logo](/webapp/src/assets/react.svg)](https://github.com/Arquisoft/yovi_es3a)
 
 Este es un proyecto base para la asignatura de Arquitectura del Software en 2024/2025.
-Yovi es una aplicación centrada en [RELLENAR]
+Yovi es una aplicación centrada en el juego de conexión Y, permitiendo a los usuarios disfrutar de partidas interactivas tanto contra la inteligencia artificial como contra otros jugadores.
 
 ## Miembros del Equipo
 👤Colaborador | 🌐Cuenta Git | 📧Email de contacto  
@@ -21,10 +21,14 @@ Emilio García Fernández| <a href="https://github.com/pispidu">pispidu</a> | UO
 ## Resumen de la aplicación
 
 ### Funcionalidad principal
-[RELLENAR]
+La funcionalidad central de YOVI es permitir a los usuarios jugar al juego de conexión Y sobre un tablero triangular. El objetivo es conectar los tres lados del triángulo con una cadena continua de piezas. La aplicación gestiona el estado del juego, valida los movimientos y determina el ganador siguiendo las reglas clásicas del juego.
 
 ### Otras características de la aplicación
-[RELLENAR]
+- **Sistema de Autenticación**: Registro e inicio de sesión de usuarios para mantener un perfil personalizado.
+- **Estadísticas e Historial**: Consulta de récords personales, partidas ganadas/perdidas e historial detallado de movimientos.
+- **Diferentes Niveles de Bots**: Posibilidad de enfrentarse a distintos bots con variadas estrategias y niveles de dificultad.
+- **API Abierta**: Acceso programático para consultar datos de usuarios y juegos, permitiendo incluso la integración de bots externos.
+- **Arquitectura Políglota**: Combinación de la potencia de Rust para la lógica de juego y TypeScript para una experiencia web moderna y fluida.
 
 ### Vídeo
 AQUÍ IRÁ EL VÍDEO DEL PROYECTO
