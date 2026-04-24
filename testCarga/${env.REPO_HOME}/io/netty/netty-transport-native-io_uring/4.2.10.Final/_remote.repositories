@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Fri Apr 24 22:32:29 CEST 2026
+netty-transport-native-io_uring-4.2.10.Final-linux-aarch_64.jar>central=
+netty-transport-native-io_uring-4.2.10.Final-linux-x86_64.jar>central=
+netty-transport-native-io_uring-4.2.10.Final.pom>central=

@@ -1,158 +1,158 @@
-# Yovi_es3a - Game Y at UniOvi
+# Yovi_es3a - Juego Y en UniOvi
 
 [![Release — Test, Build, Publish, Deploy](https://github.com/arquisoft/yovi_es3a/actions/workflows/release-deploy.yml/badge.svg)](https://github.com/arquisoft/yovi_es3a/actions/workflows/release-deploy.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_yovi_es3a&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Arquisoft_yovi_es3a)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_yovi_es3a&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Arquisoft_yovi_es3a)
 
-This project is a template with some basic functionality for the ASW labs.
+Este proyecto es una plantilla con funcionalidad básica para los laboratorios de ASW.
 
-## Project Structure
+## Estructura del Proyecto
 
-The project is divided into three main components, each in its own directory:
+El proyecto está dividido en tres componentes principales, cada uno en su propio directorio:
 
-- `webapp/`: A frontend application built with React, Vite, and TypeScript.
-- `users/`: A backend service for managing users, built with Node.js and Express.
-- `gamey/`: A Rust game engine and bot service.
-- `docs/`: Architecture documentation sources following Arc42 template
+- `webapp/`: Una aplicación frontend construida con React, Vite y TypeScript.
+- `users/`: Un servicio backend para gestionar usuarios, construido con Node.js y Express.
+- `gamey/`: Un motor de juego y servicio de bots en Rust.
+- `docs/`: Fuentes de documentación de arquitectura siguiendo la plantilla Arc42.
 
-Each component has its own `package.json` file with the necessary scripts to run and test the application.
+Cada componente tiene su propio archivo `package.json` con los scripts necesarios para ejecutar y probar la aplicación.
 
-## Basic Features
+## Características Básicas
 
-- **User Registration**: The web application provides a simple form to register new users.
-- **User Service**: The user service receives the registration request, simulates some processing, and returns a welcome message.
-- **GameY**: A basic Game engine which only chooses a random piece.
+- **Registro de Usuarios**: La aplicación web proporciona un formulario sencillo para registrar nuevos usuarios.
+- **Servicio de Usuarios**: El servicio de usuarios recibe la solicitud de registro, simula cierto procesamiento y devuelve un mensaje de bienvenida.
+- **GameY**: Un motor de juego básico que solo elige una pieza aleatoria.
 
-## Components
+## Componentes
 
 ### Webapp
 
-The `webapp` is a single-page application (SPA) created with [Vite](https://vitejs.dev/) and [React](https://reactjs.org/).
+La `webapp` es una aplicación de página única (SPA) creada con [Vite](https://vitejs.dev/) y [React](https://reactjs.org/).
 
-- `src/App.tsx`: The main component of the application.
-- `src/RegisterForm.tsx`: The component that renders the user registration form.
-- `package.json`: Contains scripts to run, build, and test the webapp.
-- `vite.config.ts`: Configuration file for Vite.
-- `Dockerfile`: Defines the Docker image for the webapp.
+- `src/App.tsx`: El componente principal de la aplicación.
+- `src/RegisterForm.tsx`: El componente que renderiza el formulario de registro de usuarios.
+- `package.json`: Contiene scripts para ejecutar, construir y probar la webapp.
+- `vite.config.ts`: Archivo de configuración para Vite.
+- `Dockerfile`: Define la imagen Docker para la webapp.
 
-### Users Service
+### Servicio de Usuarios
 
-The `users` service is a simple REST API built with [Node.js](https://nodejs.org/) and [Express](https://expressjs.com/).
+El servicio `users` es una API REST sencilla construida con [Node.js](https://nodejs.org/) y [Express](https://expressjs.com/).
 
-- `users-service.js`: The main file for the user service. It defines an endpoint `/createuser` to handle user creation.
-- `package.json`: Contains scripts to start the service.
-- `Dockerfile`: Defines the Docker image for the user service.
+- `users-service.js`: El archivo principal para el servicio de usuarios. Define un endpoint `/createuser` para manejar la creación de usuarios.
+- `package.json`: Contiene scripts para iniciar el servicio.
+- `Dockerfile`: Define la imagen Docker para el servicio de usuarios.
 
 ### Gamey
 
-The `gamey` component is a Rust-based game engine with bot support, built with [Rust](https://www.rust-lang.org/) and [Cargo](https://doc.rust-lang.org/cargo/).
+El componente `gamey` es un motor de juego basado en Rust con soporte para bots, construido con [Rust](https://www.rust-lang.org/) y [Cargo](https://doc.rust-lang.org/cargo/).
 
-- `src/main.rs`: Entry point for the application.
-- `src/lib.rs`: Library exports for the gamey engine.
-- `src/bot/`: Bot implementation and registry.
-- `src/core/`: Core game logic including actions, coordinates, game state, and player management.
-- `src/notation/`: Game notation support (YEN, YGN).
-- `src/web/`: Web interface components.
-- `Cargo.toml`: Project manifest with dependencies and metadata.
-- `Dockerfile`: Defines the Docker image for the gamey service.
+- `src/main.rs`: Punto de entrada para la aplicación.
+- `src/lib.rs`: Exportaciones de la librería para el motor gamey.
+- `src/bot/`: Implementación y registro de bots.
+- `src/core/`: Lógica central del juego, incluyendo acciones, coordenadas, estado del juego y gestión de jugadores.
+- `src/notation/`: Soporte para notación de juego (YEN, YGN).
+- `src/web/`: Componentes de la interfaz web.
+- `Cargo.toml`: Manifiesto del proyecto con dependencias y metadatos.
+- `Dockerfile`: Define la imagen Docker para el servicio gamey.
 
-## Running the Project
+## Ejecución del Proyecto
 
-You can run this project using Docker (recommended) or locally without Docker.
+Puedes ejecutar este proyecto usando Docker (recomendado) o localmente sin Docker.
 
-### With Docker
+### Con Docker
 
-This is the easiest way to get the project running. You need to have [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed.
+Esta es la forma más fácil de poner en marcha el proyecto. Necesitas tener instalados [Docker](https://www.docker.com/) y [Docker Compose](https://docs.docker.com/compose/).
 
-1. **Build and run the containers:**
-    From the root directory of the project, run:
+1. **Construir y ejecutar los contenedores:**
+    Desde el directorio raíz del proyecto, ejecuta:
 
 ```bash
 docker-compose up --build
 ```
 
-This command will build the Docker images for both the `webapp` and `users` services and start them.
+Este comando construirá las imágenes Docker tanto para la `webapp` como para el servicio de `users` y los iniciará.
 
-2.**Access the application:**
-- Web application: [http://localhost](http://localhost)
-- User service API: [http://localhost:3000](http://localhost:3000)
-- Gamey API: [http://localhost:4000](http://localhost:4000)
+2. **Acceder a la aplicación:**
+- Aplicación web: [http://localhost](http://localhost)
+- API del servicio de usuarios: [http://localhost:3000](http://localhost:3000)
+- API de Gamey: [http://localhost:4000](http://localhost:4000)
 
-### Without Docker
+### Sin Docker
 
-To run the project locally without Docker, you will need to run each component in a separate terminal.
+Para ejecutar el proyecto localmente sin Docker, necesitarás ejecutar cada componente en una terminal separada.
 
-#### Prerequisites
+#### Requisitos previos
 
-* [Node.js](https://nodejs.org/) and npm installed.
+* [Node.js](https://nodejs.org/) y npm instalados.
 
-#### 1. Running the User Service
+#### 1. Ejecutar el Servicio de Usuarios
 
-Navigate to the `users` directory:
+Navega al directorio `users`:
 
 ```bash
 cd users
 ```
 
-Install dependencies:
+Instala las dependencias:
 
 ```bash
 npm install
 ```
 
-Run the service:
+Ejecuta el servicio:
 
 ```bash
 npm start
 ```
 
-The user service will be available at `http://localhost:3000`.
+El servicio de usuarios estará disponible en `http://localhost:3000`.
 
-#### 2. Running the Web Application
+#### 2. Ejecutar la Aplicación Web
 
-Navigate to the `webapp` directory:
+Navega al directorio `webapp`:
 
 ```bash
 cd webapp
 ```
 
-Install dependencies:
+Instala las dependencias:
 
 ```bash
 npm install
 ```
 
-Run the application:
+Ejecuta la aplicación:
 
 ```bash
 npm run dev
 ```
 
-The web application will be available at `http://localhost:5173`.
+La aplicación web estará disponible en `http://localhost:5173`.
 
-#### 3. Running the GameY application
+#### 3. Ejecutar la aplicación GameY
 
-At this moment the GameY application is not needed but once it is needed you should also start it from the command line.
+En este momento la aplicación GameY no es necesaria, pero una vez que lo sea, también deberías iniciarla desde la línea de comandos.
 
-## Available Scripts
+## Scripts Disponibles
 
-Each component has its own set of scripts defined in its `package.json`. Here are some of the most important ones:
+Cada componente tiene su propio conjunto de scripts definidos en su `package.json`. Aquí están algunos de los más importantes:
 
 ### Webapp (`webapp/package.json`)
 
-- `npm run dev`: Starts the development server for the webapp.
-- `npm test`: Runs the unit tests.
-- `npm run test:e2e`: Runs the end-to-end tests.
-- `npm run start:all`: A convenience script to start both the `webapp` and the `users` service concurrently.
+- `npm run dev`: Inicia el servidor de desarrollo para la webapp.
+- `npm test`: Ejecuta las pruebas unitarias.
+- `npm run test:e2e`: Ejecuta las pruebas de extremo a extremo (e2e).
+- `npm run start:all`: Un script de conveniencia para iniciar tanto la `webapp` como el servicio `users` simultáneamente.
 
-### Users (`users/package.json`)
+### Usuarios (`users/package.json`)
 
-- `npm start`: Starts the user service.
-- `npm test`: Runs the tests for the service.
+- `npm start`: Inicia el servicio de usuarios.
+- `npm test`: Ejecuta las pruebas para el servicio.
 
 ### Gamey (`gamey/Cargo.toml`)
 
-- `cargo build`: Builds the gamey application.
-- `cargo test`: Runs the unit tests.
-- `cargo run`: Runs the gamey application.
-- `cargo doc`: Generates documentation for the GameY engine application
+- `cargo build`: Construye la aplicación gamey.
+- `cargo test`: Ejecuta las pruebas unitarias.
+- `cargo run`: Ejecuta la aplicación gamey.
+- `cargo doc`: Genera la documentación para la aplicación del motor GameY

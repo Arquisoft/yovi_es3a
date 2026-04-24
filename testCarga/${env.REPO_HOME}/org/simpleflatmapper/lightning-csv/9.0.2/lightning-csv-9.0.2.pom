@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.simpleflatmapper</groupId>
+  <artifactId>lightning-csv</artifactId>
+  <version>9.0.2</version>
+  <packaging>bundle</packaging>
+  <name>lightning-csv</name>
+  <description>Java library to map flat record - ResultSet, csv - to java object with minimum configuration and low footprint.</description>
+  <url>http://github.com/arnaudroger/SimpleFlatMapper/lightning-csv</url>
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>http://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>arnaudroger</id>
+      <name>Arnaud Roger</name>
+      <email>arnaud.roger@gmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git://github.com/arnaudroger/SimpleFlatMapper.git/lightning-csv</connection>
+    <developerConnection>scm:git:git@github.com:arnaudroger/SimpleFlatMapper.git/lightning-csv</developerConnection>
+    <tag>sfm-9.0.2</tag>
+    <url>scm:git:git://github.com/arnaudroger/SimpleFlatMapper.git/lightning-csv</url>
+  </scm>
+  <distributionManagement>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <name>Sonatype Nexus release repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus snapshot repository</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.simpleflatmapper</groupId>
+      <artifactId>ow2-asm</artifactId>
+      <version>9.0.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.simpleflatmapper</groupId>
+      <artifactId>sfm-util</artifactId>
+      <version>9.0.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jool</artifactId>
+      <version>0.9.12</version>
+      <scope>test</scope>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>
