@@ -60,7 +60,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
 
       if (res.ok)
       {
-        setResponseMessage(data.message || 'Welcome back, ' + username + '!');
+        setResponseMessage(data.message || 'Bienvenido, ' + username + '!');
         setUsername('');
         setPassword('');
         onSuccess?.(username);
@@ -155,7 +155,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
             </NavLink>
           </p>
         </div>
-        
       </form>
     </>
   );
