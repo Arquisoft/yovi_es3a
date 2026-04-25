@@ -33,7 +33,7 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
   if (total === 0) {
     return (
       <div className="pie-chart-container">
-        <p className="text-muted">Sin partidas jugadas</p>
+        <p className="text-muted">Sin partidas jugadas.</p>
       </div>
     );
   }
@@ -56,6 +56,7 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
       <svg viewBox="0 0 100 100" className="pie-chart">
         <circle cx="50" cy="50" r="40" fill="none" stroke="#e0e0e0" strokeWidth="20" />
         {/* Victorias - Verde */}
+        {wins > 0 && (
         <circle
           cx="50"
           cy="50"
@@ -65,44 +66,51 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
           strokeWidth="20"
           strokeDasharray={`${winsDasharray} ${circumference}`}
           strokeDashoffset={winsOffset}
-          strokeLinecap="round"
+          strokeLinecap="butt"
           style={{
             transform: 'rotate(-90deg)',
             transformOrigin: '50% 50%',
           }}
         />
+
+        )}
         {/* Derrotas - Rojo */}
-        <circle
-          cx="50"
-          cy="50"
-          r="40"
-          fill="none"
-          stroke="#ef4444"
-          strokeWidth="20"
-          strokeDasharray={`${lossesDasharray} ${circumference}`}
-          strokeDashoffset={lossesOffset}
-          strokeLinecap="round"
-          style={{
-            transform: 'rotate(-90deg)',
-            transformOrigin: '50% 50%',
-          }}
-        />
+        {losses > 0 && (
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="#ef4444"
+            strokeWidth="20"
+            strokeDasharray={`${lossesDasharray} ${circumference}`}
+            strokeDashoffset={lossesOffset}
+            strokeLinecap="butt"
+            style={{
+              transform: 'rotate(-90deg)',
+              transformOrigin: '50% 50%',
+            }}
+          />
+        )}
+
         {/* Empates - Gris */}
-        <circle
-          cx="50"
-          cy="50"
-          r="40"
-          fill="none"
-          stroke="#9ca3af"
-          strokeWidth="20"
-          strokeDasharray={`${drawsDasharray} ${circumference}`}
-          strokeDashoffset={drawsOffset}
-          strokeLinecap="round"
-          style={{
-            transform: 'rotate(-90deg)',
-            transformOrigin: '50% 50%',
-          }}
-        />
+        {draws > 0 && (
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="#9ca3af"
+            strokeWidth="20"
+            strokeDasharray={`${drawsDasharray} ${circumference}`}
+            strokeDashoffset={drawsOffset}
+            strokeLinecap="butt"
+            style={{
+              transform: 'rotate(-90deg)',
+              transformOrigin: '50% 50%',
+            }}
+          />
+        )}
         <text x="50" y="50" textAnchor="middle" dy="0.3em" className="pie-chart-text">
           {winsPercentage.toFixed(0)}%
         </text>
