@@ -119,9 +119,9 @@ footer
 .alert-container .alert
 {
     pointer-events: auto;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8); /* Sombra más pesada para elevarla */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
-    color: #ffffff !important; /* Texto siempre blanco para legibilidad */
+    color: #ffffff !important;
     border-width: 1px;
     border-style: solid;
     animation: slideDown 0.4s ease-out;

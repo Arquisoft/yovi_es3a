@@ -96,6 +96,8 @@ function buildCells(sideLen: number): Cell[] {
 /**
  * Funciones auxiliares para manejar la GameBoard.
  */
+
+/** Polígono hexagonal pointy-top centrado en (cx, cy) con radio r */
 function hexPoints(cx: number, cy: number, r: number): string {
   return Array.from({ length: 6 }, (_, i) => {
     const angle = (Math.PI / 3) * i - Math.PI / 6;  
@@ -118,7 +120,6 @@ function getSide(cell: Cell): SideType {
 // ── YEN parser ────────────────────────────────────────────────────────────────
 // YEN layout field is an array of strings, one per row.
 // Each char: '.' = empty, '1' = player 1, '2' = player 2.
-
 async function updateMatch(username: string, puntos: number, modo: string) {
   await fetch("http://localhost:3000/api/matches/update", {
     method: "POST",
@@ -127,72 +128,74 @@ async function updateMatch(username: string, puntos: number, modo: string) {
   });
 }
 
+function getNestedNumber(obj: unknown, path: string[]): number | undefined {
+  let cur: unknown = obj;
+  for (const key of path) {
+    if (typeof cur === "object" && cur !== null && key in (cur as Record<string, unknown>)) {
+      cur = (cur as Record<string, unknown>)[key];
+    } else {
+      return undefined;
+    }
+  }
+  return typeof cur === "number" ? cur : undefined;
+}
+
 // Detect winner from YEN status field
-async function getWinnerFromYEN(message: any, username:string,
-     gameMode: string): Promise<Player | null> {
+async function getWinnerFromYEN(message: unknown, username: string, gameMode: string): Promise<Player | null> {
+  if (!message) return null;
 
-    if (!message) return null;
-
-    // Buscar status en el mensaje principal
-    if (message.status?.Finished) {
-        const id = message.status.Finished?.winner?.id;
-        
-        if (id === 0) {
-            await updateMatch(username, +10, gameMode);
-            return 1;
-        }
-        
-        if (id === 1) 
-        {
-            await updateMatch(username, -10, gameMode);
-            return 2;
-        }
+  const idFromStatus = getNestedNumber(message, ["status", "Finished", "winner", "id"]);
+  if (typeof idFromStatus === "number") {
+    if (idFromStatus === 0) {
+      await updateMatch(username, +10, gameMode);
+      return 1;
     }
-
-    // Fallback: check YEN si existe
-    const yen = message.yen;
-    if (yen?.status?.Finished) {
-        const id = yen.status.Finished?.winner?.id;
-        
-        if (id === 0)
-        {
-            await updateMatch(username, +10, gameMode);
-            return 1;
-        }
-        
-        if (id === 1) 
-        {
-            await updateMatch(username, -10, gameMode);
-            return 2;
-        }
+    if (idFromStatus === 1) {
+      await updateMatch(username, -10, gameMode);
+      return 2;
     }
+  }
 
-    return null;
+  const idFromYenStatus = getNestedNumber(message, ["yen", "status", "Finished", "winner", "id"]);
+  if (typeof idFromYenStatus === "number") {
+    if (idFromYenStatus === 0) {
+      await updateMatch(username, +10, gameMode);
+      return 1;
+    }
+    if (idFromYenStatus === 1) {
+      await updateMatch(username, -10, gameMode);
+      return 2;
+    }
+  }
+
+  return null;
 }
 
 // Detect whose turn it is from YEN
-function getCurrentPlayerFromYEN(message: any): Player {
-    if (!message) return 1;
+function getCurrentPlayerFromYEN(message: unknown): Player {
+  if (!message) return 1;
 
-    const yen = message.yen || message;
+  const idFromStatusOngoing = getNestedNumber(message, ["status", "Ongoing", "next_player", "id"]);
+  if (typeof idFromStatusOngoing === "number") {
+    if (idFromStatusOngoing === 1) return 2;
+  }
 
-    // Check status Ongoing
-    if (message.status?.Ongoing) {
-        const id = message.status.Ongoing?.next_player?.id;
-        if (id === 1) return 2;
-    }
+  const turnFromYen = getNestedNumber(message, ["yen", "turn"]);
+  if (typeof turnFromYen === "number") {
+    return turnFromYen === 0 ? 1 : 2;
+  }
 
-    // Usar turn field de YEN como fallback (0=player1, 1=player2)
-    if (yen?.turn !== undefined) {
-        return yen.turn === 0 ? 1 : 2;
-    }
-    return 1;
+  const turnFromRoot = getNestedNumber(message, ["turn"]);
+  if (typeof turnFromRoot === "number") {
+    return turnFromRoot === 0 ? 1 : 2;
+  }
+
+  return 1;
 }
+
 
 // Construct WebSocket URL - resolved at runtime, not at build time
 function getWebSocketURL(): string {
-    // In production/Docker, all services are on the same network
-    // Use the same hostname as the webapp and port 4000 for gamey
     const protocol = globalThis.location.protocol === 'https:' ? 'wss' : 'ws';
     const host = globalThis.location.hostname;
     const wsUrl = `${protocol}://${host}:4000/ws`;
@@ -200,7 +203,12 @@ function getWebSocketURL(): string {
     return wsUrl;
 }
 
-function GameBoard({username}: { username: string }) {
+
+interface GameBoardProps {
+  readonly username: string;
+}
+
+function GameBoard({ username }: GameBoardProps) {
     const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
     const [hovered, setHovered] = useState<number | null>(null);
     const [winner, setWinner] = useState<Player | null>(null);
@@ -218,87 +226,96 @@ function GameBoard({username}: { username: string }) {
         () => 2 * HEX_SIZE + (sideLen - 1) * DIST_Y + 2 * PADDING, [sideLen]);
 
     const wsRef = useRef<WebSocket | null>(null);
-    // track last move sender to detect bot reply
     const awaitingBotRef = useRef<boolean>(false);
 
     const CELLS = useMemo(() => buildCells(sideLen), [sideLen]);
     const [board, setBoard] = useState<CellState[]>(() => new Array(CELLS.length).fill(0));
 
-    function parseBoardFromYEN(yen: any): CellState[] {
+    function parseBoardFromYEN(yen: unknown): CellState[] {
         const board: CellState[] = new Array(CELLS.length).fill(0);
-        if (!yen?.layout) return board;
 
-        const rows: string[] =
-            typeof yen.layout === "string"
-                ? yen.layout.split('/')
-                : Array.isArray(yen.layout)
-                    ? yen.layout
-                    : [];
-                    
+        if (!yen || typeof yen !== "object" || yen === null) return board;
+
+        let rows: string[] = [];
+
+        const layout = (yen as Record<string, unknown>)["layout"];
+        if (typeof layout === "string") {
+            rows = layout.split('/');
+        } else if (Array.isArray(layout) && layout.every((r) => typeof r === "string")) {
+            rows = layout;
+        } else {
+            rows = [];
+        }
+
         let index = 0;
-        for (const element of rows) {
-            const line = element;
-            for (const element of line) {
-                const ch = element
-
-                if (ch === 'B') board[index] = 1;
-                else if (ch === 'R') board[index] = 2;
-                index++;
+        for (const line of rows) {
+            for (const ch of line) {
+            if (ch === 'B') board[index] = 1;
+            else if (ch === 'R') board[index] = 2;
+            index++;
             }
         }
+
         return board;
-    }   
+    }
+
 
     // ── WebSocket lifecycle ──────────────────────────────────────────────────
     function connectWS(mode: GameMode) {
-        if (wsRef.current) {
-            wsRef.current.close();
-            wsRef.current = null;
+    if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+    }
+
+    const ws = new WebSocket(WS_URL);
+
+    ws.onopen = () => {
+        setConnected(true);
+
+        const msg: Record<string, unknown> = {
+        type: 'start',
+        size: sideLen
+        };
+        if (mode === 'vs-bot') {
+        msg.bot_id = botID;
         }
 
-        const ws = new WebSocket(WS_URL);
+        ws.send(JSON.stringify(msg));
+    };
 
-        ws.onopen = () => {
-            setConnected(true);
-            const msg: any = {
-                type: 'start',
-                size: sideLen
-            };
-            if (mode === 'vs-bot') 
-            {
-                msg.bot_id = botID;
-            }
+    ws.onmessage = async (ev: MessageEvent<string>) => {
+        try {
+            const parsed: unknown = JSON.parse(ev.data);
 
-            ws.send(JSON.stringify(msg));
-        };
+            if (typeof parsed === "object" && parsed !== null && (parsed as Record<string, unknown>)["type"] === "state") {
+                const v = parsed as Record<string, unknown>;
 
-        ws.onmessage = async (ev) => {
-            try {
-                const v = JSON.parse(ev.data);
-
-                if (v.type === 'state' && v.yen) {
-                    const newBoard = parseBoardFromYEN(v.yen);
-                    const newWinner = await getWinnerFromYEN(v, username, gameMode);
-                    const newPlayer = getCurrentPlayerFromYEN(v);
+                const yen = v["yen"];
+                if (yen) {
+                    const newBoard = parseBoardFromYEN(yen);
+                    const newWinner = await getWinnerFromYEN(parsed, username, gameMode);
+                    const newPlayer = getCurrentPlayerFromYEN(parsed);
 
                     setBoard(newBoard);
                     setWinner(newWinner);
                     setCurrentPlayer(newPlayer);
 
-                    // Bot reply has arrived
                     if (awaitingBotRef.current) {
                         awaitingBotRef.current = false;
                         setIsBotThinking(false);
                     }
                 }
+            }
 
-                if (v.type === 'error') {
-                    console.warn('Server error:', v.message);
-                    setIsBotThinking(false);
-                    awaitingBotRef.current = false;
-                }
-            } catch (e) {
-                console.warn('Bad JSON from server', e);
+            if (typeof parsed === "object" && parsed !== null && (parsed as Record<string, unknown>)["type"] === "error") {
+                const v = parsed as Record<string, unknown>;
+                const message = typeof v["message"] === "string" ? v["message"] : "Unknown server error";
+                console.warn('Server error:', message);
+                setIsBotThinking(false);
+                awaitingBotRef.current = false;
+            }
+            } catch (e: unknown) {
+                console.warn('Bad JSON from server', e instanceof Error ? e.message : e);
             }
         };
 
@@ -317,7 +334,6 @@ function GameBoard({username}: { username: string }) {
         wsRef.current = ws;
     }
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             wsRef.current?.close();
@@ -335,7 +351,6 @@ function GameBoard({username}: { username: string }) {
         if (board[index] !== 0 || winner || isBotThinking) return;
         if (gameMode === 'vs-bot' && currentPlayer === 2) return;
 
-        // In vs-bot mode, flag that we're waiting for bot reply
         if (gameMode === 'vs-bot') {
             awaitingBotRef.current = true;
             setIsBotThinking(true);
@@ -353,7 +368,7 @@ function GameBoard({username}: { username: string }) {
         awaitingBotRef.current = false;
 
         if (wsRef.current?.readyState === WebSocket.OPEN) {
-            const msg: any = {type: 'start', size: sideLen};
+            const msg: Record<string, unknown> = {type: 'start', size: sideLen};
             if (gameMode === 'vs-bot') msg.bot_id = botID;
             wsRef.current.send(JSON.stringify(msg));
         } else {
@@ -408,21 +423,19 @@ function GameBoard({username}: { username: string }) {
 
                         <div className="gb-option-row">
                             <div className="gb-select-block">
-                                <label>Dificultad del Bot:</label>
-
-                                <select value={botID} onChange={(e) => setBotID(e.target.value)}>
+                                <label htmlFor="bot-select">Dificultad del Bot:</label>
+                                <select id="bot-select" value={botID} onChange={(e) => setBotID(e.target.value)}>
                                     {BOTS.map(bot => (
-                                        <option key={bot.name} value={bot.name}>
-                                            {bot.difficulty.toUpperCase()} — {bot.description}
-                                        </option>
+                                    <option key={bot.name} value={bot.name}>
+                                        {bot.difficulty.toUpperCase()} — {bot.description}
+                                    </option>
                                     ))}
                                 </select>
                             </div>
 
                             <div className="gb-select-block">
-                                <label>Tamaño del Tablero:</label>
-
-                                <select value={sideLen} onChange={(e) => setSideLen(Number(e.target.value))}>
+                                <label htmlFor="size-select">Tamaño del Tablero:</label>
+                                <select id="size-select" value={sideLen} onChange={(e) => setSideLen(Number(e.target.value))}>
                                     <option value={7}>7 (28 Casillas)</option>
                                     <option value={9}>9 (45 Casillas)</option>
                                     <option value={11}>11 (66 Casillas)</option>
@@ -446,52 +459,73 @@ function GameBoard({username}: { username: string }) {
         );
     }
 
+    let winnerIcon = '🎉';
+        if (gameMode === 'vs-bot') {
+        winnerIcon = winner === 1 ? '🏆' : '🤖';
+    }
+
+    let winnerTitle = '';
+        if (gameMode === 'vs-bot') {
+        winnerTitle = winner === 1 ? '¡Has ganado!' : '¡El bot gana!';
+        } else {
+        winnerTitle = `¡Jugador ${winner} gana!`;
+    }
+
+    const winnerSubtitle = winner === 1
+        ? 'Rojo ha conectado los tres lados'
+        : 'Azul ha conectado los tres lados';
+
+    let turnLabel: string;
+        if (gameMode === 'vs-bot') {
+        turnLabel = currentPlayer === 1 ? 'Tú' : 'Bot';
+        } else {
+        turnLabel = `Jugador ${currentPlayer}`;
+    }
+
+    function sideClassFor(cellSide: SideType, state: CellState): string {
+        if (state === 1) return 'gb-p1';
+        if (state === 2) return 'gb-p2';
+
+        return `gb-${cellSide}`;
+    }
+
     return (
         <div className="gb-wrapper">
             {winner && (
                 <div className="gb-winner-overlay">
                     <div className={`gb-winner-modal player${winner}`}>
-                        <div className="gb-winner-icon">
-                            {gameMode === 'vs-bot' && winner === 1 ? '🏆' :
-                                gameMode === 'vs-bot' && winner === 2 ? '🤖' : '🎉'}
-                        </div>
-                        <h2 className="gb-winner-title">
-                            {gameMode === 'vs-bot'
-                                ? (winner === 1 ? '¡Has ganado!' : '¡El bot gana!')
-                                : `¡Jugador ${winner} gana!`}
-                        </h2>
-                        <p className="gb-winner-subtitle">
-                            {winner === 1
-                                ? 'Rojo ha conectado los tres lados'
-                                : 'Azul ha conectado los tres lados'}
-                        </p>
-                        <div className="gb-winner-actions">
-                            <button className="gb-winner-btn" onClick={handleReset}>
-                                Jugar de nuevo
-                            </button>
-                            <button className="gb-winner-btn secondary" onClick={handleBackToMenu}>
-                                Cambiar modo
-                            </button>
-                        </div>
+                    <div className="gb-winner-icon">
+                        {winnerIcon}
+                    </div>
+                    <h2 className="gb-winner-title">
+                        {winnerTitle}
+                    </h2>
+                    <p className="gb-winner-subtitle">
+                        {winnerSubtitle}
+                    </p>
+                    <div className="gb-winner-actions">
+                        <button className="gb-winner-btn" onClick={handleReset}>
+                        Jugar de nuevo
+                        </button>
+                        <button className="gb-winner-btn secondary" onClick={handleBackToMenu}>
+                        Cambiar modo
+                        </button>
+                    </div>
                     </div>
                 </div>
-            )}
+                )}
 
             <div className="gb-header">
                 <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
                 <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
-                    <span className="gb-dot"/>
+                    <span className="gb-dot" />
                     {isBotThinking ? (
                         <span>Bot pensando<span className="gb-thinking-dots"></span></span>
                     ) : (
-                        <span>
-              Turno:{' '}
-                            {gameMode === 'vs-bot'
-                                ? currentPlayer === 1 ? 'Tú' : 'Bot'
-                                : `Jugador ${currentPlayer}`}
-            </span>
+                        <span>Turno: {turnLabel}</span>
                     )}
                 </div>
+
                 <span className={`gb-status ${connected ? 'online' : 'offline'}`}>
           {connected ? '🟢 Online' : '🔴 Offline'}
         </span>
@@ -526,47 +560,47 @@ function GameBoard({username}: { username: string }) {
                     const side = getSide(cell);
                     const isHovered = hovered === cell.index && state === 0 && !winner && !isBotThinking;
 
-                    const cellClass = [
-                        'gb-hex',
-                        state === 1 ? 'gb-p1' :
-                            state === 2 ? 'gb-p2' :
-                                `gb-${side}`,
-                        isHovered ? 'gb-hover' : '',
-                    ].filter(Boolean).join(' ');
+                    const baseClass = sideClassFor(side, state);
+                    const hoverClass = isHovered ? 'gb-hover' : '';
+                    const cellClass = ['gb-hex', baseClass, hoverClass].filter(Boolean).join(' ');
+
+                    let filterAttr: string | undefined;
+                    if (state === 1) filterAttr = 'url(#glow1)';
+                    else if (state === 2) filterAttr = 'url(#glow2)';
+                    else filterAttr = undefined;
 
                     return (
                         <g key={cell.index}>
-                            <polygon
-                                className={cellClass}
-                                points={hexPoints(cell.cx, cell.cy, HEX_SIZE - 2)}
-                                onClick={() => handleClick(cell.index)}
-                                onMouseEnter={() => setHovered(cell.index)}
-                                onMouseLeave={() => setHovered(null)}
-                                filter={state === 1 ? 'url(#glow1)' :
-                                    state === 2 ? 'url(#glow2)' :
-                                        undefined}
+                        <polygon
+                            className={cellClass}
+                            points={hexPoints(cell.cx, cell.cy, HEX_SIZE - 2)}
+                            onClick={() => handleClick(cell.index)}
+                            onMouseEnter={() => setHovered(cell.index)}
+                            onMouseLeave={() => setHovered(null)}
+                            filter={filterAttr}
+                        />
+                        {state !== 0 && (
+                            <circle
+                            className={`gb-piece gb-piece-p${state}`}
+                            cx={cell.cx}
+                            cy={cell.cy}
+                            r={HEX_SIZE * 0.37}
+                            style={{ pointerEvents: 'none' }}
                             />
-                            {state !== 0 && (
-                                <circle
-                                    className={`gb-piece gb-piece-p${state}`}
-                                    cx={cell.cx}
-                                    cy={cell.cy}
-                                    r={HEX_SIZE * 0.37}
-                                    style={{pointerEvents: 'none'}}
-                                />
-                            )}
-                            {isHovered && (
-                                <circle
-                                    className={`gb-hint gb-hint-p${currentPlayer}`}
-                                    cx={cell.cx}
-                                    cy={cell.cy}
-                                    r={HEX_SIZE * 0.22}
-                                    style={{pointerEvents: 'none'}}
-                                />
-                            )}
+                        )}
+                        {isHovered && (
+                            <circle
+                            className={`gb-hint gb-hint-p${currentPlayer}`}
+                            cx={cell.cx}
+                            cy={cell.cy}
+                            r={HEX_SIZE * 0.22}
+                            style={{ pointerEvents: 'none' }}
+                            />
+                        )}
                         </g>
                     );
-                })}
+                })
+            }
             </svg>
 
             <p className="gb-cells-count">

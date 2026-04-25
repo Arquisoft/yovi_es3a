@@ -41,7 +41,7 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
   const lossesPercentage = (losses / total) * 100;
   const drawsPercentage = (draws / total) * 100;
 
-  const circumference = 251; // 2 * π * 40 (radio del círculo)
+  const circumference = 251;
   const winsDasharray = winsPercentage * circumference / 100;
   const lossesDasharray = lossesPercentage * circumference / 100;
   const drawsDasharray = drawsPercentage * circumference / 100;

@@ -30,7 +30,6 @@ const Ranking: React.FC = () => {
         return res.json();
       })
       .then((json) => {
-        // Validar que la respuesta tenga la estructura esperada
         if (json && typeof json === 'object') {
           setData(json);
         } else {

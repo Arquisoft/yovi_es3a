@@ -1,6 +1,7 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useAlert } from "../ui/useAlert";
 import { useTranslation } from 'react-i18next';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 interface NavbarProps
 {
@@ -11,16 +12,20 @@ interface NavbarProps
 export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
 {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   const handleLogout = () =>
   {
     onLogout();
+
+    showAlert("Sesión cerrada correctamente.", "success");
+
     navigate("/login");
   };
 
   const { i18n } = useTranslation();
 
-  const handleLanguageChange = (e) => {
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     i18n.changeLanguage(e.target.value);
   };
 
@@ -101,11 +106,18 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
                 </li>
               </>
             )}
-            <li className="nav-item">
-              <select onChange={handleLanguageChange} value={i18n.language}>
-              <option value='en'>English</option>
-              <option value='es'>Español</option>
-            </select>
+            <li className="nav-item d-flex align-items-center ms-3">
+              <label htmlFor="lang-select" className="visually-hidden">Language</label>
+              <select
+                id="lang-select"
+                className="form-select form-select-sm lang-select"
+                onChange={handleLanguageChange}
+                value={i18n.language}
+                aria-label="Select language"
+              >
+                <option value="en">English</option>
+                <option value="es">Español</option>
+              </select>
             </li>
           </ul>
         </div>
