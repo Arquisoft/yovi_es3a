@@ -90,7 +90,7 @@ const Ranking: React.FC = () => {
                 </thead>
                 <tbody>
                     {(data.rest || []).slice(0, 7).map((player, index) => (
-                        <tr key={index}>
+                        <tr key={player.playerName}>
                             <td className="fw-bold">{index + 4}</td>
                             <td>{player.playerName}</td>
                             <td>{player.score}</td>

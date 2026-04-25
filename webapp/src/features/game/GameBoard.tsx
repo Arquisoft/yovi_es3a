@@ -96,11 +96,6 @@ function buildCells(sideLen: number): Cell[] {
 /**
  * Funciones auxiliares para manejar la GameBoard.
  */
-
-/** Polígono hexagonal pointy-top centrado en (cx, cy) con radio r */
-/**
- * 
- */
 function hexPoints(cx: number, cy: number, r: number): string {
   return Array.from({ length: 6 }, (_, i) => {
     const angle = (Math.PI / 3) * i - Math.PI / 6;  
@@ -108,12 +103,6 @@ function hexPoints(cx: number, cy: number, r: number): string {
   }).join(' ');
 }
 
-/**
- * 
- * 
- * @param cell 
- * @returns 
- */
 function getSide(cell: Cell): SideType {
   const onLeft   = cell.by === 0;
   const onRight  = cell.bz === 0;
@@ -129,7 +118,6 @@ function getSide(cell: Cell): SideType {
 // ── YEN parser ────────────────────────────────────────────────────────────────
 // YEN layout field is an array of strings, one per row.
 // Each char: '.' = empty, '1' = player 1, '2' = player 2.
-
 
 async function updateMatch(username: string, puntos: number, modo: string) {
   await fetch("http://localhost:3000/api/matches/update", {
@@ -212,7 +200,6 @@ function getWebSocketURL(): string {
     return wsUrl;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function GameBoard({username}: { username: string }) {
     const [currentPlayer, setCurrentPlayer] = useState<Player>(1);
     const [hovered, setHovered] = useState<number | null>(null);
@@ -555,7 +542,9 @@ function GameBoard({username}: { username: string }) {
                                 onClick={() => handleClick(cell.index)}
                                 onMouseEnter={() => setHovered(cell.index)}
                                 onMouseLeave={() => setHovered(null)}
-                                filter={state === 1 ? 'url(#glow1)' : state === 2 ? 'url(#glow2)' : undefined}
+                                filter={state === 1 ? 'url(#glow1)' :
+                                    state === 2 ? 'url(#glow2)' :
+                                        undefined}
                             />
                             {state !== 0 && (
                                 <circle

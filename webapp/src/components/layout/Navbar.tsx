@@ -1,11 +1,11 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface NavbarProps
 {
   user: string | null;
   onLogout: () => void;
-  onSwitchView?: (view: "login" | "register") => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
@@ -16,6 +16,12 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
   {
     onLogout();
     navigate("/login");
+  };
+
+  const { i18n } = useTranslation();
+
+  const handleLanguageChange = (e) => {
+    i18n.changeLanguage(e.target.value);
   };
 
   return (
@@ -67,10 +73,9 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
           <ul className="navbar-nav ms-auto">
             {user ? (
               <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle btn border-0" href="#" role="button" data-bs-toggle="dropdown">
+                <button className="nav-link dropdown-toggle btn border-0" data-bs-toggle="dropdown" aria-expanded="false">
                   <i className="bi bi-person-circle me-1"></i> {user}
-                </a>
-
+                </button>
                 <ul className="dropdown-menu dropdown-menu-end shadow">
                   <li>
                     <button className="dropdown-item text-danger d-flex align-items-center" onClick={handleLogout}>
@@ -96,6 +101,12 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
                 </li>
               </>
             )}
+            <li className="nav-item">
+              <select onChange={handleLanguageChange} value={i18n.language}>
+              <option value='en'>English</option>
+              <option value='es'>Español</option>
+            </select>
+            </li>
           </ul>
         </div>
       </div>

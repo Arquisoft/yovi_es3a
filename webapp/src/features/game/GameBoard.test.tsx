@@ -5,9 +5,9 @@ import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/re
 import GameBoard from './GameBoard'
 
 class MockWebSocket {
-	static instances: MockWebSocket[] = [];
-	static OPEN = 1;
-	static CLOSED = 3;
+	static readonly instances: MockWebSocket[] = [];
+	static readonly OPEN = 1;
+	static readonly CLOSED = 3;
 
 	url: string;
 	readyState = 0;
@@ -41,7 +41,7 @@ describe('GameBoard', () => {
 
 	beforeEach(() => {
 		vi.restoreAllMocks();
-		MockWebSocket.instances = [];
+		MockWebSocket.instances.length = 0;
 		globalThis.WebSocket = MockWebSocket as unknown as typeof WebSocket;
 	});
 

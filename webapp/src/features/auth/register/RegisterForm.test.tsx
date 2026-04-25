@@ -14,7 +14,7 @@ function ensureAlertPortal() {
 }
 
 describe('RegisterForm', () => {
-    const originalFetch = global.fetch;
+    const originalFetch = globalThis.fetch;
 
     beforeEach(() => {
         vi.restoreAllMocks();
@@ -22,7 +22,7 @@ describe('RegisterForm', () => {
     });
 
     afterEach(() => {
-        global.fetch = originalFetch;
+        globalThis.fetch = originalFetch;
         cleanup();
     });
 
@@ -40,7 +40,7 @@ describe('RegisterForm', () => {
 
     it('register new user', async () => {
         const onSuccess = vi.fn();
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => ({ message: 'User created successfully' }),
         } as Response);
@@ -68,7 +68,7 @@ describe('RegisterForm', () => {
     });
 
     it('try register existing user', async () => {
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: false,
             json: async () => ({ error: 'User already exists' }),
         } as Response);

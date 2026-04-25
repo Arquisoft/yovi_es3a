@@ -9,9 +9,9 @@
 }
 
 .table-ranking-custom thead th {
-    background-color: rgba(0, 0, 0, 0.05) !important;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
-    color: #212529 !important;
+    background-color: #343a40  !important;
+    border-bottom: 2px solid #23272b  !important;
+    color: #ffffff   !important;
 }
 
 .table-ranking-custom, 
