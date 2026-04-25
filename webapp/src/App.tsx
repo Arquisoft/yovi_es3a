@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar, Footer } from './components/layout';
-import './App.css';
+import './styles/App.css';
 import RegisterForm from './features/auth/register/RegisterForm';
 import LoginForm from './features/auth/login/LoginForm';
 import GameBoard from './features/game/GameBoard';

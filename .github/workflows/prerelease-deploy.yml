@@ -80,6 +80,12 @@ jobs:
           cd webapp
           npm ci
 
+      - name: Create users .env
+        run: |
+          printf "MONGODB_URI=%s\nMONGODB_DB=%s\n" \
+            "${{ secrets.MONGODB_URI }}" \
+            "${{ secrets.MONGODB_DB }}" > users/.env
+
       - name: Install Playwright browsers
         run: |
           cd webapp

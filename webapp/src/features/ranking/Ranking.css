@@ -3,21 +3,53 @@
     --bs-table-accent-bg: transparent !important;
     --bs-table-striped-bg: transparent !important;
     --bs-table-hover-bg: rgba(0, 0, 0, 0.05) !important;
-    
+
     color: #212529 !important;
     border-color: rgba(0, 0, 0, 0.1) !important;
+    /* ✅ FIX: clamp más amplio para cubrir pantallas muy pequeñas */
+    font-size: clamp(0.65rem, 1.2vw, 0.95rem);
+    width: 100%;
+    min-width: 100%;
+}
+
+.ranking-container-fix {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* ✅ FIX: scroll suave en iOS */
+    -webkit-overflow-scrolling: touch;
+    /* ✅ FIX: esconde scrollbar en webkit manteniendo funcionalidad */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(98, 34, 224, 0.3) transparent;
+}
+
+.ranking-container-fix::-webkit-scrollbar {
+    width: 4px;
+}
+
+.ranking-container-fix::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ranking-container-fix::-webkit-scrollbar-thumb {
+    background: rgba(98, 34, 224, 0.3);
+    border-radius: 2px;
 }
 
 .table-ranking-custom thead th {
     background-color: rgba(0, 0, 0, 0.05) !important;
     border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
     color: #212529 !important;
+    /* ✅ FIX: evita que los headers se rompan en líneas en móvil */
+    white-space: nowrap;
 }
 
-.table-ranking-custom, 
-.table-ranking-custom td, 
-.table-ranking-custom th
-{
+.table-ranking-custom,
+.table-ranking-custom td,
+.table-ranking-custom th {
     background: transparent !important;
 }
 
@@ -25,7 +57,9 @@
     background-color: transparent !important;
     border-color: rgba(0, 0, 0, 0.05) !important;
     color: #212529 !important;
-    padding: 12px;
+    padding: clamp(6px, 1vh, 12px);
+    /* ✅ FIX: evita saltos de línea en celdas de datos */
+    white-space: nowrap;
 }
 
 .ranking-dark-text {
@@ -36,6 +70,11 @@
 .podium-player-name {
     color: #212529 !important;
     font-weight: 600;
+    /* ✅ FIX: permite corte de texto largo en nombres */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    white-space: nowrap;
 }
 
 .podium-score {
@@ -44,4 +83,45 @@
 
 .table-ranking-custom tbody tr:hover td {
     background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* ✅ FIX: wrapper para scroll horizontal en tablas anchas */
+.table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* ✅ FIX: borde sutil para indicar que hay más contenido */
+    position: relative;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table-ranking-custom {
+        font-size: clamp(0.62rem, 1.8vw, 0.85rem);
+    }
+
+    .table-ranking-custom thead th,
+    .table-ranking-custom tbody td {
+        padding: clamp(5px, 0.7vh, 10px) clamp(6px, 1vw, 10px);
+    }
+
+    .podium-player-name {
+        max-width: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .table-ranking-custom {
+        font-size: 0.65rem;
+    }
+
+    .table-ranking-custom thead th,
+    .table-ranking-custom tbody td {
+        padding: 5px 6px;
+    }
+
+    .podium-player-name {
+        max-width: 80px;
+    }
 }

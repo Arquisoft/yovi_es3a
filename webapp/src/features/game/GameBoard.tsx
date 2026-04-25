@@ -50,6 +50,8 @@ const BOTS = [
         description: "Variable Strategy Bot"
     }];
 
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+
 /**
  * Interfaz Cell, que define las características de una casilla del tablero.
  */
@@ -132,7 +134,7 @@ function getSide(cell: Cell): SideType {
 
 
 async function updateMatch(username: string, puntos: number, modo: string) {
-  await fetch("http://localhost:3000/api/matches/update", {
+  await fetch(`${API_URL}/api/matches/update`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, puntos, modo })
@@ -286,9 +288,16 @@ function GameBoard({username}: { username: string }) {
         };
 
         ws.onmessage = async (ev) => {
-            try {
-                const v = JSON.parse(ev.data);
+            let v: any;
 
+            try {
+                v = JSON.parse(ev.data);
+            } catch (e) {
+                console.warn('Bad JSON from server', e);
+                return;
+            }
+
+            try {
                 if (v.type === 'state' && v.yen) {
                     const newBoard = parseBoardFromYEN(v.yen);
                     const newWinner = await getWinnerFromYEN(v, username, gameMode);
@@ -311,7 +320,7 @@ function GameBoard({username}: { username: string }) {
                     awaitingBotRef.current = false;
                 }
             } catch (e) {
-                console.warn('Bad JSON from server', e);
+                console.warn('Error processing server message', e);
             }
         };
 
