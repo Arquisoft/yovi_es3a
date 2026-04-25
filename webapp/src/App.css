@@ -7,6 +7,20 @@ html, body, #root
 	overflow-x: hidden;
 }
 
+body
+{
+    background:
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35)),
+        linear-gradient(to top right, rgba(255, 0, 0, 1), transparent),
+        linear-gradient(to top left, rgba(0, 255, 0, 1), transparent),
+        linear-gradient(to bottom, rgba(0, 0, 255, 1), transparent);
+    
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    color: #f5f6fa;
+}
+
 #root
 {
 	display: flex;
@@ -15,19 +29,10 @@ html, body, #root
 
 .spectrum-background
 {
-    min-height: 120vh;
+    min-height: 100vh;
     width: 100%;
-
-    background:
-        linear-gradient(to top right, rgba(255, 0, 0, 0.6), transparent),
-        linear-gradient(to top left, rgba(0, 255, 0, 0.6), transparent),
-        linear-gradient(to bottom, rgba(0, 0, 255, 0.6), transparent);
-    
-    background-size: cover;
-    background-attachment: fixed;
     display: flex;
     flex-direction: column;
-    color: #f5f6fa;
 }
 
 .card-transparent
@@ -93,7 +98,7 @@ footer
 .error-message
 {
     background-color: #f3b1b1;
-    color: #cc0000;
+    color: #7a0000;
     padding: 5px 10px;
     border-radius: 8px;
 }
