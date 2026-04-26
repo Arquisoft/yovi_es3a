@@ -100,5 +100,16 @@
 	"gameboard.player": "Jugador",
 	"gameboard.reset": "Reiniciar",
 	"gameboard.turn": "Turno",
-	"gameboard.thinking": "Bot pensando"
+	"gameboard.thinking": "Bot pensando",
+
+    "gameboard.bot.easy": "Fácil",
+    "gameboard.bot.medium": "Medio",
+    "gameboard.bot.hard": "Difícil",
+    "gameboard.bot.variable": "Variable",
+
+    "gameboard.bot.random_bot.description": "Bot de movimientos aleatorios",
+    "gameboard.bot.greedy_easy.description": "Bot Greedy inicial",
+    "gameboard.bot.greedy_medium.description": "Bot Greedy experimentado!",
+    "gameboard.bot.greedy_hard.description": "Bot Greedy avanzado!!",
+    "gameboard.bot.random_strategy_bot.description": "Bot de estrategia variables"
 }

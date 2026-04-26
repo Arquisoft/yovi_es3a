@@ -24,33 +24,6 @@ type CellState = 0 | Player;        // Estado de las casillas con valor 0 (neutr
 type GameMode = 'pvp' | 'vs-bot';   // Modo de juego, contra bots o contra jugadores.
 type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';    // Tipo de casilla, si es interior o se encuentra en un borde.
 
-const BOTS = [
-    {
-        name: "random_bot",
-        difficulty: "Fácil",
-        description: "Random Movement Bot"
-    },
-    {
-        name: "greedy_easy",
-        difficulty: "Fácil",
-        description: "Starter Greedy Bot"
-    },
-    {
-        name: "greedy_medium",
-        difficulty: "Media",
-        description: "Experienced Greedy Bot!"
-    },
-    {
-        name: "greedy_hard",
-        difficulty: "Difícil",
-        description: "Advanced Greedy Bot!!"
-    },
-    {
-        name: "random_strategy_bot",
-        difficulty: "Variable",
-        description: "Variable Strategy Bot"
-    }];
-
 /**
  * Interfaz Cell, que define las características de una casilla del tablero.
  */
@@ -220,7 +193,35 @@ function GameBoard({ username }: GameBoardProps) {
     const [botID, setBotID] = useState<string>("greedy_easy");
     const [sideLen, setSideLen] = useState<number>(7);
 
+
     const { t } = useTranslation();
+
+    const BOTS = [
+        {
+            name: "random_bot",
+            difficulty: t('gameboard.bot.easy'),
+            description: t('gameboard.bot.random_bot.description')
+        },
+        {
+            name: "greedy_easy",
+            difficulty: t('gameboard.bot.easy'),
+            description: t('gameboard.bot.greedy_easy.description')
+        },
+        {
+            name: "greedy_medium",
+            difficulty: t('gameboard.bot.medium'),
+            description: t('gameboard.bot.greedy_medium.description')
+        },
+        {
+            name: "greedy_hard",
+            difficulty: t('gameboard.bot.hard'),
+            description: t('gameboard.bot.greedy_hard.description')
+        },
+        {
+            name: "random_strategy_bot",
+            difficulty: t('gameboard.bot.variable'),
+            description: t('gameboard.bot.random_strategy_bot.description')
+        }];
 
     const SVG_WIDTH = useMemo(
         () => 2 * HEX_SIZE + (sideLen - 1) * DIST_X + 2 * PADDING, [sideLen]);
@@ -607,7 +608,7 @@ function GameBoard({ username }: GameBoardProps) {
             </svg>
 
             <p className="gb-cells-count">
-                {CELLS.length} celdas · N={sideLen} · {gameMode === 'pvp' ? 'PvP' : 'vs Bot'}
+                {CELLS.length} {t('gameboard.tiles')} · N={sideLen} · {gameMode === 'pvp' ? 'PvP' : 'vs Bot'}
             </p>
         </div>
     );
