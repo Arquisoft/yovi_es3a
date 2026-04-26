@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import './GameBoard.css';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Empleamos un sistema de coordenadas baricéntricas (bx, by, bz) para representar la posición de las 
@@ -219,6 +220,8 @@ function GameBoard({ username }: GameBoardProps) {
     const [botID, setBotID] = useState<string>("greedy_easy");
     const [sideLen, setSideLen] = useState<number>(7);
 
+    const { t } = useTranslation();
+
     const SVG_WIDTH = useMemo(
         () => 2 * HEX_SIZE + (sideLen - 1) * DIST_X + 2 * PADDING, [sideLen]);
 
@@ -402,28 +405,28 @@ function GameBoard({ username }: GameBoardProps) {
         return (
             <div className="gb-wrapper">
                 <div className="gb-mode-select">
-                    <h2 className="gb-mode-title">Juego Y</h2>
-                    <p className="gb-mode-subtitle">Selecciona el modo de juego</p>
+                    <h2 className="gb-mode-title"> {t('gameboard.header')} </h2>
+                    <p className="gb-mode-subtitle"> {t('gameboard.select')} </p>
                     
                     <div className="gb-mode-cards">
                         <button  className="gb-card" onClick={() => handleStartGame('pvp')}>
                             <div className="gb-card-icon">👥</div>
-                            <div className="gb-card-title">Jugador vs Jugador</div>
-                            <div className="gb-card-desc">Juega contra un Amigo en Local</div>
+                            <div className="gb-card-title"> {t('gameboard.pvp.header')} </div>
+                            <div className="gb-card-desc"> {t('gameboard.pvp.description')} </div>
                         </button >
                         <button  className="gb-card" onClick={() => handleStartGame('vs-bot')}>
                             <div className="gb-card-icon">🤖</div>
-                            <div className="gb-card-title">Jugador vs Bot</div>
-                            <div className="gb-card-desc">Desafía a un Bot Inteligente</div>
+                            <div className="gb-card-title"> {t('gameboard.pve.header')} </div>
+                            <div className="gb-card-desc"> {t('gameboard.pve.description')} </div>
                         </button>
                     </div>
 
                     <div className="gb-options-panel">
-                        <h2>Opciones de Partida</h2>
+                        <h2> {t('gameboard.options')} </h2>
 
                         <div className="gb-option-row">
                             <div className="gb-select-block">
-                                <label htmlFor="bot-select">Dificultad del Bot:</label>
+                                <label htmlFor="bot-select"> {t('gameboard.difficulty')} </label>
                                 <select id="bot-select" value={botID} onChange={(e) => setBotID(e.target.value)}>
                                     {BOTS.map(bot => (
                                     <option key={bot.name} value={bot.name}>
@@ -434,11 +437,11 @@ function GameBoard({ username }: GameBoardProps) {
                             </div>
 
                             <div className="gb-select-block">
-                                <label htmlFor="size-select">Tamaño del Tablero:</label>
+                                <label htmlFor="size-select">{t('gameboard.size')}:</label>
                                 <select id="size-select" value={sideLen} onChange={(e) => setSideLen(Number(e.target.value))}>
-                                    <option value={7}>7 (28 Casillas)</option>
-                                    <option value={9}>9 (45 Casillas)</option>
-                                    <option value={11}>11 (66 Casillas)</option>
+                                    <option value={7}>7 (28 {t('gameboard.tiles')})</option>
+                                    <option value={9}>9 (45 {t('gameboard.tiles')})</option>
+                                    <option value={11}>11 (66 {t('gameboard.tiles')})</option>
                                 </select>
                             </div>
                         </div>
@@ -453,7 +456,7 @@ function GameBoard({ username }: GameBoardProps) {
             <div className="gb-wrapper">
                 <div className="gb-loading">
                     <div className="gb-spinner"></div>
-                    <p className="gb-loading-text">Conectando al servidor...</p>
+                    <p className="gb-loading-text">{t('gameboard.connecting')}...</p>
                 </div>
             </div>
         );
@@ -466,20 +469,20 @@ function GameBoard({ username }: GameBoardProps) {
 
     let winnerTitle = '';
         if (gameMode === 'vs-bot') {
-        winnerTitle = winner === 1 ? '¡Has ganado!' : '¡El bot gana!';
+        winnerTitle = winner === 1 ? t('gameboard.user_wins') : t('gameboard.bot_wins');
         } else {
-        winnerTitle = `¡Jugador ${winner} gana!`;
+        winnerTitle = `${t('gameboard.player')} ${winner} ${t('gameboard.wins')}!`;
     }
 
     const winnerSubtitle = winner === 1
-        ? 'Rojo ha conectado los tres lados'
-        : 'Azul ha conectado los tres lados';
+        ? t('gameboard.red_connect')
+        : t('gameboard.blue_connect');
 
     let turnLabel: string;
         if (gameMode === 'vs-bot') {
-        turnLabel = currentPlayer === 1 ? 'Tú' : 'Bot';
+        turnLabel = currentPlayer === 1 ? t('gameboard.you') : t('gameboard.bot');
         } else {
-        turnLabel = `Jugador ${currentPlayer}`;
+        turnLabel = `${t('gameboard.player')} ${currentPlayer}`;
     }
 
     function sideClassFor(cellSide: SideType, state: CellState): string {
@@ -494,42 +497,42 @@ function GameBoard({ username }: GameBoardProps) {
             {winner && (
                 <div className="gb-winner-overlay">
                     <div className={`gb-winner-modal player${winner}`}>
-                    <div className="gb-winner-icon">
-                        {winnerIcon}
-                    </div>
-                    <h2 className="gb-winner-title">
-                        {winnerTitle}
-                    </h2>
-                    <p className="gb-winner-subtitle">
-                        {winnerSubtitle}
-                    </p>
-                    <div className="gb-winner-actions">
-                        <button className="gb-winner-btn" onClick={handleReset}>
-                        Jugar de nuevo
-                        </button>
-                        <button className="gb-winner-btn secondary" onClick={handleBackToMenu}>
-                        Cambiar modo
-                        </button>
-                    </div>
+                        <div className="gb-winner-icon">
+                            {winnerIcon}
+                        </div>
+                        <h2 className="gb-winner-title">
+                            {winnerTitle}
+                        </h2>
+                        <p className="gb-winner-subtitle">
+                            {winnerSubtitle}
+                        </p>
+                        <div className="gb-winner-actions">
+                            <button className="gb-winner-btn" onClick={handleReset}>
+                                {t('gameboard.play_again')}
+                            </button>
+                            <button className="gb-winner-btn secondary" onClick={handleBackToMenu}>
+                                {t('gameboard.change_mode')}
+                            </button>
+                        </div>
                     </div>
                 </div>
                 )}
 
             <div className="gb-header">
-                <button className="gb-back" onClick={handleBackToMenu}>← Menú</button>
+                <button className="gb-back" onClick={handleBackToMenu}>← {t('gameboard.menu')} </button>
                 <div className={`gb-turn player${currentPlayer} ${isBotThinking ? 'thinking' : ''}`}>
                     <span className="gb-dot" />
                     {isBotThinking ? (
-                        <span>Bot pensando<span className="gb-thinking-dots"></span></span>
+                        <span>{t('gameboard.thinking')}<span className="gb-thinking-dots"></span></span>
                     ) : (
-                        <span>Turno: {turnLabel}</span>
+                        <span>{t('gameboard.turn')}: {turnLabel}</span>
                     )}
                 </div>
 
                 <span className={`gb-status ${connected ? 'online' : 'offline'}`}>
           {connected ? '🟢 Online' : '🔴 Offline'}
         </span>
-                <button className="gb-reset" onClick={handleReset}>Reiniciar</button>
+                <button className="gb-reset" onClick={handleReset}> {t('gameboard.reset')} </button>
             </div>
 
             <svg

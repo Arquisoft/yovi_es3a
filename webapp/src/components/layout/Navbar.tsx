@@ -11,6 +11,7 @@ interface NavbarProps
 
 export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
 {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
@@ -53,21 +54,21 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
                 {/* GOTO: Play game */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/game">
-                    <i className="bi bi-play-circle me-1"></i> Jugar
+                    <i className="bi bi-play-circle me-1"></i> {t('nav.play')}
                   </NavLink>
                 </li>
 
                 {/* GOTO: personal stats */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/stats">
-                    <i className="bi bi-bar-chart-fill me-1"></i> Estadísticas
+                    <i className="bi bi-bar-chart-fill me-1"></i> {t('nav.stats')}
                   </NavLink>
                 </li>
 
                 {/* GOTO: rankings */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/ranking">
-                    <i className="bi bi-trophy me-1"></i> Ranking
+                    <i className="bi bi-trophy me-1"></i> {t('nav.ranking')}
                   </NavLink>
                 </li>
               </>
@@ -84,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
                 <ul className="dropdown-menu dropdown-menu-end shadow">
                   <li>
                     <button className="dropdown-item text-danger d-flex align-items-center" onClick={handleLogout}>
-                      <i className="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+                      <i className="bi bi-box-arrow-right me-2"></i> {t('nav.logout')}
                     </button>
                   </li>
                 </ul>
@@ -94,14 +95,14 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
                 {/* GOTO: log in */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/login">
-                    <i className="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
+                    <i className="bi bi-box-arrow-in-right me-1"></i> {t('nav.login')}
                   </NavLink>
                 </li>
 
                 {/* GOTO: sign in */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/register">
-                    <i className="bi bi-person-plus me-1"></i> Registrarse
+                    <i className="bi bi-person-plus me-1"></i> {t('nav.signup')}
                   </NavLink>
                 </li>
               </>

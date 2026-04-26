@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './UserStats.css';
+import { useTranslation } from 'react-i18next';
 
 interface StatsProps {
   username: string;
@@ -28,6 +29,7 @@ interface Game {
 }
 
 const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ wins, losses, draws }) => {
+  const { t } = useTranslation();
   const total = wins + losses + draws;
   if (total === 0) {
     return (
@@ -117,15 +119,15 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
       <div className="pie-legend mt-3">
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#22c55e' }}></span>
-          <span>Victorias: {wins}</span>
+          <span>{t('stats.wins')}: {wins}</span>
         </div>
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#ef4444' }}></span>
-          <span>Derrotas: {losses}</span>
+          <span>{t('stats.loses')}: {losses}</span>
         </div>
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#9ca3af' }}></span>
-          <span>Empates: {draws}</span>
+          <span>{t('stats.draws')}: {draws}</span>
         </div>
       </div>
     </div>
@@ -140,6 +142,8 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
   const [error, setError] = useState<string | null>(null);
   const [gamesError, setGamesError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'stats' | 'games'>('stats');
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -246,7 +250,7 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
   };
 
   const getGameResult = (game: Game) => {
-    return game.puntos > 0 ? 'Victoria' : 'Derrota';
+    return game.puntos > 0 ? t('stats.win') : t('stats.lose');
   };
 
   const getGameResultClass = (game: Game) => {
@@ -254,13 +258,13 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
   };
 
   const getOpponentType = (tipo: string) => {
-    return tipo === 'bot' ? 'Bot IA' : 'Jugador Local';
+    return tipo === 'bot' ? t('stats.ai_bot') : t('stats.local_player');
   };
 
   return (
     <div className="stats-overlay">
       <h2 className="stats-title dark-purple-fg fw-bold">
-        Estadísticas del Jugador
+        {t('stats.header')}
       </h2>
 
       {/* Tab Navigation */}
@@ -269,13 +273,13 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
           className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
           onClick={() => setActiveTab('stats')}
         >
-          📊 Estadísticas
+          📊 {t('stats.overall')}
         </button>
         <button
           className={`tab-button ${activeTab === 'games' ? 'active' : ''}`}
           onClick={() => setActiveTab('games')}
         >
-          🎮 Historial de Partidas
+          🎮 {t('stats.history')}
         </button>
       </div>
 
@@ -287,9 +291,9 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             {loading && (
               <div className="text-center">
                 <div className="spinner-border text-primary" aria-label="Cargando">
-                  <span className="visually-hidden">Cargando...</span>
+                  <span className="visually-hidden">{t('stats.aria.loading')}...</span>
                 </div>
-                <p className="mt-2">Cargando estadísticas...</p>
+                <p className="mt-2">{t('stats.overall.loading')}...</p>
               </div>
             )}
 
@@ -315,19 +319,19 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
                 <div className="stats-column-left">
                   {/* Usuario */}
                   <div className="stats-section">
-                    <h5 className="stats-section-title">Nombre de Usuario</h5>
+                    <h5 className="stats-section-title"> {t('stats.username')} </h5>
                     <p className="stats-value">{stats.nombreUsuario}</p>
                   </div>
 
                   {/* Fecha de Creación */}
                   <div className="stats-section">
-                    <h5 className="stats-section-title">Fecha de Creación</h5>
+                    <h5 className="stats-section-title"> {t('stats.create_date')} </h5>
                     <p className="stats-value">{formatDate(stats.fechaUltimaEdicion)}</p>
                   </div>
 
                   {/* Puntos de Ranking */}
                   <div className="stats-section stats-highlight">
-                    <h5 className="stats-section-title">Puntos de Ranking</h5>
+                    <h5 className="stats-section-title">  {t('stats.points')} </h5>
                     <p className="stats-value stats-points">{stats.estadisticas.puntosRanking}</p>
                   </div>
                 </div>
@@ -336,7 +340,7 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
                 <div className="stats-column-right">
                   {/* Gráfico de Resultados */}
                   <div className="stats-section" style={{ width: '100%', margin: 0, padding: 0, border: 'none' }}>
-                    <h5 className="stats-section-title">Resultados</h5>
+                    <h5 className="stats-section-title"> {t('stats.results')} </h5>
                     <PieChart wins={stats.estadisticas.victorias} losses={stats.estadisticas.derrotas} draws={stats.estadisticas.empates} />
                   </div>
                 </div>
@@ -351,9 +355,9 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             {gamesLoading && (
               <div className="text-center">
                 <div className="spinner-border text-primary" aria-label="Cargando">
-                  <span className="visually-hidden">Cargando partidas...</span>
+                  <span className="visually-hidden"> {t('aria.loading')} ...</span>
                 </div>
-                <p className="mt-2">Cargando historial de partidas...</p>
+                <p className="mt-2"> {t('stats.history.loading')} ...</p>
               </div>
             )}
 
@@ -376,15 +380,15 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             {!gamesLoading && !gamesError && (
               <div className="games-table-container">
                 {games.length === 0 ? (
-                  <p className="text-center text-muted mt-4">No hay partidas disponibles</p>
+                  <p className="text-center text-muted mt-4"> {t('stats.history.no_games')} </p>
                 ) : (
                   <table className="games-table">
                     <thead>
                       <tr>
-                        <th>Rival</th>
-                        <th>Resultado</th>
-                        <th>Puntos</th>
-                        <th>Fecha y Hora</th>
+                        <th>{t('stats.history.rival')}</th>
+                        <th>{t('stats.history.result')}</th>
+                        <th>{t('stats.history.points')}</th>
+                        <th>{t('stats.history.datetime')}</th>
                       </tr>
                     </thead>
                     <tbody>
