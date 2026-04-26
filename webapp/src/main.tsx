@@ -4,6 +4,7 @@ import App from './App.tsx'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AlertProvider } from './components/ui/AlertProvider'
+import './i18n'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'

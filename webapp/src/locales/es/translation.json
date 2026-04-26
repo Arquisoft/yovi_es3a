@@ -1,5 +1,9 @@
 {
 	"common.error": "Error",
+
+	"alert.login.success": "Login correcto",
+	"alert.register.success": "Registro correcto",
+	"alert.logout.success": "Sesión cerrada correctamente",
 	
 	"nav.play": "Jugar",
     "nav.stats": "Estadísticas",
@@ -66,6 +70,10 @@
 	"stats.draws": "Empates",
 	"stats.local_player": "Jugador Local",
 	"stats.ai_bot": "Bot IA",
+	"stats.no_games": "Sin partidas jugadas",
+	"stats.load_error": "No se pudieron cargar las partidas",
+    "stats.network_error": "Error de red al conectar con el servidor",
+	"stats.date_unavailable": "Fecha no disponible",
 	"stats.aria.loading": "Cargando",
 
 	"gameboard.header": "Juego Y",

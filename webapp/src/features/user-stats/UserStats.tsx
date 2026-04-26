@@ -34,7 +34,7 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
   if (total === 0) {
     return (
       <div className="pie-chart-container">
-        <p className="text-muted">Sin partidas jugadas.</p>
+        <p className="text-muted"> {t('stats.no_games')} </p>
       </div>
     );
   }
@@ -203,31 +203,31 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             .slice(0, 5);
           setGames(sortedGames);
         } else {
-          setGamesError(data.message || 'No se pudieron cargar las partidas.');
+          setGamesError(data.message || t('stats.load_error') );
         }
       } catch {
-        setGamesError('Error de red al conectar con el servidor.');
+        setGamesError( t('stats.network_error') );
       } finally {
         setGamesLoading(false);
       }
     };
 
     fetchGames();
-  }, [username, activeTab]);
+  }, [username, activeTab, t]);
 
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
       if (Number.isNaN(date.getTime())) {
-        return 'Fecha no disponible';
+        return t('stats.date_unavailable');
       }
       return date.toLocaleDateString('es-ES', {
         year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
       });
     } catch {
-      return 'Fecha no disponible';
+      return t('stats.date_unavailable');
     }
   };
 
@@ -235,17 +235,20 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
     try {
       const date = new Date(dateString);
       if (Number.isNaN(date.getTime())) {
-        return 'Fecha no disponible';
+        return t('stats.date_unavailable');
       }
-      return date.toLocaleDateString('es-ES', {
+      const dateFormatted = date.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
+      });
+      const timeFormatted = date.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit',
       });
+      return `${dateFormatted} ${timeFormatted}`;
     } catch {
-      return 'Fecha no disponible';
+      return t('stats.date_unavailable');
     }
   };
 

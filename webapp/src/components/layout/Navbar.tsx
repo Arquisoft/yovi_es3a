@@ -19,7 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
   {
     onLogout();
 
-    showAlert("Sesión cerrada correctamente.", "success");
+    showAlert( t('alert.logout.success') , "success");
 
     navigate("/login");
   };

@@ -44,7 +44,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) =>
 
       if (res.ok)
       {
-        showAlert(data.message || t('register.response.success') , 'success');
+        showAlert(t('alert.register.success'), 'success');
         onSuccess?.(username);
 
         navigate("/game");

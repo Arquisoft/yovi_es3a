@@ -45,7 +45,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
 
       if (res.ok)
       {
-        showAlert(data.message || `${t('login.response.success')}, ${username}!`, 'success');
+        showAlert(t('alert.login.success'), 'success');
 
         onSuccess?.(username);
 

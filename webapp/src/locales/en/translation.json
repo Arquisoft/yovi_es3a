@@ -1,6 +1,10 @@
 {
     "common.error": "Error",
 
+    "alert.login.success": "Logged in successfully",
+    "alert.register.success": "Signed up successfully",
+    "alert.logout.success": "Logged out successfully",
+
     "nav.play": "Play",
     "nav.stats": "Stats",
     "nav.ranking": "Ranking",
@@ -66,6 +70,10 @@
 	"stats.draws": "Draws",
 	"stats.local_player": "Local Player",
 	"stats.ai_bot": "AI Bot",
+    "stats.no_games": "No games",
+    "stats.load_error": "Couldn't load games",
+    "stats.network_error": "Network Error",
+    "stats.date_unavailable": "Fecha no disponible",
     "stats.aria.loading": "Loading",
 
     "gameboard.header": "Game Y",
