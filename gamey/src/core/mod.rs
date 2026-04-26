@@ -16,6 +16,7 @@ pub mod movement;
 pub mod player;
 mod player_set;
 pub mod render_options;
+pub mod registry;
 
 pub use action::*;
 pub use coord::*;
@@ -23,5 +24,26 @@ pub use game::*;
 pub use movement::*;
 pub use player::*;
 pub use render_options::*;
+pub use registry::*;
 
-type SetIdx = usize;
+/// Trait que define el comportamiento básico de cualquier juego en el sistema.
+/// Implementa el patrón Prototype mediante el método `clone_box`.
+pub trait Game: Send + Sync {
+    /// Añade un movimiento al juego.
+    fn add_move(&mut self, movement: Movement) -> crate::Result<()>;
+    
+    /// Comprueba si el juego ha terminado.
+    fn check_game_over(&self) -> bool;
+    
+    /// Devuelve el estado actual del juego.
+    fn status(&self) -> &GameStatus;
+    
+    /// Devuelve el nombre o tipo de juego.
+    fn game_type(&self) -> &str;
+
+    /// Método fundamental del patrón Prototype: permite clonar un objeto
+    /// a través de un trait object.
+    fn clone_box(&self) -> Box<dyn Game>;
+}
+
+pub(crate) type SetIdx = usize;

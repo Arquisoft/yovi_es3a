@@ -7,6 +7,9 @@ use thiserror::Error;
 
 use crate::{Coordinates, Movement, PlayerId};
 
+/// Result type alias for game operations.
+pub type Result<T> = std::result::Result<T, GameYError>;
+
 /// Errors that can occur during Y game operations.
 ///
 /// This enum covers all possible error conditions including:

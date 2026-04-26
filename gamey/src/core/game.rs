@@ -1,12 +1,10 @@
+use crate::core::Game;
 use crate::core::SetIdx;
 use crate::core::player_set::PlayerSet;
-use crate::{Coordinates, GameAction, GameYError, Movement, PlayerId, RenderOptions, YEN};
+use crate::{Coordinates, GameAction, GameYError, Movement, PlayerId, RenderOptions, YEN, Result};
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::path::Path;
-
-/// A Result type alias for game operations that may fail with a `GameYError`.
-pub type Result<T> = std::result::Result<T, crate::GameYError>;
 
 /// The main game state for a Y game.
 ///
@@ -430,6 +428,28 @@ impl TryFrom<YEN> for GameY {
             }
         }
         Ok(ygame)
+    }
+}
+
+impl Game for GameY {
+    fn add_move(&mut self, movement: Movement) -> Result<()> {
+        self.add_move(movement)
+    }
+
+    fn check_game_over(&self) -> bool {
+        self.check_game_over()
+    }
+
+    fn status(&self) -> &GameStatus {
+        self.status()
+    }
+
+    fn game_type(&self) -> &str {
+        "GameY"
+    }
+
+    fn clone_box(&self) -> Box<dyn Game> {
+        Box::new(self.clone())
     }
 }
 
