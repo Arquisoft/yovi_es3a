@@ -9,6 +9,12 @@
 Este es un proyecto base para la asignatura de Arquitectura del Software en 2024/2025.
 Yovi es una aplicación centrada en el juego de conexión Y, permitiendo a los usuarios disfrutar de partidas interactivas tanto contra la inteligencia artificial como contra otros jugadores.
 
+Wiki: https://github.com/Arquisoft/yovi_es3a/wiki
+
+Docs: https://arquisoft.github.io/yovi_es3a/ 
+
+Aplicación: http://158.179.212.71
+
 ## Miembros del Equipo
 👤Colaborador | 🌐Cuenta Git | 📧Email de contacto  
 -- | -- | -- 
