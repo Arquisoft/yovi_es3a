@@ -260,8 +260,7 @@ app.get('/play', async (req, res) => {
   try {
     const apiVersion = 'v1';
     const selectedBotId = bot_id || 'random_bot';
-    const gameyUrl = `http://gamey:4000/${apiVersion}/ybot/choose/${selectedBotId}`; // URL para aplicacion desplegada en Docker
-    // const gameyUrl = `http://localhost:4000/${apiVersion}/ybot/choose/${selectedBotId}`; // URL para desarrollo local
+    const gameyUrl = `http://localhost:4000/${apiVersion}/ybot/choose/${selectedBotId}`; // URL para desarrollo local
 
     const yenBody = typeof position === 'string' ? position : JSON.stringify(position);
     const response = await fetch(gameyUrl, {
