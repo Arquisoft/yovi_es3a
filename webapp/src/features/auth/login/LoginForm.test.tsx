@@ -3,22 +3,13 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import LoginForm from './LoginForm'
 import '@testing-library/jest-dom/vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
-
-function ensureAlertPortal() {
-	if (!document.getElementById('alert-portal')) {
-		const portal = document.createElement('div')
-		portal.id = 'alert-portal'
-		document.body.appendChild(portal)
-	}
-}
+import { render, screen, fireEvent, waitFor, cleanup } from '../../../test-utils.tsx'
 
 describe('LoginForm', () => {
 	const originalFetch = globalThis.fetch;
 
 	beforeEach(() => {
 		vi.restoreAllMocks();
-		ensureAlertPortal();
 	});
 
 	afterEach(() => {
@@ -43,7 +34,7 @@ describe('LoginForm', () => {
 		const onSuccess = vi.fn();
 		globalThis.fetch = vi.fn().mockResolvedValue({
 			ok: true,
-			json: async () => ({ message: 'Welcome back, test-username!' }),
+			json: async () => ({ message: 'Login correcto' }),
 		} as Response);
 
 		render(<MemoryRouter><LoginForm onSuccess={onSuccess} /></MemoryRouter>);
@@ -65,7 +56,7 @@ describe('LoginForm', () => {
 			expect(onSuccess).toHaveBeenCalledWith('test-username');
 		});
 
-		expect(screen.getByText('Welcome back, test-username!')).toBeInTheDocument();
+		expect(screen.getByText(/Login correcto/)).toBeInTheDocument();
 	});
 
 	it('try login without password', () => {
@@ -85,7 +76,7 @@ describe('LoginForm', () => {
 
 		fireEvent.click(submitButton);
 
-		const label = screen.getByText('Please enter a password.');
+		const label = screen.getByText(/Introduzca una contraseña válida/);
 		expect(label).toBeInTheDocument();
 	});
 
@@ -106,7 +97,7 @@ describe('LoginForm', () => {
 
 		fireEvent.click(submitButton);
 
-		const label = screen.getByText('Please enter a username.');
+		const label = screen.getByText(/Introduzca un nombre de usuario válido/);
 		expect(label).toBeInTheDocument();
 	});
 

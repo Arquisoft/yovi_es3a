@@ -2,7 +2,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import Ranking from './Ranking'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, waitFor, cleanup } from '@testing-library/react'
+import { render, screen, waitFor, cleanup } from '../../test-utils.tsx'
 
 describe('Ranking Component', () => {
     const originalFetch = global.fetch;

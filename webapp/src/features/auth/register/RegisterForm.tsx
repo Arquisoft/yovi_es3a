@@ -22,8 +22,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) =>
   {
     event.preventDefault();
 
-    if (!username.trim()) {showAlert( t('register.response.username_required') , 'error'); return;}
-    if (!password.trim()) {showAlert( t('register.response.password_required') , 'error'); return;}
+    if (!username.trim()) {showAlert( t('register.validation.username_required') , 'error'); return;}
+    if (!password.trim()) {showAlert( t('register.validation.password_required') , 'error'); return;}
 
     setLoading(true);
 

@@ -3,22 +3,13 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import RegisterForm from './RegisterForm'
 import '@testing-library/jest-dom/vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
-
-function ensureAlertPortal() {
-    if (!document.getElementById('alert-portal')) {
-        const portal = document.createElement('div')
-        portal.id = 'alert-portal'
-        document.body.appendChild(portal)
-    }
-}
+import { render, screen, fireEvent, waitFor, cleanup } from '../../../test-utils.tsx'
 
 describe('RegisterForm', () => {
     const originalFetch = globalThis.fetch;
 
     beforeEach(() => {
         vi.restoreAllMocks();
-        ensureAlertPortal();
     });
 
     afterEach(() => {
@@ -42,7 +33,7 @@ describe('RegisterForm', () => {
         const onSuccess = vi.fn();
         globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
-            json: async () => ({ message: 'User created successfully' }),
+            json: async () => ({ message: 'Usuario creado correctamente' }),
         } as Response);
 
         render(<MemoryRouter><RegisterForm onSuccess={onSuccess} /></MemoryRouter>);
@@ -64,7 +55,7 @@ describe('RegisterForm', () => {
             expect(onSuccess).toHaveBeenCalledWith('test-username');
         });
 
-        expect(screen.getByText('User created successfully')).toBeInTheDocument();
+        expect(screen.getByText(/Registro correcto/)).toBeInTheDocument();
     });
 
     it('try register existing user', async () => {
@@ -112,7 +103,7 @@ describe('RegisterForm', () => {
 
         fireEvent.click(submitButton);
 
-        const label = screen.getByText('Please enter a password.');
+        const label = screen.getByText(/Introduzca una contraseña válida/);
         expect(label).toBeInTheDocument();
     });
 
@@ -133,7 +124,7 @@ describe('RegisterForm', () => {
 
         fireEvent.click(submitButton);
 
-        const label = screen.getByText('Please enter a username.');
+        const label = screen.getByText(/Introduzca un nombre de usuario válido/);
         expect(label).toBeInTheDocument();
     });
 })

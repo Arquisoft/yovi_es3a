@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, cleanup } from '../../test-utils.tsx'
 import GameBoard from './GameBoard'
 
 class MockWebSocket {
@@ -75,8 +75,8 @@ describe('GameBoard', () => {
 			expect(screen.getByText(/Online/i)).toBeInTheDocument();
 		});
 
-		expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 7 }));
-		expect(screen.getByText('28 celdas · N=7 · PvP')).toBeInTheDocument();
+	expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 7 }));
+	expect(screen.getByText(/28.*Casillas.*N=.*7.*PvP/)).toBeInTheDocument();
 	});
 
 	it('starts game in vs bot mode and shows game view', async () => {
@@ -95,8 +95,8 @@ describe('GameBoard', () => {
 			expect(screen.getByText(/Online/i)).toBeInTheDocument();
 		});
 
-		expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 7, bot_id: 'greedy_easy' }));
-		expect(screen.getByText('28 celdas · N=7 · vs Bot')).toBeInTheDocument();
+	expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 7, bot_id: 'greedy_easy' }));
+	expect(screen.getByText(/28.*Casillas.*N=.*7.*vs Bot/)).toBeInTheDocument();
 	});
 
 	it('sends command when clicking an empty cell in pvp', async () => {

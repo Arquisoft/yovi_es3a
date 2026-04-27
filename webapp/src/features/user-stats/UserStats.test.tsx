@@ -2,7 +2,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import UserStatsComponent from './UserStats'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, waitFor, cleanup, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor, cleanup, fireEvent } from '../../test-utils.tsx'
 
 describe('UserStatsComponent', () => {
     const originalFetch = global.fetch;
@@ -93,7 +93,7 @@ describe('UserStatsComponent', () => {
         fireEvent.click(gamesTab);
 
         await waitFor(() => {
-            expect(screen.getByText('Cargando historial de partidas...')).toBeInTheDocument();
+            expect(screen.getByText(/Cargando historial de partidas/)).toBeInTheDocument();
         });
     });
 
@@ -153,7 +153,7 @@ describe('UserStatsComponent', () => {
         fireEvent.click(screen.getByRole('button', { name: /Historial de Partidas/i }));
 
         await waitFor(() => {
-            expect(screen.getByText('Error de red al conectar con el servidor.')).toBeInTheDocument();
+            expect(screen.getByText(/Error de red al conectar con el servidor/)).toBeInTheDocument();
         });
     });
 });
