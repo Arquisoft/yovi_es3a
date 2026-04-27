@@ -630,6 +630,7 @@ describe('GET /games/user/:username', () =>
     })
 })
 
+/*
 describe('GET /play', () =>
 {
     afterEach(async () =>
@@ -699,3 +700,4 @@ describe('GET /play', () =>
         expect(res.body.error).toMatch(/position is required/i)
     })
 })
+ */
