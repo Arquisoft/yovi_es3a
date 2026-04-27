@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { createRequire } from 'module'
+import { create } from 'domain'
 
 const require = createRequire(import.meta.url)
 const GestorDBUSERS = require('../gestorDBUSER.js')
@@ -14,17 +15,28 @@ const cleanupCreatedUsers = async () =>
         return
     }
 
+
     try
     {
         const db = await connectToDatabase()
         const usernames = [...createdUsers]
+
+        const usersDocs = await db.collection('usuarios').find({ nombreUsuario: { $in: usernames } }).toArray()
+        const userIds = usersDocs.map(user => user._id)
+
+        if (userIds.length > 0) {
+            await db.collection('partidas').deleteMany({ jugador: { $in: userIds } })
+        }
+
         await db.collection('usuarios').deleteMany({ nombreUsuario: { $in: usernames } })
         await db.collection('users').deleteMany({ username: { $in: usernames } })
+        
     }
     catch (err)
     {
         // ignore cleanup errors in tests
     }
+
     finally
     {
         createdUsers.clear()
@@ -272,3 +284,186 @@ describe('GestorDBUSERS.getRankingThreeBest', () =>
         }
     })
 })
+
+describe('GestorDBUSERS.globalRanking', () =>
+{
+    let gestor
+
+    beforeEach(() =>
+    {
+        gestor = new GestorDBUSERS()
+    })
+
+    afterEach(async () =>
+    {
+        await cleanupCreatedUsers()
+    })
+
+    /**
+     * Añade 4 usuarios, actualiza sus puntos y consulta el ranking global.
+     * Se recibe el ranking ordenado por puntos.
+     */
+    it('returns ranking ordered by points', async () =>
+    {
+        const usernames = [
+            makeUsername('rank_a'),
+            makeUsername('rank_b'),
+            makeUsername('rank_c'),
+            makeUsername('rank_d'),
+        ]
+
+        usernames.forEach((username) => createdUsers.add(username))
+        for (const username of usernames)
+        {
+            const created = await gestor.addUser(username, username, 'passtest123')
+            expect(created.success).toBe(true)
+        }
+
+        await gestor.updateUserStats(usernames[0], 70)
+        await gestor.updateUserStats(usernames[1], 40)
+        await gestor.updateUserStats(usernames[2], 10)
+        await gestor.updateUserStats(usernames[3], -50)
+
+        const rankingResult = await gestor.globalRanking()
+
+        expect(rankingResult.success).toBe(true)
+        expect(Array.isArray(rankingResult.data)).toBe(true)
+        expect(rankingResult.data.length).toBeGreaterThanOrEqual(4)
+
+        for (let i = 1; i < rankingResult.data.length; i++)
+        {
+            expect(rankingResult.data[i - 1].score)
+                .toBeGreaterThanOrEqual(rankingResult.data[i].score)
+        }
+    })
+})
+
+describe('GestorDBUSERS.addUserMatch', () =>
+    {
+        let gestor
+    
+        beforeEach(() =>
+        {
+            gestor = new GestorDBUSERS()
+        })
+    
+        afterEach(async () =>
+        {
+            await cleanupCreatedUsers()
+        })
+    
+        /**
+         * Añade 1 usuario nuevo, y se le registra una partida con puntos positivos.
+         * Se recibe success y mensaje de partida registrada correctamente.
+         */
+        it('returns registered match with positive points', async () =>
+        {
+            const usernames = [
+                makeUsername('rank_a')
+            ]
+    
+            usernames.forEach((username) => createdUsers.add(username))
+            for (const username of usernames)
+            {
+                const created = await gestor.addUser(username, username, 'passtest123')
+                expect(created.success).toBe(true)
+            }
+    
+            const result = await gestor.addUserMatch(usernames[0], 10)
+    
+            expect(result.success).toBe(true)
+            expect(result.message).toBe("Partida registrada correctamente.")
+        })
+
+        /**
+         * Añade 1 usuario nuevo, y se le registra una partida con puntos negativos.
+         * Se recibe success y mensaje de partida registrada correctamente.
+         */
+        it('returns registered match with negative points', async () =>
+        {
+            const usernames = [
+                makeUsername('rank_a')
+            ]
+    
+            usernames.forEach((username) => createdUsers.add(username))
+            for (const username of usernames)
+            {
+                const created = await gestor.addUser(username, username, 'passtest123')
+                expect(created.success).toBe(true)
+            }
+    
+            const result = await gestor.addUserMatch(usernames[0], -10)
+    
+            expect(result.success).toBe(true)
+            expect(result.message).toBe("Partida registrada correctamente.")
+        })
+
+        /**
+         * Se intenta añadir una partida con el username desconocido.
+         * Se recibe success igual a false y mensaje de error indicando que el usuario no existe.
+         */
+        it('returns not found when user does not exist', async () =>
+        {    
+            const result = await gestor.addUserMatch("user_that_does_not_exist",-10)
+    
+            expect(result.success).toBe(false)
+            expect(result.message).toBe("El usuario 'user_that_does_not_exist' no existe.")
+        })
+    })
+
+describe('GestorDBUSERS.getUserGames', () =>
+    {
+        let gestor
+    
+        beforeEach(() =>
+        {
+            gestor = new GestorDBUSERS()
+        })
+    
+        afterEach(async () =>
+        {
+            await cleanupCreatedUsers()
+        })
+    
+        /**
+         * Añade 1 usuario nuevo, se le registran 4 partidas y se recogen dichas partidas.
+         * Se recibe success, mensaje de partidas registradas correctamente y lista con las partidas.
+         */
+        it('returns list with user matches', async () =>
+        {
+            const usernames = [
+                makeUsername('rank_a')
+            ]
+    
+            usernames.forEach((username) => createdUsers.add(username))
+            for (const username of usernames)
+            {
+                const created = await gestor.addUser(username, username, 'passtest123')
+                expect(created.success).toBe(true)
+            }
+    
+            await gestor.addUserMatch(usernames[0], 10)
+            await gestor.addUserMatch(usernames[0], 10)
+            await gestor.addUserMatch(usernames[0], 10)
+            await gestor.addUserMatch(usernames[0], 10)
+
+            const result = await gestor.getUserGames(usernames[0])
+    
+            expect(result.success).toBe(true)
+            expect(result.message).toBe("Partidas recuperadas correctamente.")
+            expect(Array.isArray(result.games)).toBe(true)
+            expect(result.games.length).toBe(4)
+        })
+
+        /**
+         * busca las partidas de un usuario que no existe.
+         * Se recibe success igual a false y mensaje de error indicando que el usuario no existe.
+         */ 
+        it('returns not found when user does not exist', async () =>
+        {
+            const result = await gestor.getUserGames("user_that_does_not_exist")
+    
+            expect(result.success).toBe(false)
+            expect(result.message).toBe("El usuario 'user_that_does_not_exist' no existe.")
+        })
+    })
