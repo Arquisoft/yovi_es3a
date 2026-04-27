@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './UserStats.css';
+import { useTranslation } from 'react-i18next';
 
 interface StatsProps {
   username: string;
-  onClose?: () => void;
 }
 
 interface UserStats {
@@ -29,11 +29,12 @@ interface Game {
 }
 
 const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ wins, losses, draws }) => {
+  const { t } = useTranslation();
   const total = wins + losses + draws;
   if (total === 0) {
     return (
       <div className="pie-chart-container">
-        <p className="text-muted">Sin partidas jugadas</p>
+        <p className="text-muted"> {t('stats.no_games')} </p>
       </div>
     );
   }
@@ -42,7 +43,7 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
   const lossesPercentage = (losses / total) * 100;
   const drawsPercentage = (draws / total) * 100;
 
-  const circumference = 251; // 2 * π * 40 (radio del círculo)
+  const circumference = 251;
   const winsDasharray = winsPercentage * circumference / 100;
   const lossesDasharray = lossesPercentage * circumference / 100;
   const drawsDasharray = drawsPercentage * circumference / 100;
@@ -56,6 +57,7 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
       <svg viewBox="0 0 100 100" className="pie-chart">
         <circle cx="50" cy="50" r="40" fill="none" stroke="#e0e0e0" strokeWidth="20" />
         {/* Victorias - Verde */}
+        {wins > 0 && (
         <circle
           cx="50"
           cy="50"
@@ -65,44 +67,51 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
           strokeWidth="20"
           strokeDasharray={`${winsDasharray} ${circumference}`}
           strokeDashoffset={winsOffset}
-          strokeLinecap="round"
+          strokeLinecap="butt"
           style={{
             transform: 'rotate(-90deg)',
             transformOrigin: '50% 50%',
           }}
         />
+
+        )}
         {/* Derrotas - Rojo */}
-        <circle
-          cx="50"
-          cy="50"
-          r="40"
-          fill="none"
-          stroke="#ef4444"
-          strokeWidth="20"
-          strokeDasharray={`${lossesDasharray} ${circumference}`}
-          strokeDashoffset={lossesOffset}
-          strokeLinecap="round"
-          style={{
-            transform: 'rotate(-90deg)',
-            transformOrigin: '50% 50%',
-          }}
-        />
+        {losses > 0 && (
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="#ef4444"
+            strokeWidth="20"
+            strokeDasharray={`${lossesDasharray} ${circumference}`}
+            strokeDashoffset={lossesOffset}
+            strokeLinecap="butt"
+            style={{
+              transform: 'rotate(-90deg)',
+              transformOrigin: '50% 50%',
+            }}
+          />
+        )}
+
         {/* Empates - Gris */}
-        <circle
-          cx="50"
-          cy="50"
-          r="40"
-          fill="none"
-          stroke="#9ca3af"
-          strokeWidth="20"
-          strokeDasharray={`${drawsDasharray} ${circumference}`}
-          strokeDashoffset={drawsOffset}
-          strokeLinecap="round"
-          style={{
-            transform: 'rotate(-90deg)',
-            transformOrigin: '50% 50%',
-          }}
-        />
+        {draws > 0 && (
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="#9ca3af"
+            strokeWidth="20"
+            strokeDasharray={`${drawsDasharray} ${circumference}`}
+            strokeDashoffset={drawsOffset}
+            strokeLinecap="butt"
+            style={{
+              transform: 'rotate(-90deg)',
+              transformOrigin: '50% 50%',
+            }}
+          />
+        )}
         <text x="50" y="50" textAnchor="middle" dy="0.3em" className="pie-chart-text">
           {winsPercentage.toFixed(0)}%
         </text>
@@ -110,15 +119,15 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
       <div className="pie-legend mt-3">
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#22c55e' }}></span>
-          <span>Victorias: {wins}</span>
+          <span>{t('stats.wins')}: {wins}</span>
         </div>
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#ef4444' }}></span>
-          <span>Derrotas: {losses}</span>
+          <span>{t('stats.loses')}: {losses}</span>
         </div>
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#9ca3af' }}></span>
-          <span>Empates: {draws}</span>
+          <span>{t('stats.draws')}: {draws}</span>
         </div>
       </div>
     </div>
@@ -133,6 +142,8 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
   const [error, setError] = useState<string | null>(null);
   const [gamesError, setGamesError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'stats' | 'games'>('stats');
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -192,31 +203,31 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             .slice(0, 5);
           setGames(sortedGames);
         } else {
-          setGamesError(data.message || 'No se pudieron cargar las partidas.');
+          setGamesError(data.message || t('stats.load_error') );
         }
       } catch {
-        setGamesError('Error de red al conectar con el servidor.');
+        setGamesError( t('stats.network_error') );
       } finally {
         setGamesLoading(false);
       }
     };
 
     fetchGames();
-  }, [username, activeTab]);
+  }, [username, activeTab, t]);
 
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
       if (Number.isNaN(date.getTime())) {
-        return 'Fecha no disponible';
+        return t('stats.date_unavailable');
       }
       return date.toLocaleDateString('es-ES', {
         year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
       });
     } catch {
-      return 'Fecha no disponible';
+      return t('stats.date_unavailable');
     }
   };
 
@@ -224,22 +235,25 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
     try {
       const date = new Date(dateString);
       if (Number.isNaN(date.getTime())) {
-        return 'Fecha no disponible';
+        return t('stats.date_unavailable');
       }
-      return date.toLocaleDateString('es-ES', {
+      const dateFormatted = date.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
+      });
+      const timeFormatted = date.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit',
       });
+      return `${dateFormatted} ${timeFormatted}`;
     } catch {
-      return 'Fecha no disponible';
+      return t('stats.date_unavailable');
     }
   };
 
   const getGameResult = (game: Game) => {
-    return game.puntos > 0 ? 'Victoria' : 'Derrota';
+    return game.puntos > 0 ? t('stats.win') : t('stats.lose');
   };
 
   const getGameResultClass = (game: Game) => {
@@ -247,13 +261,13 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
   };
 
   const getOpponentType = (tipo: string) => {
-    return tipo === 'bot' ? 'Bot IA' : 'Jugador Local';
+    return tipo === 'bot' ? t('stats.ai_bot') : t('stats.local_player');
   };
 
   return (
     <div className="stats-overlay">
       <h2 className="stats-title dark-purple-fg fw-bold">
-        Estadísticas del Jugador
+        {t('stats.header')}
       </h2>
 
       {/* Tab Navigation */}
@@ -262,13 +276,13 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
           className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
           onClick={() => setActiveTab('stats')}
         >
-          📊 Estadísticas
+          📊 {t('stats.overall')}
         </button>
         <button
           className={`tab-button ${activeTab === 'games' ? 'active' : ''}`}
           onClick={() => setActiveTab('games')}
         >
-          🎮 Historial de Partidas
+          🎮 {t('stats.history')}
         </button>
       </div>
 
@@ -280,9 +294,9 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             {loading && (
               <div className="text-center">
                 <div className="spinner-border text-primary" aria-label="Cargando">
-                  <span className="visually-hidden">Cargando...</span>
+                  <span className="visually-hidden">{t('stats.aria.loading')}...</span>
                 </div>
-                <p className="mt-2">Cargando estadísticas...</p>
+                <p className="mt-2">{t('stats.overall.loading')}...</p>
               </div>
             )}
 
@@ -308,19 +322,19 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
                 <div className="stats-column-left">
                   {/* Usuario */}
                   <div className="stats-section">
-                    <h5 className="stats-section-title">Nombre de Usuario</h5>
+                    <h5 className="stats-section-title"> {t('stats.username')} </h5>
                     <p className="stats-value">{stats.nombreUsuario}</p>
                   </div>
 
                   {/* Fecha de Creación */}
                   <div className="stats-section">
-                    <h5 className="stats-section-title">Fecha de Creación</h5>
+                    <h5 className="stats-section-title"> {t('stats.create_date')} </h5>
                     <p className="stats-value">{formatDate(stats.fechaUltimaEdicion)}</p>
                   </div>
 
                   {/* Puntos de Ranking */}
                   <div className="stats-section stats-highlight">
-                    <h5 className="stats-section-title">Puntos de Ranking</h5>
+                    <h5 className="stats-section-title">  {t('stats.points')} </h5>
                     <p className="stats-value stats-points">{stats.estadisticas.puntosRanking}</p>
                   </div>
                 </div>
@@ -329,7 +343,7 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
                 <div className="stats-column-right">
                   {/* Gráfico de Resultados */}
                   <div className="stats-section" style={{ width: '100%', margin: 0, padding: 0, border: 'none' }}>
-                    <h5 className="stats-section-title">Resultados</h5>
+                    <h5 className="stats-section-title"> {t('stats.results')} </h5>
                     <PieChart wins={stats.estadisticas.victorias} losses={stats.estadisticas.derrotas} draws={stats.estadisticas.empates} />
                   </div>
                 </div>
@@ -344,9 +358,9 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             {gamesLoading && (
               <div className="text-center">
                 <div className="spinner-border text-primary" aria-label="Cargando">
-                  <span className="visually-hidden">Cargando partidas...</span>
+                  <span className="visually-hidden"> {t('aria.loading')} ...</span>
                 </div>
-                <p className="mt-2">Cargando historial de partidas...</p>
+                <p className="mt-2"> {t('stats.history.loading')} ...</p>
               </div>
             )}
 
@@ -369,15 +383,15 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             {!gamesLoading && !gamesError && (
               <div className="games-table-container">
                 {games.length === 0 ? (
-                  <p className="text-center text-muted mt-4">No hay partidas disponibles</p>
+                  <p className="text-center text-muted mt-4"> {t('stats.history.no_games')} </p>
                 ) : (
                   <table className="games-table">
                     <thead>
                       <tr>
-                        <th>Rival</th>
-                        <th>Resultado</th>
-                        <th>Puntos</th>
-                        <th>Fecha y Hora</th>
+                        <th>{t('stats.history.rival')}</th>
+                        <th>{t('stats.history.result')}</th>
+                        <th>{t('stats.history.points')}</th>
+                        <th>{t('stats.history.datetime')}</th>
                       </tr>
                     </thead>
                     <tbody>

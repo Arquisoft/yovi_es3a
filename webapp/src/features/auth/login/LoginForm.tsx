@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { createPortal } from 'react-dom';
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAlert } from '../../../components/ui/useAlert'; 
+import { useTranslation } from 'react-i18next';
 
 interface LoginFormProps
 {
@@ -9,37 +10,21 @@ interface LoginFormProps
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
 {
-  const alertRoot = document.getElementById("alert-portal");
+  const navigate = useNavigate();
+  const { showAlert } = useAlert(); 
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [responseMessage, setResponseMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Dismiss alerts automatically after 5 seconds.
-  useEffect(() =>
-  {
-    if (error || responseMessage)
-    {
-      const timer = setTimeout(() =>
-      {
-        setError('');
-        setResponseMessage('');
-      },
-      5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [error, responseMessage]);
+  const { t } = useTranslation();
 
   const handleSubmit = async (event: React.FormEvent) =>
   {
     event.preventDefault();
-    setResponseMessage(null);
-    setError(null);
-
-    if (!username.trim()) {setError('Please enter a username.'); return;}
-    if (!password.trim()) {setError('Please enter a password.'); return;}
+    
+    if (!username.trim()) {showAlert( t('login.validation.username_required') , 'error'); return;}
+    if (!password.trim()) {showAlert( t('login.validation.password_required') , 'error'); return;}
 
     setLoading(true);
 
@@ -60,15 +45,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
 
       if (res.ok)
       {
-        setResponseMessage(data.message || 'Welcome back, ' + username + '!');
-        setUsername('');
-        setPassword('');
+        showAlert(t('alert.login.success'), 'success');
+
         onSuccess?.(username);
+
+        navigate("/game");
+        
+        return;
       } else {
-        setError(data.error || 'Server error');
+        showAlert(data.error || t('login.response.server_error'), 'error');
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Network error');
+      showAlert(err instanceof Error ? err.message : t('login.response.network_error'), 'error');
     } finally {
       setLoading(false);
     }
@@ -76,40 +64,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
 
   return (
 
-    <>
-      {/* Success/error alerts container */}
-      {(error || responseMessage) && alertRoot && createPortal(
-        <div className="alert-container">
-          {responseMessage &&
-          (
-            <div className="alert alert-success alert-dismissible fade show d-flex align-items-center border-0 bg-success bg-opacity-10 text-success small" role="alert">
-              <i className="bi bi-check-circle-fill me-2"></i>
-              <div>{responseMessage}</div>
-              <button type="button" className="btn-close small" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          )}
-
-          {error &&
-          (
-            <div className="alert alert-danger alert-dismissible fade show d-flex align-items-center border-0 bg-danger bg-opacity-10 text-danger small" role="alert">
-              <i className="bi bi-exclamation-triangle-fill me-2"></i>
-              <div>{error}</div>
-              <button type="button" className="btn-close small" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          )}
-        </div>,
-        alertRoot
-      )}
-
       <form onSubmit={handleSubmit} className="w-100">
         
         <div className="text-center mb-4">
-          <h2 className='dark-purple-fg fw-bold display-5'>Inicio de sesión</h2>
+          <h2 className='dark-purple-fg fw-bold display-5'>
+            <span>{t('login.header')}</span>
+          </h2>
         </div>
         
         <div className="mb-3">
           <label htmlFor="username" className="form-label fw-bold">
-            Nombre de usuario:
+            <span>{t('login.username.label')}</span>
           </label>
           <div className="input-group">
             <span className="input-group-text bg-transparent border-end-0">
@@ -127,7 +92,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
 
         <div className="mb-3">
           <label htmlFor="password" className="form-label fw-bold">
-            Contraseña:
+            <span>{t('login.password.label')}</span>
           </label>
           <div className='input-group'>
             <span className="input-group-text bg-transparent border-end-0">
@@ -144,21 +109,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) =>
         </div>
 
         <button type="submit" className="btn btn-dark purple-bg  w-100 fw-bold py-2" disabled={loading}>
-          {loading ? 'Iniciando sesión...' : 'Entrar'}
+          {loading ? t('login.button.loading') : t('login.button.idle')}
         </button>
 
         <div className="text-center mt-4">
           <p className="d-flex align-items-center justify-content-center">
-            <span className='me-1'> ¿No tienes cuenta? </span>
+            <span className='me-1'> {t('login.register.prompt')} </span>
             <NavLink to="/register" className="dark-purple-fg fw-bold text-decoration-none ms-2">
-              Crear cuenta
+              <span> {t('login.register.link')} </span>
             </NavLink>
           </p>
         </div>
-        
       </form>
-    </>
+      
   );
-};
+}
 
 export default LoginForm;
