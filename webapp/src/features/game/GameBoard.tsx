@@ -24,33 +24,6 @@ type CellState = 0 | Player;        // Estado de las casillas con valor 0 (neutr
 type GameMode = 'pvp' | 'vs-bot';   // Modo de juego, contra bots o contra jugadores.
 type SideType = 'interior' | 'left' | 'right' | 'bottom' | 'corner';    // Tipo de casilla, si es interior o se encuentra en un borde.
 
-const BOTS = [
-    {
-        name: "random_bot",
-        difficulty: "Fácil",
-        description: "Random Movement Bot"
-    },
-    {
-        name: "greedy_easy",
-        difficulty: "Fácil",
-        description: "Starter Greedy Bot"
-    },
-    {
-        name: "greedy_medium",
-        difficulty: "Media",
-        description: "Experienced Greedy Bot!"
-    },
-    {
-        name: "greedy_hard",
-        difficulty: "Difícil",
-        description: "Advanced Greedy Bot!!"
-    },
-    {
-        name: "random_strategy_bot",
-        difficulty: "Variable",
-        description: "Variable Strategy Bot"
-    }];
-
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 /**

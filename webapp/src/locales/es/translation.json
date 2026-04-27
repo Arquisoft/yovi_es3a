@@ -93,7 +93,7 @@
 	"gameboard.red_connect": "Rojo ha conectado los tres lados",
 	"gameboard.blue_connect": "Azul ha conectado los tres lados",
 	"gameboard.play_again": "Jugar de nuevo",
-	"gameboard.game_mode": "Cambiar de modo",
+	"gameboard.change_mode": "Cambiar de modo",
 	"gameboard.menu": "Menú",
 	"gameboard.you": "Tú",
 	"gameboard.bot": "Bot",

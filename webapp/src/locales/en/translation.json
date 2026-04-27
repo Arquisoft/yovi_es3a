@@ -93,7 +93,7 @@
     "gameboard.red_connect": "Red has connected all three sides",
     "gameboard.blue_connect": "Blue has connected all three sides",
     "gameboard.play_again": "Play again",
-    "gameboard.game_mode": "Change mode",
+    "gameboard.change_mode": "Change mode",
     "gameboard.menu": "Menu",
     "gameboard.you": "You",
     "gameboard.bot": "Bot",
