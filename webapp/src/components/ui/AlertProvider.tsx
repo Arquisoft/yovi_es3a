@@ -9,7 +9,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [topOffset, setTopOffset] = useState<number>(0);
 
   const showAlert = useCallback((message: string, type: AlertType = "info", ttl = 5000) => {
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const id = `${Date.now()}-${crypto.randomUUID().slice(0, 7)}`;
     const alert: Alert = { id, message, type, ttl };
     setAlerts((s) => [...s, alert]);
   }, []);
