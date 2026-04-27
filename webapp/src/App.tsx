@@ -68,9 +68,7 @@ function App()
 								<Route path="/stats" element=
 								{
 									loggedInUser
-										? <UserStats username={loggedInUser} onClose={function (): void {
-											throw new Error('Function not implemented.');
-										} } />
+										? <UserStats username={loggedInUser} />
 										: <Navigate to="/stats" />
 								}/>
 
