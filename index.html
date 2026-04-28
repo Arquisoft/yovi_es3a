@@ -470,15 +470,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#section-runtime-view">6. Runtime View</a>
 <ul class="sectlevel2">
 <li><a href="#_runtime_scenario_1_registro_de_usuario">6.1. Runtime Scenario 1: Registro de usuario</a></li>
-<li><a href="#_runtime_scenario_2_solicitud_de_jugada_al_motor_gamey">6.2. Runtime Scenario 2: Solicitud de jugada al motor gamey</a></li>
-<li><a href="#_runtime_scenario_3_inicio_del_sistema_mediante_docker_compose">6.3. Runtime Scenario 3: Inicio del sistema mediante Docker Compose</a></li>
-<li><a href="#_runtime_scenario_4_fallo_del_servicio_users">6.4. Runtime Scenario 4: Fallo del servicio users</a></li>
+<li><a href="#_runtime_scenario_2_autenticación_de_usuario_login">6.2. Runtime Scenario 2: Autenticación de usuario (Login)</a></li>
+<li><a href="#_runtime_scenario_3_solicitud_de_movimiento_al_motor_gamey_mediante_websocket">6.3. Runtime Scenario 3: Solicitud de movimiento al motor gamey mediante WebSocket</a></li>
+<li><a href="#_runtime_scenario_4_inicio_del_sistema_mediante_docker_compose">6.4. Runtime Scenario 4: Inicio del sistema mediante Docker Compose</a></li>
+<li><a href="#_runtime_scenario_5_fallo_del_servicio_users">6.5. Runtime Scenario 5: Fallo del servicio users</a></li>
+<li><a href="#_runtime_scenario_6_fallo_de_gamey_motor_de_juego">6.6. Runtime Scenario 6: Fallo de gamey (Motor de juego)</a></li>
 </ul>
 </li>
 <li><a href="#section-deployment-view">7. Vista de Despliegue</a>
 <ul class="sectlevel2">
 <li><a href="#_infraestructura_nivel_1">7.1. Infraestructura Nivel 1</a></li>
-<li><a href="#_infraestructura_nivel_2">7.2. Infraestructura Nivel 2</a></li>
 </ul>
 </li>
 <li><a href="#section-concepts">8. Conceptos Transversales</a>
@@ -494,6 +495,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_máquina_ubuntu_en_la_nube_de_oracle">9.1. Máquina Ubuntu en la Nube de Oracle</a></li>
 <li><a href="#_base_de_datos_en_mongodb">9.2. Base de Datos en MongoDB</a></li>
+<li><a href="#_arquitectura_de_microservicios_políglota">9.3. Arquitectura de Microservicios Políglota</a></li>
+<li><a href="#_contenedorización_con_docker_y_docker_compose">9.4. Contenedorización con Docker y Docker Compose</a></li>
+<li><a href="#_uso_de_vite_react_typescript_para_el_frontend">9.5. Uso de Vite + React + TypeScript para el Frontend</a></li>
+<li><a href="#_estrategia_de_cicd_con_github_actions_y_sonarcloud">9.6. Estrategia de CI/CD con Github Actions y SonarCloud</a></li>
+<li><a href="#_observabilidad_con_prometheus_y_grafana">9.7. Observabilidad con Prometheus y Grafana</a></li>
 </ul>
 </li>
 <li><a href="#section-quality-scenarios">10. Requisitos de calidad</a>
@@ -996,7 +1002,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <dl>
 <dt class="hdlist1">Motivation</dt>
 <dd>
-<p>El sistema se descompone en tres bloques principales siguiendo una arquitectura de microservicios desacoplados:</p>
+<p>El sistema se descompone en cuatro bloques principales siguiendo una arquitectura de microservicios desacoplados:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -1038,11 +1044,11 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">webapp</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Interfaz de usuario desarrollada en React.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interfaz de usuario desarrollada en React con TypeScript.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">users</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Microservicio Node.js para registro de usuarios.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Microservicio Node.js/Express para gestión de usuarios.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">gamey</p></td>
@@ -1061,16 +1067,16 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="ulist">
 <ul>
 <li>
-<p>HTTP REST entre <code>webapp</code> y <code>users</code></p>
+<p>HTTP REST entre <code>webapp</code> y <code>users</code> (puertos 3000)</p>
 </li>
 <li>
-<p>HTTP REST entre cliente y <code>gamey</code></p>
+<p>WebSocket entre <code>webapp</code> y <code>gamey</code> (puerto 4000)</p>
 </li>
 <li>
 <p>Endpoint <code>/metrics</code> para Prometheus</p>
 </li>
 <li>
-<p>Comunicación interna mediante red Docker</p>
+<p>Comunicación interna mediante red Docker <code>monitor-net</code></p>
 </li>
 </ul>
 </div>
@@ -1083,7 +1089,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <p><em>Purpose/Responsibility</em></p>
 </div>
 <div class="paragraph">
-<p>Gestiona la interacción con el usuario y realiza llamadas HTTP al backend.</p>
+<p>Gestiona la interacción con el usuario, autenticación (login/registro) y realiza llamadas HTTP al backend y WebSocket al motor de juego.</p>
 </div>
 <div class="paragraph">
 <p><em>Interface(s)</em></p>
@@ -1091,10 +1097,13 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="ulist">
 <ul>
 <li>
-<p>POST <code>/createuser</code></p>
+<p>POST <code>/createuser</code> - Crear nuevo usuario (a <code>users</code>)</p>
 </li>
 <li>
-<p>Solicitudes al motor <code>gamey</code></p>
+<p>POST <code>/login</code> - Autenticar usuario (a <code>users</code>)</p>
+</li>
+<li>
+<p>WebSocket <code>/ws</code> (a <code>gamey</code>, puerto 4000)</p>
 </li>
 </ul>
 </div>
@@ -1111,7 +1120,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <p><em>Purpose/Responsibility</em></p>
 </div>
 <div class="paragraph">
-<p>Servicio REST que procesa registros de usuario y expone métricas.</p>
+<p>Servicio REST que gestiona el registro, autenticación y almacenamiento de usuarios. Expone métricas del sistema mediante Prometheus.</p>
 </div>
 <div class="paragraph">
 <p><em>Interface(s)</em></p>
@@ -1119,10 +1128,25 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="ulist">
 <ul>
 <li>
-<p>POST <code>/createuser</code></p>
+<p>POST <code>/createuser</code> - Crear usuario</p>
 </li>
 <li>
-<p>GET <code>/metrics</code></p>
+<p>POST <code>/login</code> - Autenticar usuario</p>
+</li>
+<li>
+<p>GET <code>/</code> - Listar usuarios</p>
+</li>
+<li>
+<p>GET <code>/username/:username</code> - Obtener usuario por nombre</p>
+</li>
+<li>
+<p>GET <code>/:id</code> - Obtener usuario por ID</p>
+</li>
+<li>
+<p>DELETE <code>/:id</code> - Eliminar usuario</p>
+</li>
+<li>
+<p>GET <code>/metrics</code> - Métricas de Prometheus</p>
 </li>
 </ul>
 </div>
@@ -1139,7 +1163,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <p><em>Purpose/Responsibility</em></p>
 </div>
 <div class="paragraph">
-<p>Implementa la lógica del juego y los algoritmos de decisión.</p>
+<p>Implementa la lógica del juego de Y, incluyendo algoritmos de inteligencia artificial para oponentes computacionales. Funciona como servidor HTTP con soporte WebSocket.</p>
 </div>
 <div class="paragraph">
 <p><em>Interface(s)</em></p>
@@ -1147,13 +1171,22 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="ulist">
 <ul>
 <li>
-<p>API HTTP (modo servidor)</p>
+<p>WebSocket <code>/ws</code> - Comunicación bidireccional de juego (puerto 4000)</p>
 </li>
 <li>
-<p>CLI</p>
+<p>GET <code>/status</code> - Health check</p>
 </li>
 <li>
-<p>Biblioteca interna Rust</p>
+<p>GET <code>/bots</code> - Listar bots disponibles</p>
+</li>
+<li>
+<p>GET <code>/metrics</code> - Métricas de Prometheus</p>
+</li>
+<li>
+<p>CLI - Línea de comandos para juego local</p>
+</li>
+<li>
+<p>Biblioteca Rust - API interna reutilizable</p>
 </li>
 </ul>
 </div>
@@ -1170,7 +1203,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <p><em>Purpose/Responsibility</em></p>
 </div>
 <div class="paragraph">
-<p>Recolecta y visualiza métricas del sistema.</p>
+<p>Recolecta y visualiza métricas del sistema mediante Prometheus y Grafana.</p>
 </div>
 <div class="paragraph">
 <p><em>Interface(s)</em></p>
@@ -1178,7 +1211,10 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="ulist">
 <ul>
 <li>
-<p>Scraping <code>/metrics</code></p>
+<p>Scraping de <code>/metrics</code> desde <code>users</code> y <code>gamey</code></p>
+</li>
+<li>
+<p>Dashboards en Grafana (puerto 9091)</p>
 </li>
 </ul>
 </div>
@@ -1203,7 +1239,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <dl>
 <dt class="hdlist1">Motivation</dt>
 <dd>
-<p>Se detalla la estructura interna por ser el punto de entrada del sistema.</p>
+<p>Se detalla la estructura interna por ser el punto de entrada del sistema y responsable de la autenticación de usuarios, gestión de sesión y visualización del tablero de juego.</p>
 </dd>
 </dl>
 </div>
@@ -1221,21 +1257,86 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">main.tsx</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Punto de entrada React.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Punto de entrada de la aplicación React.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">App.tsx</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Componente raíz.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Componente raíz que gestiona el estado de autenticación.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">RegisterForm.tsx</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Gestión del formulario y llamadas HTTP.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Componente de registro de nuevos usuarios con validación.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LoginForm.tsx</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Componente de login de usuarios existentes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GameBoard.tsx</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Componente principal para visualizar y jugar al tablero de juego.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UserStats.tsx</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Componente para mostrar estadísticas del usuario.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_white_box_gamey">5.2.2. White Box gamey</h4>
+<h4 id="_white_box_users">5.2.2. White Box users</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Motivation</dt>
+<dd>
+<p>El servicio <code>users</code> es un microservicio REST independiente que gestiona toda la lógica de autenticación y persistencia de usuarios. Su separación permite escalabilidad independiente y reutilización por otros servicios.</p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Responsibility</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">users-service.js</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Punto de entrada. Configura Express, CORS, middleware de métricas y rutas.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">user-routes.js</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Definición de rutas REST (<code>/</code>, <code>/login</code>, <code>/auth</code>, etc.).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">user-controller.js</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Controladores que procesan las peticiones HTTP.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">user-service.js</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lógica de negocio (validación, autenticación, CRUD).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">user-model.js</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Esquema Mongoose para la base de datos.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">userDB.js</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conexión y operaciones de base de datos.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gestorDBUSER.js</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gestor alternativo para operaciones en base de datos.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_white_box_gamey">5.2.3. White Box gamey</h4>
 <div class="imageblock">
 <div class="content">
 <img src="./images/gamey_internal_structure.png" alt="Gamey Internal Structure">
@@ -1245,7 +1346,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <dl>
 <dt class="hdlist1">Motivation</dt>
 <dd>
-<p>Contiene la lógica más compleja del sistema.</p>
+<p>Contiene la lógica más compleja del sistema, implementada en Rust para máximo rendimiento. Está estructurada en módulos claramente separados: lógica de juego (core), estrategias de IA (bot), servidor HTTP (bot_server), interfaz de usuario (cli) y serialización (notation).</p>
 </dd>
 </dl>
 </div>
@@ -1263,19 +1364,31 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">main.rs</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Selección de modo de ejecución.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Selección de modo de ejecución (CLI, servidor HTTP en puerto 4000, o humano vs IA).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">lib.rs</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Organización modular.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Organización modular y re-exportación de tipos públicos.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">core/game.rs</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Lógica del juego.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">core/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tipos fundamentales del juego: lógica, coordenadas, movimientos, jugadores.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">bot</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Algoritmos de movimiento.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bot/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Estrategias de inteligencia artificial y decisión de movimientos.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bot_server/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Servidor Axum con WebSocket en <code>/ws</code> para comunicación real-time.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cli/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interfaz de línea de comandos para juego interactivo.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notation/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Formato YEN para serialización de estado de juego.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1284,12 +1397,12 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="sect2">
 <h3 id="_level_3">5.3. Level 3</h3>
 <div class="sect3">
-<h4 id="_white_box_coregame_rs">5.3.1. White Box core/game.rs</h4>
+<h4 id="_white_box_core_núcleo_del_juego">5.3.1. White Box core (Núcleo del Juego)</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Motivation</dt>
 <dd>
-<p>Contiene el núcleo algorítmico del sistema.</p>
+<p>El módulo <code>core</code> encapsula toda la lógica fundamental del juego de Y, incluyendo representación del tablero, gestión de estados y detección de victoria.</p>
 </dd>
 </dl>
 </div>
@@ -1306,24 +1419,253 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">GameY</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Estado completo de partida.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">game.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Estructura principal <code>GameY</code> con estado del juego, validación de movimientos y máquina de estados.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">board_map</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Representación del tablero.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">coord.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sistema de coordenadas baricéntricas (x, y, z) para tablero triangular.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">history</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Historial de movimientos.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">movement.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tipos <code>Movement</code> (colocación de pieza) y <code>GameAction</code> (swap, resign).</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Union-Find</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Detección eficiente de conectividad.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">player.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tipos <code>PlayerId</code> y <code>Player</code> para representación de jugadores.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">available_cells</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Movimientos válidos.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">action.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Definición de acciones especiales (<code>Swap</code>, <code>Resign</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">player_set.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Estructura Union-Find privada para detección eficiente de conectividad.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">render_options.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Opciones para visualización del tablero.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_white_box_game_rs_lógica_central">5.3.2. White Box game.rs (Lógica Central)</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Motivation</dt>
+<dd>
+<p>Contiene el núcleo algorítmico del sistema, implementando toda la lógica del juego de Y: validación de movimientos, gestión de estado y detección de victorias mediante Union-Find.</p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Responsibility</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GameY</code> (struct)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Encapsula el estado completo de una partida en progreso.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>board_size</code> (u32)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tamaño del tablero triangular (ej: 7).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>board_map</code> (HashMap)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mapea coordenadas baricéntricas a (SetIdx, PlayerId) - representa celdas ocupadas.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>history</code> (Vec)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Historial de movimientos realizados en orden cronológico.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sets</code> (Vec&lt;PlayerSet&gt;)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vector de estructuras Union-Find, una por jugador, para detectar cadenas conectadas.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>available_cells</code> (Vec&lt;u32&gt;)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lista de índices de celdas disponibles donde se pueden colocar piezas.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GameStatus</code> (enum)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Representa si el juego está <code>Ongoing</code> o <code>Finished</code> (con ganador).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Cell</code> (enum)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Estado de una celda: <code>Empty</code> u <code>Occupied(PlayerId)</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>check_game_over()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Método que retorna true si el juego ha terminado.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>add_move()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Método que valida, aplica y registra un movimiento.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_white_box_coord_rs_sistema_de_coordenadas">5.3.3. White Box coord.rs (Sistema de Coordenadas)</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Motivation</dt>
+<dd>
+<p>Define el sistema de coordenadas baricéntricas utilizado para ubicar celdas en el tablero triangular. Este sistema es fundamental para la representación del estado del juego.</p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Responsibility</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Coordinates</code> (struct)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tupla (x, y, z) con la invariante x + y + z = board_size. Ubicación única de cada celda.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>new()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constructor que valida la invariante baricéntrica.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>to_index()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Convierte coordenadas baricéntricas a índice lineal.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>from_index()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Convierte índice lineal a coordenadas baricéntricas.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_white_box_movement_rs_tipos_de_movimientos">5.3.4. White Box movement.rs (Tipos de Movimientos)</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Motivation</dt>
+<dd>
+<p>Define los tipos de movimientos que pueden realizarse en el juego, permitiendo operaciones más allá de colocación de piezas (ej: intercambios, abandonos).</p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Responsibility</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Movement</code> (enum)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Movimiento del juego: <code>Placement {player, coords}</code> o <code>Action {player, action}</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GameAction</code> (enum)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Acción especial: <code>Swap</code> (intercambiar colores en movimiento inicial) o <code>Resign</code> (abandonar partida).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_white_box_bot_inteligencia_artificial">5.3.5. White Box bot (Inteligencia Artificial)</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Motivation</dt>
+<dd>
+<p>Contiene las estrategias de decisión para jugadores controlados por computadora, permitiendo diferentes niveles de dificultad y estilos de juego.</p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Responsibility</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ybot.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interfaz <code>YBot</code> trait que define el comportamiento de un bot: <code>choose_move()</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">strategies/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directorio con diferentes estrategias implementadas (random, minimax, heurística, etc.).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ybot_registry.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Registro de bots disponibles para creación y administración.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_white_box_bot_server_servidor_websocket">5.3.6. White Box bot_server (Servidor WebSocket)</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Motivation</dt>
+<dd>
+<p>Servidor Axum que expone la lógica del juego mediante WebSocket para comunicación real-time con clientes, permitiendo juego multijugador y contra IA.</p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>Name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Responsibility</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mod.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Configuración del servidor Axum, rutas, y manejadores WebSocket.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">choose.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lógica de selección de movimiento del bot y respuesta al cliente.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">state.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Estado compartido de la aplicación (registro de bots, sesiones).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">error.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tipos de error y respuestas HTTP/WebSocket.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version.rs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gestión de versiones de API.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1355,25 +1697,28 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <p>El usuario accede a la <code>webapp</code> desde el navegador.</p>
 </li>
 <li>
-<p>Introduce su <code>username</code> en el formulario.</p>
+<p>Introduce su <code>username</code> y <code>password</code> en el formulario <code>RegisterForm</code>.</p>
 </li>
 <li>
 <p>El componente <code>RegisterForm</code> ejecuta la función <code>handleSubmit</code>.</p>
 </li>
 <li>
-<p>La <code>webapp</code> envía una petición HTTP POST a <code>users</code> (<code>/createuser</code>).</p>
+<p>La <code>webapp</code> envía una petición HTTP POST a <code>users</code> (ruta <code>/createuser</code>).</p>
 </li>
 <li>
-<p>El servicio <code>users</code> procesa la petición y simula 1 segundo de latencia.</p>
+<p>El servicio <code>users</code> procesa la petición, cifra la contraseña y almacena el usuario en MongoDB.</p>
 </li>
 <li>
-<p><code>users</code> devuelve un mensaje JSON de bienvenida.</p>
+<p><code>users</code> devuelve un mensaje JSON con el resultado (status 201 si es exitoso).</p>
 </li>
 <li>
-<p>La <code>webapp</code> actualiza su estado interno.</p>
+<p>La <code>webapp</code> actualiza su estado interno y almacena el usuario en <code>localStorage</code>.</p>
 </li>
 <li>
-<p>El mensaje se muestra en la interfaz.</p>
+<p>El mensaje de éxito se muestra en la interfaz.</p>
+</li>
+<li>
+<p>El usuario es redirigido automáticamente a la pantalla principal.</p>
 </li>
 </ol>
 </div>
@@ -1394,10 +1739,19 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <p>Comunicación síncrona mediante HTTP REST.</p>
 </li>
 <li>
-<p>Separación clara entre frontend y backend.</p>
+<p>Separación clara entre frontend (React/TypeScript) y backend (Node.js/Express).</p>
 </li>
 <li>
-<p>Gestión asíncrona del estado en React.</p>
+<p>Gestión asíncrona del estado en React mediante hooks (<code>useState</code>, <code>fetch</code>).</p>
+</li>
+<li>
+<p>Validación en cliente antes de enviar la petición.</p>
+</li>
+<li>
+<p>Persistencia de autenticación mediante <code>localStorage</code>.</p>
+</li>
+<li>
+<p>Cifrado de contraseñas con bcryptjs antes de almacenarlas.</p>
 </li>
 <li>
 <p>Exposición de métricas Prometheus por parte de <code>users</code>.</p>
@@ -1410,28 +1764,34 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_runtime_scenario_2_solicitud_de_jugada_al_motor_gamey">6.2. Runtime Scenario 2: Solicitud de jugada al motor gamey</h3>
+<h3 id="_runtime_scenario_2_autenticación_de_usuario_login">6.2. Runtime Scenario 2: Autenticación de usuario (Login)</h3>
 <div class="sect3">
 <h4 id="_descripción_del_escenario_2">6.2.1. Descripción del escenario</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>El cliente (webapp o cliente de prueba) solicita una jugada al motor <code>gamey</code>.</p>
+<p>El usuario accede a la <code>webapp</code> y ve el formulario de <code>LoginForm</code>.</p>
 </li>
 <li>
-<p><code>gamey</code> recibe la petición HTTP.</p>
+<p>Introduce su <code>username</code> y <code>password</code>.</p>
 </li>
 <li>
-<p>Se ejecuta la lógica del bot dentro de <code>core/game.rs</code>.</p>
+<p>El componente <code>LoginForm</code> ejecuta la función <code>handleSubmit</code>.</p>
 </li>
 <li>
-<p>El motor calcula una jugada válida.</p>
+<p>La <code>webapp</code> envía una petición HTTP POST a <code>users</code> (ruta <code>/login</code>).</p>
 </li>
 <li>
-<p>Se devuelve la jugada en formato JSON.</p>
+<p>El servicio <code>users</code> busca el usuario en MongoDB y verifica la contraseña.</p>
 </li>
 <li>
-<p>El cliente integra la jugada en la interfaz o en la simulación.</p>
+<p>Si la autenticación es exitosa, <code>users</code> devuelve status 200 con los datos del usuario.</p>
+</li>
+<li>
+<p>La <code>webapp</code> almacena el username en <code>localStorage</code> y actualiza el estado de autenticación.</p>
+</li>
+<li>
+<p>El usuario accede al tablero de juego y componentes autenticados.</p>
 </li>
 </ol>
 </div>
@@ -1440,7 +1800,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <h4 id="_diagrama_de_secuencia_2">6.2.2. Diagrama de secuencia</h4>
 <div class="imageblock">
 <div class="content">
-<img src="./images/sequence_gamey.png" alt="Sequence Diagram - Game Move Request">
+<img src="./images/sequence_login.png" alt="Sequence Diagram - User Login">
 </div>
 </div>
 </div>
@@ -1449,47 +1809,62 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="ulist">
 <ul>
 <li>
-<p>Separación entre capa HTTP y lógica de dominio.</p>
+<p>Validación de credenciales con bcryptjs.</p>
 </li>
 <li>
-<p>Uso de estructuras eficientes (Union-Find).</p>
+<p>Persistencia de sesión mediante <code>localStorage</code>.</p>
 </li>
 <li>
-<p>Motor desacoplado y reutilizable (CLI o servidor).</p>
+<p>Manejo de errores de autenticación (status 401).</p>
 </li>
 <li>
-<p>Servicio independiente del frontend.</p>
+<p>Separación entre lógica de presentación y de negocio.</p>
+</li>
+<li>
+<p>No se utilizan sesiones del servidor, sino validación stateless.</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_runtime_scenario_3_inicio_del_sistema_mediante_docker_compose">6.3. Runtime Scenario 3: Inicio del sistema mediante Docker Compose</h3>
+<h3 id="_runtime_scenario_3_solicitud_de_movimiento_al_motor_gamey_mediante_websocket">6.3. Runtime Scenario 3: Solicitud de movimiento al motor gamey mediante WebSocket</h3>
 <div class="sect3">
 <h4 id="_descripción_del_escenario_3">6.3.1. Descripción del escenario</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>El operador ejecuta <code>docker-compose up --build</code>.</p>
+<p>El usuario autenticado accede al componente <code>GameBoard</code>.</p>
 </li>
 <li>
-<p>Docker construye las imágenes de <code>webapp</code>, <code>users</code> y <code>gamey</code>.</p>
+<p>El cliente establece una conexión WebSocket a <code>gamey</code> (puerto 4000, ruta <code>/ws</code>).</p>
 </li>
 <li>
-<p>Se levantan los contenedores correspondientes.</p>
+<p>El usuario coloca una pieza en el tablero mediante interacción con la UI.</p>
 </li>
 <li>
-<p>Se crea la red Docker interna.</p>
+<p>El cliente envía el movimiento en formato JSON a través del WebSocket.</p>
 </li>
 <li>
-<p><code>users</code> comienza a exponer métricas en <code>/metrics</code>.</p>
+<p><code>gamey</code> recibe el movimiento y valida su legalidad.</p>
 </li>
 <li>
-<p>Prometheus comienza a recolectarlas.</p>
+<p>Se ejecuta la lógica de actualización del tablero en <code>core/game.rs</code>.</p>
 </li>
 <li>
-<p>Grafana permite visualizar las métricas.</p>
+<p>El servidor <code>gamey</code> calcula si hay un ganador (mediante Union-Find).</p>
+</li>
+<li>
+<p>Se devuelve el estado del juego actualizado (tablero, estado, turno).</p>
+</li>
+<li>
+<p>Si el modo es PvC (jugador vs computadora), el bot calcula automáticamente su movimiento.</p>
+</li>
+<li>
+<p>El servidor envía el movimiento del bot al cliente.</p>
+</li>
+<li>
+<p>La <code>webapp</code> actualiza la visualización del tablero en tiempo real.</p>
 </li>
 </ol>
 </div>
@@ -1498,7 +1873,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <h4 id="_diagrama_de_secuencia_3">6.3.2. Diagrama de secuencia</h4>
 <div class="imageblock">
 <div class="content">
-<img src="./images/sequence_startup.png" alt="Sequence Diagram - System Startup">
+<img src="./images/sequence_gamey.png" alt="Sequence Diagram - Game Move Request">
 </div>
 </div>
 </div>
@@ -1507,44 +1882,75 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="ulist">
 <ul>
 <li>
-<p>Infraestructura reproducible y automatizada.</p>
+<p>Comunicación bidireccional en tiempo real mediante WebSocket.</p>
 </li>
 <li>
-<p>Aislamiento mediante contenedores.</p>
+<p>Separación clara entre capa de presentación (React) y lógica de dominio (Rust).</p>
 </li>
 <li>
-<p>Monitorización integrada.</p>
+<p>Motor desacoplado: funciona como CLI, servidor HTTP o biblioteca.</p>
 </li>
 <li>
-<p>Comunicación interna segura mediante red Docker.</p>
+<p>Uso de estructuras eficientes (Union-Find para detección de conectividad).</p>
+</li>
+<li>
+<p>Validación de movimientos en el servidor.</p>
+</li>
+<li>
+<p>Formato de serialización: YEN (notación de juego).</p>
+</li>
+<li>
+<p>Escalabilidad: múltiples clientes simultáneos pueden conectarse.</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_runtime_scenario_4_fallo_del_servicio_users">6.4. Runtime Scenario 4: Fallo del servicio users</h3>
+<h3 id="_runtime_scenario_4_inicio_del_sistema_mediante_docker_compose">6.4. Runtime Scenario 4: Inicio del sistema mediante Docker Compose</h3>
 <div class="sect3">
 <h4 id="_descripción_del_escenario_4">6.4.1. Descripción del escenario</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>El usuario intenta registrarse.</p>
+<p>El operador ejecuta <code>docker-compose up --build</code> en la raíz del proyecto.</p>
 </li>
 <li>
-<p>La <code>webapp</code> envía la petición a <code>users</code>.</p>
+<p>Docker construye las imágenes de <code>webapp</code>, <code>users</code> y <code>gamey</code>.</p>
 </li>
 <li>
-<p>El servicio <code>users</code> no está disponible (contenedor caído).</p>
+<p>Se levantan los contenedores correspondientes en orden de dependencias:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>users</code> comienza primero (puerto 3000 interno).</p>
 </li>
 <li>
-<p>La petición falla por timeout o error de red.</p>
+<p><code>webapp</code> comienza después, dependiendo de <code>users</code> (puerto 80 interno).</p>
 </li>
 <li>
-<p>La <code>webapp</code> muestra un mensaje de error.</p>
+<p><code>gamey</code> inicia en paralelo (puerto 4000 interno).</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>Prometheus deja de recibir métricas del servicio.</p>
+<p>Se crea la red Docker <code>monitor-net</code> para comunicación interna.</p>
+</li>
+<li>
+<p><code>users</code> comienza a exponer métricas en <code>/metrics</code> mediante <code>express-prom-bundle</code>.</p>
+</li>
+<li>
+<p><code>prometheus</code> comienza a recolectarlas (puerto 9090).</p>
+</li>
+<li>
+<p><code>grafana</code> permite visualizar las métricas (puerto 9091, redirecciona a 3000 internamente).</p>
+</li>
+<li>
+<p><code>webapp</code> está accesible desde el navegador en <code>localhost</code> (puerto 80).</p>
+</li>
+<li>
+<p><code>gamey</code> está accesible desde <code>webapp</code> en <code>host.docker.internal:4000</code> o mediante nombre de servicio.</p>
 </li>
 </ol>
 </div>
@@ -1553,7 +1959,7 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <h4 id="_diagrama_de_secuencia_4">6.4.2. Diagrama de secuencia</h4>
 <div class="imageblock">
 <div class="content">
-<img src="./images/sequence_failure.png" alt="Sequence Diagram - Users Service Failure">
+<img src="./images/sequence_startup.png" alt="Sequence Diagram - System Startup">
 </div>
 </div>
 </div>
@@ -1562,16 +1968,165 @@ conventions (e.g. programming or versioning guidelines, documentation or naming 
 <div class="ulist">
 <ul>
 <li>
-<p>Manejo explícito de errores en el frontend.</p>
+<p>Infraestructura reproducible e inmutable mediante contenedores.</p>
+</li>
+<li>
+<p>Aislamiento de servicios mediante red Docker interna.</p>
+</li>
+<li>
+<p>Monitorización integrada con stack Prometheus + Grafana.</p>
+</li>
+<li>
+<p>Comunicación segura entre servicios mediante red Docker.</p>
+</li>
+<li>
+<p>Gestión de dependencias entre servicios (<code>depends_on</code>).</p>
+</li>
+<li>
+<p>Puertos mapeados para acceso desde el host.</p>
+</li>
+<li>
+<p>Variables de entorno para configuración dinámica (imagen tags, MONGODB_URI, etc.).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_runtime_scenario_5_fallo_del_servicio_users">6.5. Runtime Scenario 5: Fallo del servicio users</h3>
+<div class="sect3">
+<h4 id="_descripción_del_escenario_5">6.5.1. Descripción del escenario</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>El usuario intenta registrarse o hacer login.</p>
+</li>
+<li>
+<p>La <code>webapp</code> envía la petición HTTP a <code>users</code> (puerto 3000).</p>
+</li>
+<li>
+<p>El servicio <code>users</code> no está disponible (contenedor caído o red inaccesible).</p>
+</li>
+<li>
+<p>La petición falla por timeout o error de conexión (ERR_CONNECTION_REFUSED).</p>
+</li>
+<li>
+<p>El componente React captura la excepción en el bloque <code>catch</code> del <code>fetch</code>.</p>
+</li>
+<li>
+<p>La <code>webapp</code> muestra un mensaje de error al usuario.</p>
+</li>
+<li>
+<p>Prometheus detiene la recolección de métricas desde <code>users</code> (error en scrape).</p>
+</li>
+<li>
+<p>Grafana muestra un estado de advertencia (series sin datos).</p>
+</li>
+<li>
+<p>El usuario no puede acceder a funcionalidades que requieren autenticación.</p>
+</li>
+<li>
+<p>Las funcionalidades locales de <code>gamey</code> (si están disponibles) siguen siendo accesibles.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_diagrama_de_secuencia_5">6.5.2. Diagrama de secuencia</h4>
+<div class="imageblock">
+<div class="content">
+<img src="./images/sequence_failure.png" alt="Sequence Diagram - Users Service Failure">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_aspectos_arquitectónicamente_relevantes_5">6.5.3. Aspectos arquitectónicamente relevantes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Manejo explícito de errores en React mediante bloques try-catch.</p>
+</li>
+<li>
+<p>Timeouts configurables en cliente para fallos de red.</p>
 </li>
 <li>
 <p>Arquitectura desacoplada que evita fallos en cascada.</p>
 </li>
 <li>
-<p>Detección de fallos mediante monitorización.</p>
+<p>Detección de fallos mediante monitorización (Prometheus/Grafana).</p>
 </li>
 <li>
-<p>El sistema sigue parcialmente operativo.</p>
+<p>Degradación elegante: el sistema sigue parcialmente operativo.</p>
+</li>
+<li>
+<p>Resiliencia: el usuario puede reintentar la operación.</p>
+</li>
+<li>
+<p>Logs de error para debugging posterior.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_runtime_scenario_6_fallo_de_gamey_motor_de_juego">6.6. Runtime Scenario 6: Fallo de gamey (Motor de juego)</h3>
+<div class="sect3">
+<h4 id="_descripción_del_escenario_6">6.6.1. Descripción del escenario</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>El usuario autenticado intenta jugar una partida.</p>
+</li>
+<li>
+<p>La <code>webapp</code> intenta conectarse a <code>gamey</code> mediante WebSocket (puerto 4000).</p>
+</li>
+<li>
+<p>El servidor <code>gamey</code> no está disponible (contenedor caído).</p>
+</li>
+<li>
+<p>La conexión WebSocket falla con error de conexión.</p>
+</li>
+<li>
+<p>La <code>webapp</code> detecta el error en el manejador <code>onError</code> del WebSocket.</p>
+</li>
+<li>
+<p>Se muestra un mensaje de error al usuario.</p>
+</li>
+<li>
+<p>Las funcionalidades de registro y login siguen siendo accesibles (independientes de <code>gamey</code>).</p>
+</li>
+<li>
+<p>El usuario no puede jugar hasta que <code>gamey</code> se recupere.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_diagrama_de_secuencia_6">6.6.2. Diagrama de secuencia</h4>
+<div class="imageblock">
+<div class="content">
+<img src="./images/sequence_gamey_failure.png" alt="Sequence Diagram - GameY Service Failure">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_aspectos_arquitectónicamente_relevantes_6">6.6.3. Aspectos arquitectónicamente relevantes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Aislamiento de fallos: el fallo de <code>gamey</code> no afecta a <code>users</code>.</p>
+</li>
+<li>
+<p>Manejo de reconexión automática mediante WebSocket.</p>
+</li>
+<li>
+<p>Mensajes de error informativos al usuario.</p>
+</li>
+<li>
+<p>Monitorización independiente de cada servicio.</p>
+</li>
+<li>
+<p>Recuperación automática cuando el servicio se reinicia.</p>
 </li>
 </ul>
 </div>
@@ -1710,30 +2265,71 @@ Esta infraestructura subyacente puede e influirá en un sistema y/o en algunos c
 </dd>
 <dt class="hdlist1">Mapeo de Bloques de Construcción a Infraestructura</dt>
 <dd>
-<p><em>&lt;En este punto de desarrollo del proyecto, este apartado no se puede desarrollar&gt;</em></p>
+<p>En el estado actual del proyecto, el despliegue de la aplicación se realiza mediante la infraestructura proporcionada por GitHub, concretamente a través de GitHub Actions y el sistema de Releases.</p>
+</dd>
+<dt class="hdlist1">Proceso de despliegue</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Se accede al repositorio del proyecto en Github, en la sección de código.</p>
+</li>
+<li>
+<p>Desde la interfaz del repositorio, se navega a la sección de <strong>Releases</strong>.</p>
+</li>
+<li>
+<p>Se crea una nueva release, lo que implica:&#8201;&#8212;&#8201;Crear una nueva etiqueta <em>(tag)</em> asociada a una versión del proyecto.&#8201;&#8212;&#8201;Definir un título, y, opcionalmente, una descripción de los cambios.&#8201;&#8212;&#8201;Seleccionar la rama sobre la que se desea realizar el despliegue.</p>
+</li>
+<li>
+<p>En caso de tratarse de una versión no definitiva, se marca como pre-release, indicando que es una versión de pruebas.</p>
+</li>
+<li>
+<p>Una vez creada la release, se inicia automáticamente el proceso de despliegue medainte workflows definidos en Github Actions.</p>
+</li>
+<li>
+<p>El sistema ejecuta las tareas necesarias (compilación, tests, empaquetado y despliegue).</p>
+</li>
+<li>
+<p>Si el proceso finaliza correctamente, la aplicación queda accesible a través del enlace generado, disponible en la sección de <strong>Actions</strong> o asociado a la propia release.</p>
+</li>
+</ul>
+</div>
 </dd>
 </dl>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_infraestructura_nivel_2">7.2. Infraestructura Nivel 2</h3>
-<div class="sidebarblock arc42help">
-<div class="content">
 <div class="paragraph">
-<p>Aquí puedes incluir la estructura interna de (algunos) elementos de infraestructura del nivel 1.</p>
+<p>Este enfoque permite automatizar completamente el despliegue, garantizando consistencia entre versiones y facilitando la integración continua y entrega continua.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Mapeo conceptual</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Repositorio Github</strong> &#8594; Código fuentre de la aplicación.</p>
+</li>
+<li>
+<p><strong>Github Actions</strong> &#8594; Ejecución de pipelines de despliegue.</p>
+</li>
+<li>
+<p><strong>Releases</strong> &#8594; Versionado y activación del proceso de despliegue.</p>
+</li>
+<li>
+<p><strong>Infraestructura en la nuve</strong> <em>(Oracle)</em> &#8594; Entorno final donde se ejecuta la aplicación.</p>
+</li>
+<li>
+<p><strong>MongoDB</strong> &#8594; Sistema de almacenamiento de datos persistentes.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
 </div>
 <div class="paragraph">
-<p>Por favor copia la estructura del nivel 1 para cada elemento seleccionado.</p>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_elemento_de_infraestructura_1">7.2.1. <em>&lt;Elemento de Infraestructura 1&gt;</em></h4>
-<div class="paragraph">
-<p><em>&lt;En este punto de desarrollo del proyecto, este apartado no se puede desarrollar&gt;</em></p>
+<p>Este modelo permite desacoplar el desarrollo de despliegue, facilitando la evolución del sistema y asegurando trazabilidad entre versiones desplegadas.</p>
 </div>
 <div style="page-break-after: always;"></div>
-</div>
 </div>
 </div>
 </div>
@@ -1854,34 +2450,34 @@ Por lo tanto, son una contribución importante para lograr las cualidades intern
 <li>
 <p><strong>JuegosY</strong>: Juego principal, con modo, jugadores y un resultado que se dará una vez su estado sea finalizado.</p>
 </li>
+<li>
+<p><strong>Partidas</strong>: Representa las partidas jugadas para facilitar el estado de la aplicación.</p>
+</li>
 </ul>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_conceptos_de_experiencia_de_usuario">8.2. Conceptos de Experiencia de Usuario</h3>
 <div class="paragraph">
-<p>La experiencia del usuario será una de los pilares de toda la aplicación a desarrollar. Se ofrecerá en versión Web la posibilidad de jugar a diferentes juegos basados en el juego Y.</p>
+<p>La experiencia de usuario se centra en ofrecer una interfaz web clara, accesible y atractiva que permita a los jugadores interactuar de forma fluida con el "Juego Y". El sistema prioriza la facilidad de uso mediante un diseño intuitivo, asegurando que tanto el registro como la participación en las distintas modalidades de juego sean procesos sencillos y directos.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_conceptos_de_seguridad">8.3. Conceptos de Seguridad</h3>
 <div class="paragraph">
-<p>La seguridad de la aplicación es un tema que aún no se ha indagado dentro del desarrollo de la aplicación. Muy seguramente, haya un sistema de inicio de sesión en el que gire todo este apartado.</p>
+<p>La seguridad de la aplicación se basa actualmente en el aislamiento de componentes mediante una arquitectura de microservicios y el uso de variables de entorno para proteger credenciales sensibles. El proyecto integra además análisis de calidad continuo en su flujo de desarrollo y planea implementar un sistema centralizado de autenticación para gestionar el acceso de forma segura.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_conceptos_de_arquitectura">8.4. Conceptos de Arquitectura</h3>
 <div class="paragraph">
-<p>Los conceptos de arquitectura serán más indigados en el siguiente apartado. De forma superficial, la arquitectura está basada en microservicios unidos para comprender toda la aplicación.</p>
+<p>La arquitectura de la aplicación se basa en un sistema de microservicios independientes que desacoplan la interfaz web, el servicio de gestión de usuarios y el motor de lógica de juego desarrollado en Rust. Estos componentes interactúan mediante el intercambio de mensajes JSON y están contenedorizados con Docker para garantizar un despliegue consistente, escalable y reproducible en la nube.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_conceptos_de_desarrollo">8.5. Conceptos de Desarrollo</h3>
 <div class="paragraph">
-<p>La aplicación se basará en su testing, integración y deployment. En este apartado no se puede indagar mucho ya que actualmente la aplicación únicamente de ha desplegado.</p>
-</div>
-<div class="paragraph">
-<p>El desplegue se realizará con Docker, donde se empaquetará la aplicación en un contenedor estandarizado donde se facilita un despliegue rápido, consistente y reproducible en cualquier entorno.</p>
+<p>El desarrollo de la aplicación se fundamenta en un ciclo de integración y despliegue continuos (CI/CD) que prioriza el testing automatizado y el análisis de calidad con SonarCloud. Todo el proceso se apoya en la contenedorización con Docker y flujos de trabajo en GitHub Actions para asegurar entregas rápidas, consistentes y reproducibles en cualquier entorno.</p>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -1929,10 +2525,6 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 <p>Consulta <a href="https://docs.arc42.org/section-9/">Architecture Decisions</a> en la documentación de arc42. Allí encontrarás enlaces y ejemplos sobre los ADR. :contentReference[oaicite:5]{index=5}</p>
 </div>
 </div>
-</div>
-<div class="paragraph">
-<p><em>En este apartado se hablará de la motivación y las consecuencias de cada decisión arquitectura que se ha tomado en el desarrollo del proyecto. Por tanto, no se contemplarán las decisiones tomadas por el equipo docente de la asignatura.</em>
-mongodb</p>
 </div>
 <div class="sect2">
 <h3 id="_máquina_ubuntu_en_la_nube_de_oracle">9.1. Máquina Ubuntu en la Nube de Oracle</h3>
@@ -1997,6 +2589,71 @@ mongodb</p>
 </li>
 </ul>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_arquitectura_de_microservicios_políglota">9.3. Arquitectura de Microservicios Políglota</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Motivación</strong>: Separar la lógica de negocio y gestión de usuarios <em>(Node.js)</em> del motor de juego de alto rendimiento <em>(Rust)</em>. <strong>Rust</strong> ofrece seguridad de memoria y velocidad para las reglas del juego, mientras que Node.js permite un desarrollo rápido del servicio de usuarios.</p>
+</li>
+<li>
+<p><strong>Consecuencias</strong>: Aumenta la complejidad del despliegue y la comunicación entre servicios, pero permite escalar cada componente de forma independiente.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_contenedorización_con_docker_y_docker_compose">9.4. Contenedorización con Docker y Docker Compose</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Motivación</strong>: Garantizar que la aplicación funcione exactamente igual en desarrollo, testing y producción <em>(Oracle Cloud)</em>. Facilita el despliegue de toda la infraestructura <em>(servicios, base de datos, monitoreo)</em> con un solo comando.</p>
+</li>
+<li>
+<p><strong>Consecuencias</strong>: requiere gestionar imágenes y volúmenes, además de una ligera sobrecarga de recursos en comparación con ejecuciones nativas.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_uso_de_vite_react_typescript_para_el_frontend">9.5. Uso de Vite + React + TypeScript para el Frontend</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Motivación</strong>: Vite ofrece tiempos de compilación extremadamente rápidos. TypeScript proporciona seguridad de tipos, reduciendo errores en tiempo de ejecución y mejorando la mantenibilidad del código a largo plazoñ</p>
+</li>
+<li>
+<p><strong>Consecuencias</strong>: Curva de aprendizaje inicial para TypeScript y necesidad de configurar tipos para librerías externas.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_estrategia_de_cicd_con_github_actions_y_sonarcloud">9.6. Estrategia de CI/CD con Github Actions y SonarCloud</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Motivación</strong>: Automatizar las pruebas y el despliegue para detectar errores pronto. SOnarCloud asegura que el código mantenga estándares de calidad y seguridad antes de ser integrado.</p>
+</li>
+<li>
+<p><strong>Consecuencais</strong>: El flujo de desarrollo depende de la disponibilidad de estos servicios externos y los tiempos de ejecución de los <strong>workflows</strong>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_observabilidad_con_prometheus_y_grafana">9.7. Observabilidad con Prometheus y Grafana</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Motivación</strong>: Tener visibilidad en tiempo real sobre el estasdo de los servicios y el uso de recursos. Permite identificar cuellos de botella o fallos en producción de manera proactiva.</p>
+</li>
+<li>
+<p><strong>Consecuencias</strong>: añade componentes adicionales a la arquitectura que deben ser configurados y mantenidos <em>(exportadores de métricas, almacenamientos de datos)</em>.</p>
+</li>
+</ul>
+</div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -2004,28 +2661,6 @@ mongodb</p>
 <div class="sect1">
 <h2 id="section-quality-scenarios">10. Requisitos de calidad</h2>
 <div class="sectionbody">
-<div class="sidebarblock arc42help">
-<div class="content">
-<div class="paragraph">
-<div class="title">Content</div>
-<p>This section contains all quality requirements as quality tree with scenarios. The most important ones have already been described in section 1.2. (quality goals)</p>
-</div>
-<div class="paragraph">
-<p>Here you can also capture quality requirements with lesser priority,
-which will not create high risks when they are not fully achieved.</p>
-</div>
-<div class="paragraph">
-<div class="title">Motivation</div>
-<p>Since quality requirements will have a lot of influence on architectural
-decisions you should know for every stakeholder what is really important to them,
-concrete and measurable.</p>
-</div>
-<div class="paragraph">
-<div class="title">Further Information</div>
-<p>See <a href="https://docs.arc42.org/section-10/">Quality Requirements</a> in the arc42 documentation.</p>
-</div>
-</div>
-</div>
 <div class="sect2">
 <h3 id="_árbol_de_calidad">10.1. Árbol de calidad</h3>
 <div class="imageblock">
@@ -2033,106 +2668,75 @@ concrete and measurable.</p>
 <img src="./images/10_1_arbol_calidad.png" alt="][&quot;Árbol de calidad&quot;">
 </div>
 </div>
-<div class="sidebarblock arc42help">
-<div class="content">
-<div class="paragraph">
-<div class="title">Content</div>
-<p>The quality tree (as defined in ATAM – Architecture Tradeoff Analysis Method) with quality/evaluation scenarios as leafs.</p>
-</div>
-<div class="paragraph">
-<div class="title">Motivation</div>
-<p>The tree structure with priorities provides an overview for a sometimes large number of quality requirements.</p>
-</div>
-<div class="paragraph">
-<div class="title">Form</div>
-<p>The quality tree is a high-level overview of the quality goals and requirements:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>tree-like refinement of the term "quality". Use "quality" or "usefulness" as a root</p>
-</li>
-<li>
-<p>a mind map with quality categories as main branches</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>In any case the tree should include links to the scenarios of the following section.</p>
-</div>
-</div>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_escenarios_de_calidad">10.2. Escenarios de calidad</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 57.1429%;">
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Escenario</th>
-<th class="tableblock halign-left valign-top">Descripción</th>
+<th class="tableblock halign-left valign-top">ID</th>
+<th class="tableblock halign-left valign-top">Atributo (Rama)</th>
+<th class="tableblock halign-left valign-top">Escenario / Descripción (Hoja)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Escenario 1 - Disponibilidad</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema debe  estar disponible el 95% del tiempo. El sistema permite a los usuarios acceder a sus funcionalidades en cualquier momento, excepto durante las ventanas de mantenimiento programadas.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-F1</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Funcionalidad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>El juego funciona correctamente:</strong> El sistema permite a los usuarios desarrollar una partida completa, aplicando todas las reglas del juego de principio a fin sin bloqueos ni errores lógicos en el motor.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Escenario 2 - Rendimiento</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema debe responder a las solicitudes de los usuarios en menos de 2 segundos. Esto asegura una experiencia de usuario fluida y eficiente, incluso durante períodos de alta demanda.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-F2</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Funcionalidad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Cumplimiento de la notación YEN:</strong> Cuando el estado de la partida cambia, el motor (Rust) lo serializa y el backend lo transmite garantizando el cumplimiento estricto de la notación YEN, rechazando cualquier estado malformado.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Escenario 3 - Seguridad</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema debe proteger los datos de los usuarios. Esto asegura que la información personal y sensible de los usuarios esté protegida contra accesos no autorizados, garantizando la confidencialidad y la integridad de los datos.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-R1</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rendimiento</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Tiempo de respuesta de jugada:</strong> La comunicación entre el frontend, el API de usuarios y el motor del juego procesa y devuelve la jugada al usuario en menos de 1 segundo bajo condiciones normales de red.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Escenario 4 - Escalabilidad básica</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema debe ser capaz de manejar un aumento del 50% en el número de usuarios sin degradar el rendimiento. Esto asegura que el sistema pueda crecer y adaptarse a un número creciente de usuarios sin comprometer la calidad del servicio.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-R2</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rendimiento</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Eficiencia de concurrencia:</strong> El uso del motor en Rust permite procesar de forma simultánea múltiples solicitudes de jugadas de distintas partidas activas sin que el tiempo de respuesta se degrade de forma notable.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-S1</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Seguridad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Validación de entradas del API:</strong> El backend realiza una validación estricta de todos los datos recibidos. Si un cliente envía datos malformados o jugadas ilegales, la solicitud es rechazada de forma segura (ej. HTTP 400).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-S2</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Seguridad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Aislamiento y Proxy inverso:</strong> La arquitectura garantiza que los puertos internos de la aplicación y la base de datos no sean accesibles directamente desde el exterior, utilizando Nginx como proxy inverso para enrutar el tráfico de forma segura.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-D1</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Disponibilidad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Accesibilidad web pública:</strong> La aplicación web es accesible desde internet mediante una IP/URL pública, permitiendo a los usuarios conectarse y jugar sin interrupciones.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-D2</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Disponibilidad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Tolerancia a fallos y reinicio rápido:</strong> Gracias al despliegue contenedorizado (<code>docker-compose</code>), si uno de los servicios (ej. el backend o la base de datos) sufre una caída inesperada, el sistema es capaz de reiniciarlo rápidamente para minimizar el tiempo de inactividad.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-M1</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mantenibilidad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Separación clara frontend/backend/motor:</strong> La arquitectura orientada a servicios permite que un desarrollador actualice la interfaz de usuario (<code>webapp</code>) sin necesidad de modificar o recompilar el estricto motor de reglas (<code>gamey</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ESC-M2</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mantenibilidad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Monitorización de código con SonarQube:</strong> El código fuente se somete a análisis estático mediante SonarQube, lo que permite detectar "code smells", medir la cobertura de pruebas y controlar la deuda técnica antes de cada integración.</p></td>
 </tr>
 </tbody>
 </table>
-<div class="sidebarblock arc42help">
-<div class="content">
-<div class="paragraph">
-<div class="title">Contents</div>
-<p>Concretization of (sometimes vague or implicit) quality requirements using (quality) scenarios.</p>
-</div>
-<div class="paragraph">
-<p>These scenarios describe what should happen when a stimulus arrives at the system.</p>
-</div>
-<div class="paragraph">
-<p>For architects, two kinds of scenarios are important:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Usage scenarios (also called application scenarios or use case scenarios) describe the system’s runtime reaction to a certain stimulus. This also includes scenarios that describe the system’s efficiency or performance. Example: The system reacts to a user’s request within one second.</p>
-</li>
-<li>
-<p>Change scenarios describe a modification of the system or of its immediate environment. Example: Additional functionality is implemented or requirements for a quality attribute change.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<div class="title">Motivation</div>
-<p>Scenarios make quality requirements concrete and allow to
-more easily measure or decide whether they are fulfilled.</p>
-</div>
-<div class="paragraph">
-<p>Especially when you want to assess your architecture using methods like
-ATAM you need to describe your quality goals (from section 1.2)
-more precisely down to a level of scenarios that can be discussed and evaluated.</p>
-</div>
-<div class="paragraph">
-<div class="title">Form</div>
-<p>Tabular or free form text.</p>
-</div>
-</div>
-</div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -2145,21 +2749,6 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <div class="paragraph">
 <div class="title">Contents</div>
 <p>A list of identified technical risks or technical debts, ordered by priority</p>
-</div>
-<div class="paragraph">
-<div class="title">Motivation</div>
-<p>“Risk management is project management for grown-ups” (Tim Lister, Atlantic Systems Guild.)</p>
-</div>
-<div class="paragraph">
-<p>This should be your motto for systematic detection and evaluation of risks and technical debts in the architecture, which will be needed by management stakeholders (e.g. project managers, product owners) as part of the overall risk analysis and measurement planning.</p>
-</div>
-<div class="paragraph">
-<div class="title">Form</div>
-<p>List of risks and/or technical debts, probably including suggested measures to minimize, mitigate or avoid risks or reduce technical debts.</p>
-</div>
-<div class="paragraph">
-<div class="title">Further Information</div>
-<p>See <a href="https://docs.arc42.org/section-11/">Risks and Technical Debt</a> in the arc42 documentation.</p>
 </div>
 </div>
 </div>
@@ -2184,25 +2773,39 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Uso combinado de Rust, Node.js, React y TypeScript.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">La utilización de varias tecnologías con paradigmas distintos incrementa la complejidad del desarrollo y mantenimiento del sistema. Pueden generar una curva de aprendizaje elevada y aumentar el esfuerzo necesario para depurar errores entre capas.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Medio</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Complejidad tecnológica (Rust + Node/TS + React)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">El uso combinado de lenguajes de sistemas estrictos (Rust para el motor) y lenguajes web (TypeScript/Node) requiere distintos paradigmas. Esto eleva la curva de aprendizaje y dificulta que un desarrollador Full-Stack pueda resolver bugs transversales rápidamente.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alto</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Media</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Formación continua de los desarrolladores en todas las tecnologías involucradas.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fomentar la revisión de código cruzada (Code Reviews) y mantener las interfaces (API REST / Notación YEN) estrictamente documentadas.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Dependencia de librerías externas (npm y crates).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema depende de paquetes externos que pueden contener vulnerabilidades, quedar sin mantenimiento o introducir cambios incompatibles en versiones futuras. Esto podría afectar a la estabilidad y seguridad del sistema.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Medio</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Baja</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Seleccionar librerías confiables y mantenerlas actualizadas. Revisar dependencias antes de actualizaciones mayores.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Mala comunicación entre los integrantes del equipo.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">La falta de comunicación efectiva puede llevar a malentendidos sobre los requisitos, diseño y tareas, lo que podría resultar en retrasos, errores o trabajo duplicado.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Orquestación y Despliegue (Docker / Nginx)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">El sistema depende de múltiples contenedores (webapp, users, gamey, db) orquestados por <code>docker-compose</code> y enrutados por Nginx. Una mala configuración en las redes de Docker o en el proxy inverso puede dejar el sistema inaccesible o exponer puertos internos.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Alto</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Baja</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Establecer canales de comunicación claros  y fomentar reuniones regulares para sincronizar al equipo.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mantener los archivos <code>docker-compose.yml</code> y <code>nginx.conf</code> bajo control de versiones estricto, usar <code>.env</code> para secretos y realizar pruebas de despliegue en entornos locales (<code>docker-compose.dev.yml</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Sincronización del estado del juego (Notación YEN)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">El estado del juego viaja desde el motor en Rust hasta el frontend pasando por el backend de usuarios. Cualquier fallo en el parseo o validación estricta de la notación YEN puede corromper la partida de los jugadores.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alto</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implementar validaciones robustas en la entrada del API y tests unitarios exhaustivos en el motor de Rust que verifiquen casos límite de la notación YEN.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Uso de base de datos no relacional (MongoDB)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Al ser una base de datos orientada a documentos (schema-less), MongoDB no impone integridad referencial estricta (como las claves foráneas en SQL). Si la lógica del backend falla al gestionar relaciones (ej. entre usuarios y sus historiales de partidas), se pueden generar datos huérfanos o estados inconsistentes.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alto</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forzar esquemas estrictos y validaciones a nivel de aplicación (ej. usando un ODM como Mongoose en el servicio <code>users</code>) y gestionar respaldos periódicos del volumen local de la base de datos (<code>dataBaseFiles</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Reducción de la capacidad operativa (Salida de un miembro)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Al ser un equipo reducido de 5 personas donde todos los miembros participan en todas las áreas del proyecto (full-stack), la salida de un integrante no genera silos de conocimiento bloqueantes, pero aumenta considerablemente la carga de trabajo del resto. Esto reduciría la velocidad de desarrollo, alargando el tiempo necesario para lanzar nuevas versiones (releases).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medio</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Baja</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ajustar ágilmente el alcance (scope) de las iteraciones si se reduce el equipo, automatizar el mayor número de tareas posibles (CI/CD) para ahorrar tiempo y mantener un ritmo de trabajo sostenible para evitar el agotamiento (burnout) del resto.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2211,40 +2814,49 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <h3 id="_deuda_técnica">11.2. Deuda técnica</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 25%;">
 </colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Deuda técnica</th>
+<th class="tableblock halign-left valign-top">Descripción</th>
+<th class="tableblock halign-left valign-top">Impacto</th>
+<th class="tableblock halign-left valign-top">Probabilidad</th>
+<th class="tableblock halign-left valign-top">Mitigación</th>
+</tr>
+</thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Deuda técnica</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Descripción</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Impacto</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Probabilidad</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Mitigación</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Código no documentado o mal documentado.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">La falta de documentación clara y actualizada dificulta la comprensión del código, lo que puede ralentizar el desarrollo y aumentar el riesgo de errores al modificar el sistema.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Medio</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Media</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Establecer estándares de documentación y revisarlos regularmente.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Implementación inicial sin optimización.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">La implementación inicial del sistema puede no estar optimizada para rendimiento o escalabilidad, lo que podría requerir refactorización significativa en el futuro para cumplir con los requisitos de rendimiento.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Code Smells y métricas de SonarQube</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Al utilizar herramientas de análisis estático (configuradas en <code>sonar-project.properties</code>), se acumula deuda técnica visible (code smells, código duplicado o complejidad ciclomática alta) en los repositorios de TypeScript/JavaScript.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Medio</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Alta</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Planificar iteraciones de mejora continua y refactorización a medida que se identifican cuellos de botella.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Establecer umbrales de calidad (Quality Gates) en el CI/CD y dedicar tiempo en cada sprint para resolver las advertencias de SonarQube antes de integrar código.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Gestión básica de autenticación y autorización.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">La implementación inicial de la autenticación y autorización puede ser básica, lo que podría no cumplir con los requisitos de seguridad a medida que el sistema evoluciona.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Cobertura de Tests End-to-End (E2E)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dada la arquitectura de microservicios, mantener pruebas funcionales automáticas que crucen desde el frontend (<code>webapp</code>), pasen por el API (<code>users</code>) y lleguen al motor (<code>gamey</code>) requiere un esfuerzo continuo. Las interfaces cambian y los flujos pueden romperse.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Alto</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alta</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mantener y ampliar la cobertura de pruebas de integración y E2E utilizando <strong>Cucumber (BDD/Gherkin)</strong> y <strong>Playwright</strong> (actualmente configurados en el proyecto) para automatizar los flujos críticos de interacción del usuario en la interfaz web.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Pruebas de Carga y Rendimiento (Gatling)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Al ser un juego multijugador orquestado en contenedores, existe la deuda técnica de validar cómo se comporta el sistema bajo alta concurrencia. Actualmente el límite real de usuarios simultáneos sin degradación es desconocido.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alto</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alta</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implementar escenarios de estrés utilizando <strong>Gatling</strong>. Se aprovechará su Recorder y su DSL basado en Scala/JVM para simular múltiples partidas concurrentes y descubrir cuellos de botella reales en la infraestructura.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Gestión básica de autenticación / Sesiones</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">La implementación inicial de la autenticación puede carecer de mecanismos avanzados (refresco de tokens automáticos, invalidación de sesiones al cambiar roles, etc.), limitando la escalabilidad de seguridad.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medio</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Media</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Planificar mejoras en la gestión de autenticación y autorización a medida que se identifican nuevas amenazas y requisitos de seguridad.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Refactorizar el módulo de <code>users</code> para estandarizar el uso de JWT de corta duración y asegurar que los secretos solo residan en las variables de entorno (<code>.env</code>).</p></td>
 </tr>
 </tbody>
 </table>
@@ -2343,7 +2955,7 @@ more precisely down to a level of scenarios that can be discussed and evaluated.
 <div id="footer">
 <div id="footer-text">
 Version 8.2 EN<br>
-Last updated 2026-02-21 14:38:14 +0100
+Last updated 2026-04-13 00:43:55 +0200
 </div>
 </div>
 </body>

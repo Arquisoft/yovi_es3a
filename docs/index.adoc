@@ -86,14 +86,18 @@ include::src/08_concepts.adoc[]
 include::src/09_architecture_decisions.adoc[]
 
 <<<<
-// 10. Quality Requirements
-include::src/10_quality_requirements.adoc[]
+// 10. Testing
+include::src/10_testing.adoc[]
 
 <<<<
-// 11. Technical Risks
-include::src/11_technical_risks.adoc[]
+// 11. Quality Requirements
+include::src/11_quality_requirements.adoc[]
 
 <<<<
-// 12. Glossary
-include::src/12_glossary.adoc[]
+// 12. Technical Risks
+include::src/12_technical_risks.adoc[]
+
+<<<<
+// 13. Glossary
+include::src/13_glossary.adoc[]
 

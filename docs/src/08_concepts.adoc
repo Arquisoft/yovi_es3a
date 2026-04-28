@@ -74,4 +74,3 @@ La arquitectura de la aplicación se basa en un sistema de microservicios indepe
 === Conceptos de Desarrollo
 
 El desarrollo de la aplicación se fundamenta en un ciclo de integración y despliegue continuos (CI/CD) que prioriza el testing automatizado y el análisis de calidad con SonarCloud. Todo el proceso se apoya en la contenedorización con Docker y flujos de trabajo en GitHub Actions para asegurar entregas rápidas, consistentes y reproducibles en cualquier entorno.
-
