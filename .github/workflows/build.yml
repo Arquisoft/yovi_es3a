@@ -70,4 +70,4 @@ jobs:
           java-version: '21'
 
       - name: Run Gatling Tests
-        run: mvn gatling:test -Dgatling.simulationClass=io.gatling.demo.UserList
+        run: mvnw gatling:test -Dgatling.simulationClass=io.gatling.demo.UserList
