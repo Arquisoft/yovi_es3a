@@ -4,9 +4,9 @@ import '@testing-library/jest-dom/vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import i18n from '../locales/i18n'
-import RegisterForm from '../features/auth/register/RegisterForm.tsx'
-import { render, screen, fireEvent, waitFor, cleanup } from '../testing/test-utils.tsx'
+import i18n from '../../../locales/i18n'
+import RegisterForm from './RegisterForm.tsx'
+import { render, screen, fireEvent, waitFor, cleanup } from '../../../testing/test-utils.tsx'
 
 describe('RegisterForm', () => {
     const originalFetch = globalThis.fetch;
