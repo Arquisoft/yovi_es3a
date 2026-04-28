@@ -88,12 +88,13 @@ const checkPassword = async (username, password) =>
     if (!username) throw new Error('Username expected but found null or empty');
     if (!password) throw new Error('Password expected but found null or empty');
 
-    const user = await User.findOne({ username });
+    const safeUsername = typeof username === 'string' ? username.trim() : '';
+
+    const user = await User.findOne({ username: safeUsername });
     if (!user) return false;
 
     // Use bcrypt.compare to verify the plain password against the stored hash.
-    const hashed = await bcrypt.hash(password, 10);
-    return await bcrypt.compare(hashed, user.password);
+    return await bcrypt.compare(password, user.password);
 }
 
 module.exports = {
