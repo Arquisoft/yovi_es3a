@@ -60,4 +60,25 @@ endif::arc42help[]
 
 |Motor del juego
 |Componente central del sistema que implementa las reglas del juego Y, procesa los movimientos de los jugadores y determina el estado del juego. En el proyecto, se refiere al software que ejecuta la lógica del juego y proporciona la funcionalidad necesaria para que los jugadores puedan interactuar con él a través de la API.
+
+| Unit Test
+| Prueba de una unidad individual.
+
+| Integration Test
+| Prueba entre componentes.
+
+| E2E Test
+| Flujo completo de usuario.
+
+| Coverage
+| Porcentaje cubierto por tests.
+
+| Gatling
+| Herramienta de carga.
+
+| YEN
+| Formato de persistencia del juego.
+
+| CI/CD
+| Integración y despliegue continuo.
 |===
