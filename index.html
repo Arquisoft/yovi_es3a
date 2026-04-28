@@ -502,70 +502,30 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_observabilidad_con_prometheus_y_grafana">9.7. Observabilidad con Prometheus y Grafana</a></li>
 </ul>
 </li>
-<li><a href="#_introducción">10. Introducción</a>
+<li><a href="#_testing">10. Testing</a>
 <ul class="sectlevel2">
-<li><a href="#_objetivos">10.1. Objetivos</a></li>
+<li><a href="#_introducción">10.1. Introducción</a></li>
+<li><a href="#_estructura_del_testing">10.2. Estructura del Testing</a></li>
+<li><a href="#_testing_del_motor_de_juego_gamey">10.3. Testing del Motor de Juego (gamey)</a></li>
+<li><a href="#_testing_del_servicio_de_usuarios_users">10.4. Testing del Servicio de Usuarios (users)</a></li>
+<li><a href="#_testing_del_frontend_webapp">10.5. Testing del Frontend (webapp)</a></li>
+<li><a href="#_testing_de_carga_gatling">10.6. Testing de Carga (Gatling)</a></li>
+<li><a href="#_integración_continua_cicd">10.7. Integración Continua (CI/CD)</a></li>
 </ul>
 </li>
-<li><a href="#_estructura_del_testing">11. Estructura del Testing</a>
+<li><a href="#section-quality-scenarios">11. Requisitos de calidad</a>
 <ul class="sectlevel2">
-<li><a href="#_directorios_principales">11.1. Directorios principales</a></li>
-<li><a href="#_herramientas_utilizadas">11.2. Herramientas utilizadas</a></li>
+<li><a href="#_árbol_de_calidad">11.1. Árbol de calidad</a></li>
+<li><a href="#_escenarios_de_calidad">11.2. Escenarios de calidad</a></li>
 </ul>
 </li>
-<li><a href="#_testing_del_motor_de_juego_gamey">12. Testing del Motor de Juego (gamey)</a>
+<li><a href="#section-technical-risks">12. Riesgos y deuda técnica</a>
 <ul class="sectlevel2">
-<li><a href="#_visión_general">12.1. Visión General</a></li>
-<li><a href="#_categorías_de_tests">12.2. Categorías de Tests</a></li>
-<li><a href="#_ejecución">12.3. Ejecución</a></li>
+<li><a href="#_riesgos">12.1. Riesgos</a></li>
+<li><a href="#_deuda_técnica">12.2. Deuda técnica</a></li>
 </ul>
 </li>
-<li><a href="#_testing_del_servicio_de_usuarios_users">13. Testing del Servicio de Usuarios (users)</a>
-<ul class="sectlevel2">
-<li><a href="#_visión_general_2">13.1. Visión General</a></li>
-<li><a href="#_categorías_de_tests_2">13.2. Categorías de Tests</a></li>
-<li><a href="#_ejecución_2">13.3. Ejecución</a></li>
-</ul>
-</li>
-<li><a href="#_testing_del_frontend_webapp">14. Testing del Frontend (webapp)</a>
-<ul class="sectlevel2">
-<li><a href="#_visión_general_3">14.1. Visión General</a></li>
-<li><a href="#_categorías_de_tests_3">14.2. Categorías de Tests</a></li>
-<li><a href="#_ejecución_3">14.3. Ejecución</a></li>
-</ul>
-</li>
-<li><a href="#_testing_de_carga_gatling">15. Testing de Carga (Gatling)</a>
-<ul class="sectlevel2">
-<li><a href="#_visión_general_4">15.1. Visión General</a></li>
-<li><a href="#_proceso_de_ejecución">15.2. Proceso de ejecución</a></li>
-<li><a href="#_escenarios_evaluados">15.3. Escenarios evaluados</a></li>
-<li><a href="#_métricas_analizadas">15.4. Métricas analizadas</a></li>
-<li><a href="#_resultados_escenario_base_10_usuarios">15.5. Resultados: Escenario Base (10 usuarios)</a></li>
-<li><a href="#_resultados_escenario_alta_carga_100_usuarios">15.6. Resultados: Escenario Alta Carga (100 usuarios)</a></li>
-<li><a href="#_ejecución_4">15.7. Ejecución</a></li>
-</ul>
-</li>
-<li><a href="#_integración_continua_cicd">16. Integración Continua (CI/CD)</a>
-<ul class="sectlevel2">
-<li><a href="#_automatización">16.1. Automatización</a></li>
-<li><a href="#_flujo">16.2. Flujo</a></li>
-<li><a href="#_quality_gate">16.3. Quality Gate</a></li>
-<li><a href="#_snapshot_de_calidad_sonarqube">16.4. Snapshot de Calidad (SonarQube)</a></li>
-</ul>
-</li>
-<li><a href="#section-quality-scenarios">17. Requisitos de calidad</a>
-<ul class="sectlevel2">
-<li><a href="#_árbol_de_calidad">17.1. Árbol de calidad</a></li>
-<li><a href="#_escenarios_de_calidad">17.2. Escenarios de calidad</a></li>
-</ul>
-</li>
-<li><a href="#section-technical-risks">18. Riesgos y deuda técnica</a>
-<ul class="sectlevel2">
-<li><a href="#_riesgos">18.1. Riesgos</a></li>
-<li><a href="#_deuda_técnica">18.2. Deuda técnica</a></li>
-</ul>
-</li>
-<li><a href="#section-glossary">19. Glossary</a></li>
+<li><a href="#section-glossary">13. Glossary</a></li>
 </ul>
 </div>
 </div>
@@ -2710,8 +2670,10 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </div>
 </div>
 <div class="sect1">
-<h2 id="_introducción">10. Introducción</h2>
+<h2 id="_testing">10. Testing</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_introducción">10.1. Introducción</h3>
 <div class="paragraph">
 <p>Este documento describe la estrategia de testing de YOVI y los mecanismos utilizados para validar calidad, estabilidad y rendimiento del sistema.</p>
 </div>
@@ -2734,8 +2696,8 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </li>
 </ul>
 </div>
-<div class="sect2">
-<h3 id="_objetivos">10.1. Objetivos</h3>
+<div class="sect3">
+<h4 id="_objetivos">10.1.1. Objetivos</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -2757,12 +2719,10 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_estructura_del_testing">11. Estructura del Testing</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_directorios_principales">11.1. Directorios principales</h3>
+<h3 id="_estructura_del_testing">10.2. Estructura del Testing</h3>
+<div class="sect3">
+<h4 id="_directorios_principales">10.2.1. Directorios principales</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code>yovi_es3a/
@@ -2774,8 +2734,8 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_herramientas_utilizadas">11.2. Herramientas utilizadas</h3>
+<div class="sect3">
+<h4 id="_herramientas_utilizadas">10.2.2. Herramientas utilizadas</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2829,12 +2789,10 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </table>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_testing_del_motor_de_juego_gamey">12. Testing del Motor de Juego (gamey)</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_visión_general">12.1. Visión General</h3>
+<h3 id="_testing_del_motor_de_juego_gamey">10.3. Testing del Motor de Juego (gamey)</h3>
+<div class="sect3">
+<h4 id="_visión_general">10.3.1. Visión General</h4>
 <div class="paragraph">
 <p>El motor de juego está desarrollado en Rust y utiliza <code>cargo test</code>.</p>
 </div>
@@ -2842,8 +2800,8 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 <p>Se validan reglas del juego, movimientos, detección de victoria, persistencia y servidor de bots.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_categorías_de_tests">12.2. Categorías de Tests</h3>
+<div class="sect3">
+<h4 id="_categorías_de_tests">10.3.2. Categorías de Tests</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2887,8 +2845,8 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </tbody>
 </table>
 </div>
-<div class="sect2">
-<h3 id="_ejecución">12.3. Ejecución</h3>
+<div class="sect3">
+<h4 id="_ejecución">10.3.3. Ejecución</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">cd gamey
@@ -2898,18 +2856,16 @@ cargo llvm-cov</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_testing_del_servicio_de_usuarios_users">13. Testing del Servicio de Usuarios (users)</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_visión_general_2">13.1. Visión General</h3>
+<h3 id="_testing_del_servicio_de_usuarios_users">10.4. Testing del Servicio de Usuarios (users)</h3>
+<div class="sect3">
+<h4 id="_visión_general_2">10.4.1. Visión General</h4>
 <div class="paragraph">
 <p>El servicio de usuarios en Node.js utiliza Vitest y Supertest para validar lógica interna y endpoints REST.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_categorías_de_tests_2">13.2. Categorías de Tests</h3>
+<div class="sect3">
+<h4 id="_categorías_de_tests_2">10.4.2. Categorías de Tests</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2949,8 +2905,8 @@ cargo llvm-cov</code></pre>
 </tbody>
 </table>
 </div>
-<div class="sect2">
-<h3 id="_ejecución_2">13.3. Ejecución</h3>
+<div class="sect3">
+<h4 id="_ejecución_2">10.4.3. Ejecución</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">cd users
@@ -2960,18 +2916,16 @@ npm run test:coverage</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_testing_del_frontend_webapp">14. Testing del Frontend (webapp)</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_visión_general_3">14.1. Visión General</h3>
+<h3 id="_testing_del_frontend_webapp">10.5. Testing del Frontend (webapp)</h3>
+<div class="sect3">
+<h4 id="_visión_general_3">10.5.1. Visión General</h4>
 <div class="paragraph">
 <p>El frontend desarrollado en React + TypeScript utiliza Vitest para tests unitarios y Playwright para pruebas End-to-End.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_categorías_de_tests_3">14.2. Categorías de Tests</h3>
+<div class="sect3">
+<h4 id="_categorías_de_tests_3">10.5.2. Categorías de Tests</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3011,8 +2965,8 @@ npm run test:coverage</code></pre>
 </tbody>
 </table>
 </div>
-<div class="sect2">
-<h3 id="_ejecución_3">14.3. Ejecución</h3>
+<div class="sect3">
+<h4 id="_ejecución_3">10.5.3. Ejecución</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">cd webapp
@@ -3023,18 +2977,16 @@ npx playwright test</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_testing_de_carga_gatling">15. Testing de Carga (Gatling)</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_visión_general_4">15.1. Visión General</h3>
+<h3 id="_testing_de_carga_gatling">10.6. Testing de Carga (Gatling)</h3>
+<div class="sect3">
+<h4 id="_visión_general_4">10.6.1. Visión General</h4>
 <div class="paragraph">
 <p>Gatling se utiliza para simular múltiples usuarios concurrentes y medir rendimiento del sistema.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_proceso_de_ejecución">15.2. Proceso de ejecución</h3>
+<div class="sect3">
+<h4 id="_proceso_de_ejecución">10.6.2. Proceso de ejecución</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -3081,8 +3033,8 @@ npx playwright test</code></pre>
 </ol>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_escenarios_evaluados">15.3. Escenarios evaluados</h3>
+<div class="sect3">
+<h4 id="_escenarios_evaluados">10.6.3. Escenarios evaluados</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3114,8 +3066,8 @@ npx playwright test</code></pre>
 </tbody>
 </table>
 </div>
-<div class="sect2">
-<h3 id="_métricas_analizadas">15.4. Métricas analizadas</h3>
+<div class="sect3">
+<h4 id="_métricas_analizadas">10.6.4. Métricas analizadas</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -3136,10 +3088,10 @@ npx playwright test</code></pre>
 </ul>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_resultados_escenario_base_10_usuarios">15.5. Resultados: Escenario Base (10 usuarios)</h3>
 <div class="sect3">
-<h4 id="_métricas_generales">15.5.1. Métricas generales</h4>
+<h4 id="_resultados_escenario_base_10_usuarios">10.6.5. Resultados: Escenario Base (10 usuarios)</h4>
+<div class="sect4">
+<h5 id="_métricas_generales">Métricas generales</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -3163,8 +3115,8 @@ npx playwright test</code></pre>
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_rendimiento_por_endpoint">15.5.2. Rendimiento por endpoint</h4>
+<div class="sect4">
+<h5 id="_rendimiento_por_endpoint">Rendimiento por endpoint</h5>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 14.2857%;">
@@ -3213,8 +3165,8 @@ npx playwright test</code></pre>
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_análisis">15.5.3. Análisis</h4>
+<div class="sect4">
+<h5 id="_análisis">Análisis</h5>
 <div class="paragraph">
 <p>El sistema respondió correctamente sin errores. El endpoint <code>register</code> mostró excelente rendimiento y <code>login</code> fue claramente más costoso.</p>
 </div>
@@ -3235,10 +3187,10 @@ npx playwright test</code></pre>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_resultados_escenario_alta_carga_100_usuarios">15.6. Resultados: Escenario Alta Carga (100 usuarios)</h3>
 <div class="sect3">
-<h4 id="_métricas_generales_2">15.6.1. Métricas generales</h4>
+<h4 id="_resultados_escenario_alta_carga_100_usuarios">10.6.6. Resultados: Escenario Alta Carga (100 usuarios)</h4>
+<div class="sect4">
+<h5 id="_métricas_generales_2">Métricas generales</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -3259,8 +3211,8 @@ npx playwright test</code></pre>
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_distribución_observada">15.6.2. Distribución observada</h4>
+<div class="sect4">
+<h5 id="_distribución_observada">Distribución observada</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -3272,8 +3224,8 @@ npx playwright test</code></pre>
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_rendimiento_por_endpoint_2">15.6.3. Rendimiento por endpoint</h4>
+<div class="sect4">
+<h5 id="_rendimiento_por_endpoint_2">Rendimiento por endpoint</h5>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 14.2857%;">
@@ -3322,8 +3274,8 @@ npx playwright test</code></pre>
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_análisis_2">15.6.4. Análisis</h4>
+<div class="sect4">
+<h5 id="_análisis_2">Análisis</h5>
 <div class="paragraph">
 <p>Existe una diferencia crítica entre endpoints:</p>
 </div>
@@ -3349,8 +3301,8 @@ npx playwright test</code></pre>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_ejecución_4">15.7. Ejecución</h3>
+<div class="sect3">
+<h4 id="_ejecución_4">10.6.7. Ejecución</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">cd testCarga
@@ -3359,18 +3311,16 @@ npx playwright test</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_integración_continua_cicd">16. Integración Continua (CI/CD)</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_automatización">16.1. Automatización</h3>
+<h3 id="_integración_continua_cicd">10.7. Integración Continua (CI/CD)</h3>
+<div class="sect3">
+<h4 id="_automatización">10.7.1. Automatización</h4>
 <div class="paragraph">
 <p>GitHub Actions ejecuta pruebas automáticamente en cada push y pull request.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_flujo">16.2. Flujo</h3>
+<div class="sect3">
+<h4 id="_flujo">10.7.2. Flujo</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -3394,8 +3344,8 @@ npx playwright test</code></pre>
 </ol>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_quality_gate">16.3. Quality Gate</h3>
+<div class="sect3">
+<h4 id="_quality_gate">10.7.3. Quality Gate</h4>
 <div class="paragraph">
 <p><strong>Estado:</strong> &#160; <strong>PASSED</strong> (All conditions passed)</p>
 </div>
@@ -3431,8 +3381,8 @@ npx playwright test</code></pre>
 </tbody>
 </table>
 </div>
-<div class="sect2">
-<h3 id="_snapshot_de_calidad_sonarqube">16.4. Snapshot de Calidad (SonarQube)</h3>
+<div class="sect3">
+<h4 id="_snapshot_de_calidad_sonarqube">10.7.4. Snapshot de Calidad (SonarQube)</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3467,11 +3417,12 @@ npx playwright test</code></pre>
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
-<h2 id="section-quality-scenarios">17. Requisitos de calidad</h2>
+<h2 id="section-quality-scenarios">11. Requisitos de calidad</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_árbol_de_calidad">17.1. Árbol de calidad</h3>
+<h3 id="_árbol_de_calidad">11.1. Árbol de calidad</h3>
 <div class="imageblock">
 <div class="content">
 <img src="./images/10_1_arbol_calidad.png" alt="][&quot;Árbol de calidad&quot;">
@@ -3479,7 +3430,7 @@ npx playwright test</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_escenarios_de_calidad">17.2. Escenarios de calidad</h3>
+<h3 id="_escenarios_de_calidad">11.2. Escenarios de calidad</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 14.2857%;">
@@ -3551,7 +3502,7 @@ npx playwright test</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-technical-risks">18. Riesgos y deuda técnica</h2>
+<h2 id="section-technical-risks">12. Riesgos y deuda técnica</h2>
 <div class="sectionbody">
 <div class="sidebarblock arc42help">
 <div class="content">
@@ -3562,7 +3513,7 @@ npx playwright test</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_riesgos">18.1. Riesgos</h3>
+<h3 id="_riesgos">12.1. Riesgos</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -3620,7 +3571,7 @@ npx playwright test</code></pre>
 </table>
 </div>
 <div class="sect2">
-<h3 id="_deuda_técnica">18.2. Deuda técnica</h3>
+<h3 id="_deuda_técnica">12.2. Deuda técnica</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -3674,7 +3625,7 @@ npx playwright test</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-glossary">19. Glossary</h2>
+<h2 id="section-glossary">13. Glossary</h2>
 <div class="sectionbody">
 <div class="sidebarblock arc42help">
 <div class="content">
