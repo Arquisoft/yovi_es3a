@@ -3,9 +3,9 @@
 import '@testing-library/jest-dom/vitest'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import i18n from '../../locales/i18n'
-import UserStatsComponent from './UserStats'
-import { render, screen, waitFor, cleanup, fireEvent } from '../../testing/test-utils.tsx'
+import i18n from '../locales/i18n'
+import UserStatsComponent from '../features/user-stats/UserStats.tsx'
+import { render, screen, waitFor, cleanup, fireEvent } from '../testing/test-utils.tsx'
 
 describe('UserStatsComponent', () => {
     const originalFetch = globalThis.fetch;

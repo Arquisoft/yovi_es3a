@@ -3,9 +3,9 @@
 import '@testing-library/jest-dom/vitest'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import GameBoard from './GameBoard'
-import i18n from '../../locales/i18n'
-import { render, screen, fireEvent, waitFor, cleanup } from '../../testing/test-utils.tsx'
+import GameBoard from '../features/game/GameBoard.tsx'
+import i18n from '../locales/i18n'
+import { render, screen, fireEvent, waitFor, cleanup } from '../testing/test-utils.tsx'
 
 class MockWebSocket {
 	static readonly instances: MockWebSocket[] = [];
