@@ -403,21 +403,22 @@ app.get('/play', async (req, res) => {
       ? bot_id.trim()
       : 'random_bot';
 
-    const gameyUrl =
-      `http://localhost:4000/${apiVersion}/ybot/choose/${selectedBotId}`;
-
     if (typeof position !== 'string') {
       return res.status(400).json({
         error: 'position must be a string'
       });
     }
 
-    const body = position;
+    const gameyUrl = new URL(
+      `http://localhost:4000/${apiVersion}/ybot/choose/`
+    ); 
 
-    const response = await fetch(gameyUrl, {
+    gameyUrl.pathname += selectedBotId;
+
+    const response = await fetch(gameyUrl.toString(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body
+      body: position
     });
 
     if (!response.ok) {
