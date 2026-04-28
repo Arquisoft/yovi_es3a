@@ -437,4 +437,10 @@ app.get('/play', async (req, res) => {
   }
 });
 
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Users service listening on port ${port}`);
+  });
+}
+
 module.exports = app;
