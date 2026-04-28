@@ -4,7 +4,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_yovi_es3a&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Arquisoft_yovi_es3a)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Arquisoft_yovi_es3a&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Arquisoft_yovi_es3a)
 
-[![Logo](/webapp/src/assets/react.svg)](https://github.com/Arquisoft/yovi_es3a)
+[![Logo](/webapp/public/vite.svg)](https://github.com/Arquisoft/yovi_es3a)
 
 Este es un proyecto base para la asignatura de Arquitectura del Software en 2024/2025.
 Yovi es una aplicación centrada en el juego de conexión Y, permitiendo a los usuarios disfrutar de partidas interactivas tanto contra la inteligencia artificial como contra otros jugadores.
