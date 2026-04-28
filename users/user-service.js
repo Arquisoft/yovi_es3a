@@ -94,7 +94,8 @@ const checkPassword = async (username, password) =>
     if (!user) return false;
 
     // Use bcrypt.compare to verify the plain password against the stored hash.
-    return await bcrypt.compare(password, user.password);
+    const hashed = await bcrypt.hash(password, 10);
+    return await bcrypt.compare(hashed, user.password);
 }
 
 module.exports = {
