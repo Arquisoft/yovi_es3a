@@ -1,10 +1,4 @@
 ifndef::imagesdir[:imagesdir: ../images]
-= Testing Documentation - YOVI
-:toc:
-:toc-placement: left
-:toclevels: 3
-:sectnums:
-:sectanchors:
 
 == Introducción
 
@@ -331,8 +325,8 @@ Existe una diferencia crítica entre endpoints:
 * `register` mantiene tiempos excelentes incluso bajo carga.
 * `login` se degrada severamente al aumentar concurrencia.
 
-image::../images/statsGatling101_1.png[]["Distribución de tiempo de respuesta"]
-image::../images/statsGatling101_2.png[]["Numero de peticiones por segundo y respuestas por segundo"]
+image::../images/statsGatling100_1.png[]["Distribución de tiempo de respuesta"]
+image::../images/statsGatling100_2.png[]["Numero de peticiones por segundo y respuestas por segundo"]
 
 === Ejecución
 
@@ -359,46 +353,39 @@ GitHub Actions ejecuta pruebas automáticamente en cada push y pull request.
 
 === Quality Gate
 
+*Estado:* {nbsp} *PASSED* (All conditions passed)
+
 |===
-| Métrica | Objetivo
+| Métrica | Objetivo | Resultado Actual
 
 | Cobertura
 | ≥ 80%
-
-| Vulnerabilidades
-| 0
+| 85.6%
 
 | Duplicación
 | ≤ 3%
+| 2.1%
 
-| Code Smells
-| Bajo nivel
+| Vulnerabilidades
+| 0
+| Rating A
 |===
 
-== Glosario
+=== Snapshot de Calidad (SonarQube)
 
-[%header,cols="25%,75%"]
+[cols="1,1"]
 |===
-| Término | Definición
+| Categoría | Calificación (Rating)
 
-| Unit Test
-| Prueba de una unidad individual
+| Security Rating
+| A
 
-| Integration Test
-| Prueba entre componentes
+| Security Hotspots
+| E
 
-| E2E Test
-| Flujo completo de usuario
+| Reliability (Fiabilidad)
+| A
 
-| Coverage
-| Porcentaje cubierto por tests
-
-| Gatling
-| Herramienta de carga
-
-| YEN
-| Formato de persistencia del juego
-
-| CI/CD
-| Integración y despliegue continuo
+| Maintainability (Mantenibilidad)
+| A
 |===
