@@ -291,6 +291,47 @@ pub fn parse_idx(part: &str, bound: u32) -> Result<u32, String> {
     Ok(n)
 }
 
+/// Wrappers públicos ocultos para testing.
+/// Estas funciones no son parte de la API pública, solo para tests.
+
+#[doc(hidden)]
+pub fn test_print_help() {
+    print_help();
+}
+
+#[doc(hidden)]
+pub fn test_handle_place_command(
+    game: &mut GameY,
+    idx: u32,
+    player: PlayerId,
+    mode: Mode,
+    bot: &dyn YBot,
+) {
+    handle_place_command(game, idx, player, mode, bot);
+}
+
+#[doc(hidden)]
+pub fn test_trigger_bot_move(game: &mut GameY, bot: &dyn YBot) {
+    trigger_bot_move(game, bot);
+}
+
+#[doc(hidden)]
+pub fn test_apply_move(game: &mut GameY, movement: Movement, error_msg: &str) -> bool {
+    apply_move(game, movement, error_msg)
+}
+
+#[doc(hidden)]
+pub fn test_process_input(
+    input: &str,
+    game: &mut GameY,
+    player: &PlayerId,
+    render_options: &mut RenderOptions,
+    mode: Mode,
+    bot: &dyn YBot,
+) -> Result<()> {
+    process_input(input, game, player, render_options, mode, bot)
+}
+
 /// Application logic for a Move command (Human + optional Bot response)
 fn handle_place_command(
     game: &mut GameY,
