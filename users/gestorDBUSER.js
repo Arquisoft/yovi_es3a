@@ -1,4 +1,5 @@
 
+const { ObjectId } = require('mongodb');
 require('dotenv').config();
 const { connectToDatabase } = require('./userDB');
 const bcrypt = require('bcryptjs');
@@ -472,9 +473,13 @@ class GestorDBUSERS
             }
 
             // 2. Buscar las últimas 5 partidas del usuario
-            const games = await gamesCollection.find(
-                { jugador: usuario._id }
-            )
+            const games = await gamesCollection.find({
+                $or: [
+                    { jugador: usuario._id },
+                    { jugador: usuario._id.toString() },
+                    { jugador: new ObjectId(usuario._id) }
+                ]
+            })
             .sort({ fecha: -1 })  // Ordenar por fecha descendente (más recientes primero)
             .limit(5)
             .toArray();
