@@ -64,3 +64,101 @@ paths:
           description: User not found
         '400':
           description: Error logging in
+  /play:
+    get:
+      summary: Play against a bot
+      description: Gets the next move from the selected bot given a board position in YEN notation.
+      parameters:
+        - in: query
+          name: position
+          required: true
+          schema:
+            type: string
+          description: The current game position (YEN string/JSON object stringified)
+        - in: query
+          name: bot_id
+          required: false
+          schema:
+            type: string
+            default: "random_bot"
+          description: The ID of the bot to use
+      responses:
+        '200':
+          description: Next move calculated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  coords:
+                    type: object
+                    properties:
+                      x:
+                        type: integer
+                      y:
+                        type: integer
+                      z:
+                        type: integer
+        '400':
+          description: Bad request (position missing or engine error)
+        '500':
+          description: Server error
+  /api/ranking:
+    get:
+      summary: Get user ranking
+      description: Returns the global ranking categorized by gold, silver, bronze and the rest.
+      responses:
+        '200':
+          description: Ranking retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gold:
+                    type: object
+                    nullable: true
+                  silver:
+                    type: object
+                    nullable: true
+                  bronze:
+                    type: object
+                    nullable: true
+                  rest:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Error obtaining ranking from DB
+        '500':
+          description: Server error
+  /health:
+    get:
+      summary: Health check
+      description: Verifies if the service is running.
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+  /ready:
+    get:
+      summary: Readiness check
+      description: Verifies if the service is ready to accept requests.
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ready:
+                    type: boolean
+                    example: true
