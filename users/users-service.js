@@ -397,8 +397,7 @@ app.get('/play', async (req, res) => {
   }
 
   try {
-    const apiVersion = 'v1';
-    const selectedBotId =
+    const safeBotId  =
     typeof bot_id === 'string' && /^[a-zA-Z0-9_-]+$/.test(bot_id.trim())
       ? bot_id.trim()
       : 'random_bot';
@@ -409,16 +408,15 @@ app.get('/play', async (req, res) => {
       });
     }
 
-    const gameyUrl = new URL(
-      `http://localhost:4000/${apiVersion}/ybot/choose/`
-    ); 
+    const gameyUrl = new URL('http://localhost:4000/v1/ybot/choose/'); 
 
-    gameyUrl.pathname += selectedBotId;
-
-    const response = await fetch(gameyUrl.toString(), {
+    const response = await fetch(gameyUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: position
+      body: JSON.stringify({
+        position,
+        bot_id: safeBotId
+      })
     });
 
     if (!response.ok) {
