@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import LoginForm from './LoginForm'
+import LoginForm from './LoginForm.tsx'
 import i18n from '../../../locales/i18n'
 import { render, screen, fireEvent, waitFor, cleanup } from '../../../testing/test-utils.tsx'
 

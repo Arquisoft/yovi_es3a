@@ -45,10 +45,23 @@ jobs:
       - name: Generate gamey code coverage
         run: cd gamey && cargo llvm-cov --lcov --output-path lcov.info
 
-      - name: Normalize Rust coverage paths
+      - name: Normalize coverage paths
         run: |
-          sed -i "s|SF:${GITHUB_WORKSPACE}/|SF:|g" gamey/lcov.info
-          grep '^SF:' gamey/lcov.info | head
+          sed -i "s|SF:${GITHUB_WORKSPACE}/|SF:|g" gamey/lcov.info || true
+          
+          # Webapp: resolve absolute paths, or prefix relative paths with webapp/
+          if [ -f "webapp/coverage/lcov.info" ]; then
+            sed -i "s|SF:${GITHUB_WORKSPACE}/|SF:|g" webapp/coverage/lcov.info
+            sed -i '/^SF:webapp\//! s|^SF:\(.*\)|SF:webapp/\1|g' webapp/coverage/lcov.info
+          fi
+          
+          # Users: resolve absolute paths, or prefix relative paths with users/
+          if [ -f "users/coverage/lcov.info" ]; then
+            sed -i "s|SF:${GITHUB_WORKSPACE}/|SF:|g" users/coverage/lcov.info
+            sed -i '/^SF:users\//! s|^SF:\(.*\)|SF:users/\1|g' users/coverage/lcov.info
+          fi
+          
+          grep '^SF:' webapp/coverage/lcov.info || true
 
       - name: Analyze with SonarQube
         uses: SonarSource/sonarqube-scan-action@master

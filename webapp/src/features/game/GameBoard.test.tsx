@@ -3,7 +3,7 @@
 import '@testing-library/jest-dom/vitest'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import GameBoard from './GameBoard'
+import GameBoard from './GameBoard.tsx'
 import i18n from '../../locales/i18n'
 import { render, screen, fireEvent, waitFor, cleanup } from '../../testing/test-utils.tsx'
 
@@ -492,5 +492,4 @@ describe('GameBoard', () => {
 		expect(ws.close).toHaveBeenCalled();
 	});
 });
-
 

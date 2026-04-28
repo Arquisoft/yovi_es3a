@@ -195,13 +195,11 @@ describe('user-service.checkPassword', () =>
 			password: 'stored-hash'
 		})
 
-		const hashSpy = vi.spyOn(bcrypt, 'hash').mockResolvedValue('rehashed-input')
 		const compareSpy = vi.spyOn(bcrypt, 'compare').mockResolvedValue(true)
 
 		const result = await checkPassword('user1', 'secret')
 
-		expect(hashSpy).toHaveBeenCalledWith('secret', 10)
-		expect(compareSpy).toHaveBeenCalledWith('rehashed-input', 'stored-hash')
+		expect(compareSpy).toHaveBeenCalledWith('secret', 'stored-hash')
 		expect(result).toBe(true)
 	})
 })

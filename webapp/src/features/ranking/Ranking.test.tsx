@@ -3,7 +3,7 @@
 import '@testing-library/jest-dom/vitest'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import Ranking from './Ranking'
+import Ranking from './Ranking.tsx'
 import i18n from '../../locales/i18n'
 import { render, screen, waitFor, cleanup } from '../../testing/test-utils.tsx'
 
