@@ -18,6 +18,13 @@ const cleanupUsers = async (...usernames) =>
         const { connectToDatabase } = require('../userDB.js')
         const db = await connectToDatabase()
 
+        const usersDocs = await db.collection('usuarios').find({ nombreUsuario: { $in: usernames } }).toArray()
+        const userIds = usersDocs.map(user => user._id)
+
+        if (userIds.length > 0) {
+            await db.collection('partidas').deleteMany({ jugador: { $in: userIds } })
+        }
+
         for (const username of uniqueUsernames)
         {
             try { await db.collection('usuarios').deleteMany({ nombreUsuario: username }) } catch(e) {}
@@ -515,3 +522,182 @@ describe('DELETE /api/users/:id', () =>
         expect(res.body).toHaveProperty('error', 'not found')
     })
 })
+
+describe('GET /api/ranking', () =>
+{
+    afterEach(async () =>
+    {
+        vi.restoreAllMocks()
+        await cleanupUsers('ApiUserTest1', 'ApiUserTest2')
+    })
+
+    it('returns 200 and a list of the rankig', async () =>
+    {
+        await request(app)
+            .post('/createuser')
+            .send({ username: 'ApiUserTest1', password: 'passtest123' })
+            .set('Accept', 'application/json')
+
+        await request(app)
+            .post('/createuser') 
+            .send({ username: 'ApiUserTest2', password: 'passtest123' })
+            .set('Accept', 'application/json')
+
+        const ranking = await request(app)
+            .get(`/api/ranking`)
+            .set('Accept', 'application/json')
+
+        expect(ranking.status).toBe(200)
+        expect(ranking.body).toHaveProperty('gold') 
+        expect(ranking.body).toHaveProperty('silver');
+        expect(ranking.body).toHaveProperty('bronze');
+        expect(ranking.body).toHaveProperty('rest');
+        expect(Array.isArray(ranking.body.rest)).toBe(true);
+    })
+})
+
+describe('POST /api/matches/update', () =>
+{
+    afterEach(async () =>
+    {
+        vi.restoreAllMocks()
+        await cleanupUsers('ApiUserTest1')
+    })
+
+    it('returns 200 and updates user stats', async () =>
+    {
+        await request(app)
+            .post('/createuser') 
+            .send({ username: 'ApiUserTest1', password: 'passtest123' })
+            .set('Accept', 'application/json')
+
+        const initialStats = await request(app)
+            .get('/stats/ApiUserTest1')
+            .set('Accept', 'application/json')
+
+        const updateRes = await request(app)
+            .post(`/api/matches/update`)
+            .send({ 
+                username: 'ApiUserTest1',
+                puntos: 10,
+                modo: 'local'
+                })
+            .set('Accept', 'application/json')
+
+        const finalStats = await request(app)
+            .get('/stats/ApiUserTest1')
+            .set('Accept', 'application/json')
+
+        expect(finalStats.status).toBe(200)
+        expect(finalStats.body.estadisticas.partidasJugadas).toBe(1)
+        expect(finalStats.body.estadisticas.puntosRanking).toBe(110)
+    })
+})
+
+describe('GET /games/user/:username', () =>
+{
+    afterEach(async () =>
+    {
+        vi.restoreAllMocks()
+        await cleanupUsers('ApiUserTest1')
+    })
+
+    it('returns 200 and a list of user games', async () =>
+    {
+        await request(app)
+            .post('/createuser') 
+            .send({ username: 'ApiUserTest1', password: 'passtest123' })
+            .set('Accept', 'application/json')
+
+        const gamesRes = await request(app)
+            .get(`/games/user/ApiUserTest1`)
+            .set('Accept', 'application/json')
+
+        
+        expect(gamesRes.status).toBe(200)
+        expect(gamesRes.body.games).toBeInstanceOf(Array)
+    })
+
+    it('returns 400 for an unknown username', async () =>
+    {
+        const gamesRes = await request(app)
+            .get(`/games/user/UnknownUsername`)
+            .set('Accept', 'application/json')
+
+        expect(gamesRes.status).toBe(404)
+        expect(gamesRes.body.message).toMatch(/El usuario 'UnknownUsername' no existe./i)
+        expect(gamesRes.body).toHaveProperty('success', false)
+    })
+})
+
+/*
+describe('GET /play', () =>
+{
+    afterEach(async () =>
+    {
+        vi.restoreAllMocks()
+        await cleanupUsers('ApiUserTest1')
+    })
+
+    it('returns 200 and the coords of the bot moves', async () =>
+    {
+        const res = await request(app)
+            .get(`/play`)
+            .query({
+                position: JSON.stringify({
+                    size: 3,
+                    turn: 0,
+                    players: ['B', 'R'],
+                    layout: './B./...'
+                }),
+                bot_id: 'random_bot'
+            })
+            .set('Accept', 'application/json')
+
+        
+        expect(res.body).toHaveProperty('coords')
+        expect(res.body.coords).toHaveProperty('x')
+        expect(res.body.coords).toHaveProperty('y')
+        expect(res.body.coords).toHaveProperty('z')
+        expect(res.status).toBe(200)
+        
+    })
+
+    it('returns 200 and the coords of the bot moves, whithout bot_id ', async () =>
+    {
+        const res = await request(app)
+            .get(`/play`)
+            .query({
+                position: JSON.stringify({
+                    size: 3,
+                    turn: 0,
+                    players: ['B', 'R'],
+                    layout: './B./...'
+                })                
+            })
+            .set('Accept', 'application/json')
+
+        
+        expect(res.status).toBe(200)
+        expect(res.body).toHaveProperty('coords')
+        expect(res.body.coords).toHaveProperty('x')
+        expect(res.body.coords).toHaveProperty('y')
+        expect(res.body.coords).toHaveProperty('z')
+    })
+
+    it('returns 400 for an unknown position', async () =>
+    {
+        const res = await request(app)
+            .get(`/play`)
+            .query({
+                bot_id: 'random_bot'
+            })
+            .set('Accept', 'application/json')
+
+        
+        expect(res.status).toBe(400)
+        expect(res.body).toHaveProperty('error')
+        expect(res.body.error).toMatch(/position is required/i)
+    })
+})
+ */

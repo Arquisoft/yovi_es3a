@@ -1,101 +1,127 @@
+
 import React from 'react';
+import { useAlert } from "../ui/useAlert";
+import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
 
+// Props separadas para evitar error de SonarQube
 interface NavbarProps
 {
   user: string | null;
   onLogout: () => void;
-  onSwitchView?: (view: "login" | "register") => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
 {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   const handleLogout = () =>
   {
     onLogout();
+
+    showAlert( t('alert.logout.success') , "success");
+
     navigate("/login");
+  };
+
+  // Permitir cambiar el idioma de forma dinámica
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
+  {
+    i18n.changeLanguage(e.target.value);
   };
 
   return (
     <nav id="myNav" className="navbar navbar-expand-lg navbar-dark purple-bg shadow">
       <div className="container-fluid">
         
-        {/* Navbar brand - App icon/brand */}
+        {/* Icono de la aplicación */}
         <NavLink className="navbar-brand d-flex align-items-center" to="/" style={{ fontFamily: "'Righteous'" }}>
           <i className="bi bi-triangle-half h1 me-2 mb-0"></i>
           <b className="h2 font-weight-bold font-italic mb-0">YOVI</b>
         </NavLink>
 
-        {/* Toggler for smaller viewports */}
+        {/* Botón para colapsar el menú */}
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navLinks">
           <span className="navbar-toggler-icon"></span>
         </button>
         
         <div id="navLinks" className="collapse navbar-collapse">
             
-          {/* Base links - play, ranking, stats...*/}
+          {/* Enlaces pricipales */}
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             {user && (
               <>
-                {/* GOTO: Play game */}
+                {/* Vista de juego */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/game">
-                    <i className="bi bi-play-circle me-1"></i> Jugar
+                    <i className="bi bi-play-circle me-1"></i> {t('nav.play')}
                   </NavLink>
                 </li>
 
-                {/* GOTO: personal stats */}
+                {/* Estadísticas de usuarios */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/stats">
-                    <i className="bi bi-bar-chart-fill me-1"></i> Estadísticas
+                    <i className="bi bi-bar-chart-fill me-1"></i> {t('nav.stats')}
                   </NavLink>
                 </li>
 
-                {/* GOTO: rankings */}
+                {/* Ranking de usuarios */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/ranking">
-                    <i className="bi bi-trophy me-1"></i> Ranking
+                    <i className="bi bi-trophy me-1"></i> {t('nav.ranking')}
                   </NavLink>
                 </li>
               </>
             )}
           </ul>
 
-          {/* Auth-related links */}
+          {/* Enlaces de autenticación */}
           <ul className="navbar-nav ms-auto">
             {user ? (
               <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle btn border-0" href="#" role="button" data-bs-toggle="dropdown">
+                <button className="nav-link dropdown-toggle btn border-0" data-bs-toggle="dropdown" aria-expanded="false">
                   <i className="bi bi-person-circle me-1"></i> {user}
-                </a>
-
+                </button>
                 <ul className="dropdown-menu dropdown-menu-end shadow">
                   <li>
                     <button className="dropdown-item text-danger d-flex align-items-center" onClick={handleLogout}>
-                      <i className="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+                      <i className="bi bi-box-arrow-right me-2"></i> {t('nav.logout')}
                     </button>
                   </li>
                 </ul>
               </li>
             ) : (
               <>
-                {/* GOTO: log in */}
+                {/* Login de usuario */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/login">
-                    <i className="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
+                    <i className="bi bi-box-arrow-in-right me-1"></i> {t('nav.login')}
                   </NavLink>
                 </li>
 
-                {/* GOTO: sign in */}
+                {/* Entrar en sesión */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/register">
-                    <i className="bi bi-person-plus me-1"></i> Registrarse
+                    <i className="bi bi-person-plus me-1"></i> {t('nav.signup')}
                   </NavLink>
                 </li>
               </>
             )}
+            <li className="nav-item d-flex align-items-center ms-3">
+              <label htmlFor="lang-select" className="visually-hidden">Language</label>
+              <select
+                id="lang-select"
+                className="form-select form-select-sm lang-select"
+                onChange={handleLanguageChange}
+                value={i18n.language}
+                aria-label="Select language"
+              >
+                <option value="en">English</option>
+                <option value="es">Español</option>
+              </select>
+            </li>
           </ul>
         </div>
       </div>

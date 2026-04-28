@@ -31,7 +31,7 @@ const addUser = async (username, alias, password) =>
 const listUsers = async (limit = 100) =>
 {
     // Parse limit before reading.
-    const parsedLimit = parseInt(limit);
+    const parsedLimit = Number.parseInt(limit);
     if (Number.isNaN(parsedLimit) || parsedLimit <= 0)
         throw new Error("Limit must be a positive number.");
 

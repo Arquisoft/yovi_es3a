@@ -1,74 +1,63 @@
+
 // @vitest-environment jsdom
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import RegisterForm from './RegisterForm'
 import '@testing-library/jest-dom/vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-function ensureAlertPortal() {
-    if (!document.getElementById('alert-portal')) {
-        const portal = document.createElement('div')
-        portal.id = 'alert-portal'
-        document.body.appendChild(portal)
-    }
-}
+import i18n from '../../../locales/i18n'
+import RegisterForm from './RegisterForm'
+import { render, screen, fireEvent, waitFor, cleanup } from '../../../testing/test-utils.tsx'
 
 describe('RegisterForm', () => {
-    const originalFetch = global.fetch;
+    const originalFetch = globalThis.fetch;
 
     beforeEach(() => {
         vi.restoreAllMocks();
-        ensureAlertPortal();
+        i18n.changeLanguage('es');
     });
 
     afterEach(() => {
-        global.fetch = originalFetch;
+        globalThis.fetch = originalFetch;
         cleanup();
     });
 
     it('renders without errors', () => {
         render(<MemoryRouter><RegisterForm /></MemoryRouter>);
 
-        let label = document.querySelector('label[for="username"]');
-        expect(label).toBeInTheDocument();
-        expect(label).toHaveTextContent('Nombre de usuario:');
+        const usernameLabel = screen.getByLabelText('Nombre de usuario:');
+        expect(usernameLabel).toBeInTheDocument();
 
-        label = document.querySelector('label[for="password"]');
-        expect(label).toBeInTheDocument();
-        expect(label).toHaveTextContent('Contraseña:');
+        const passwordLabel = screen.getByLabelText('Contraseña:');
+        expect(passwordLabel).toBeInTheDocument();
     })
 
     it('register new user', async () => {
         const onSuccess = vi.fn();
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
-            json: async () => ({ message: 'User created successfully' }),
+            json: async () => ({ message: 'Usuario creado correctamente' }),
         } as Response);
 
         render(<MemoryRouter><RegisterForm onSuccess={onSuccess} /></MemoryRouter>);
 
         const usernameInput = screen.getByLabelText('Nombre de usuario:');
-        expect(usernameInput).toBeInTheDocument();
-
         const passwordInput = screen.getByLabelText('Contraseña:');
-        expect(passwordInput).toBeInTheDocument();
 
         fireEvent.change(usernameInput, { target: { value: 'test-username' } });
         fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-        const submitButtons = screen.getAllByRole('button', { name: 'Crear cuenta' });
-        const submitButton = submitButtons[0];
+        const submitButton = screen.getByRole('button', { name: /Crear cuenta/i });
         fireEvent.click(submitButton);
 
         await waitFor(() => {
             expect(onSuccess).toHaveBeenCalledWith('test-username');
         });
 
-        expect(screen.getByText('User created successfully')).toBeInTheDocument();
+        expect(screen.getByText(/Registro correcto/)).toBeInTheDocument();
     });
 
     it('try register existing user', async () => {
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: false,
             json: async () => ({ error: 'User already exists' }),
         } as Response);
@@ -76,18 +65,12 @@ describe('RegisterForm', () => {
         render(<MemoryRouter><RegisterForm /></MemoryRouter>);
 
         const usernameInput = screen.getByLabelText('Nombre de usuario:');
-        expect(usernameInput).toBeInTheDocument();
-
         const passwordInput = screen.getByLabelText('Contraseña:');
-        expect(passwordInput).toBeInTheDocument();
 
         fireEvent.change(usernameInput, { target: { value: 'test-username' } });
         fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-        const submitButtons = screen.getAllByRole('button', { name: 'Crear cuenta' });
-        const submitButton = submitButtons[0];
-        expect(submitButton).toBeInTheDocument();
-
+        const submitButton = screen.getByRole('button', { name: /Crear cuenta/i });
         fireEvent.click(submitButton);
 
         await waitFor(() => {
@@ -99,41 +82,27 @@ describe('RegisterForm', () => {
         render(<MemoryRouter><RegisterForm /></MemoryRouter>);
 
         const usernameInput = screen.getByLabelText('Nombre de usuario:');
-        expect(usernameInput).toBeInTheDocument();
-
-        const passwordInput = screen.getByLabelText('Contraseña:');
-        expect(passwordInput).toBeInTheDocument();
-
         fireEvent.change(usernameInput, { target: { value: 'test-username' } });
 
-        const submitButtons = screen.getAllByRole('button', { name: 'Crear cuenta' });
-        const submitButton = submitButtons[0];
-        expect(submitButton).toBeInTheDocument();
-
+        const submitButton = screen.getByRole('button', { name: /Crear cuenta/i });
         fireEvent.click(submitButton);
 
-        const label = screen.getByText('Please enter a password.');
-        expect(label).toBeInTheDocument();
+        expect(
+            screen.getByText(/Introduzca una contraseña válida/)
+        ).toBeInTheDocument();
     });
 
     it('try register without username', () => {
         render(<MemoryRouter><RegisterForm /></MemoryRouter>);
 
-        const usernameInput = screen.getByLabelText('Nombre de usuario:');
-        expect(usernameInput).toBeInTheDocument();
-
         const passwordInput = screen.getByLabelText('Contraseña:');
-        expect(passwordInput).toBeInTheDocument();
-
         fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
-        const submitButtons = screen.getAllByRole('button', { name: 'Crear cuenta' });
-        const submitButton = submitButtons[0];
-        expect(submitButton).toBeInTheDocument();
-
+        const submitButton = screen.getByRole('button', { name: /Crear cuenta/i });
         fireEvent.click(submitButton);
 
-        const label = screen.getByText('Please enter a username.');
-        expect(label).toBeInTheDocument();
+        expect(
+            screen.getByText(/Introduzca un nombre de usuario válido/)
+        ).toBeInTheDocument();
     });
 })

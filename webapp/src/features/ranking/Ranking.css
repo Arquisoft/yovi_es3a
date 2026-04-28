@@ -6,7 +6,6 @@
 
     color: #212529 !important;
     border-color: rgba(0, 0, 0, 0.1) !important;
-    /* ✅ FIX: clamp más amplio para cubrir pantallas muy pequeñas */
     font-size: clamp(0.65rem, 1.2vw, 0.95rem);
     width: 100%;
     min-width: 100%;
@@ -19,9 +18,8 @@
     max-height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    /* ✅ FIX: scroll suave en iOS */
     -webkit-overflow-scrolling: touch;
-    /* ✅ FIX: esconde scrollbar en webkit manteniendo funcionalidad */
+    scroll-behavior: smooth;
     scrollbar-width: thin;
     scrollbar-color: rgba(98, 34, 224, 0.3) transparent;
 }
@@ -42,8 +40,7 @@
 .table-ranking-custom thead th {
     background-color: rgba(0, 0, 0, 0.05) !important;
     border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
-    color: #212529 !important;
-    /* ✅ FIX: evita que los headers se rompan en líneas en móvil */
+    color: #aab9c9 !important;
     white-space: nowrap;
 }
 
@@ -58,7 +55,6 @@
     border-color: rgba(0, 0, 0, 0.05) !important;
     color: #212529 !important;
     padding: clamp(6px, 1vh, 12px);
-    /* ✅ FIX: evita saltos de línea en celdas de datos */
     white-space: nowrap;
 }
 
@@ -70,10 +66,9 @@
 .podium-player-name {
     color: #212529 !important;
     font-weight: 600;
-    /* ✅ FIX: permite corte de texto largo en nombres */
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 150px;
+    max-width: clamp(80px, 20vw, 150px);
     white-space: nowrap;
 }
 
@@ -85,17 +80,14 @@
     background-color: rgba(0, 0, 0, 0.03) !important;
 }
 
-/* ✅ FIX: wrapper para scroll horizontal en tablas anchas */
-.table-responsive {
+.ranking-container-fix .table-responsive {
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    /* ✅ FIX: borde sutil para indicar que hay más contenido */
     position: relative;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .table-ranking-custom {
         font-size: clamp(0.62rem, 1.8vw, 0.85rem);

@@ -1,7 +1,8 @@
 {
   "name": "webapp",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Webapp module for group ES3A's YOVI project",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,8 +20,10 @@
   "dependencies": {
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "i18next": "^26.0.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-i18next": "^17.0.4",
     "react-router-dom": "^7.13.1"
   },
   "devDependencies": {
