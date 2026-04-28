@@ -82,6 +82,34 @@ describe('UserStatsComponent', () => {
         expect(screen.getByText('Empates: 2')).toBeInTheDocument();
     });
 
+    it('shows fallback date text and empty pie chart when stats have invalid date and no results', async () => {
+        globalThis.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({
+                success: true,
+                nombreUsuario: 'testUser',
+                fechaUltimaEdicion: 'invalid-date',
+                tiempoJuego: 0,
+                estadisticas: {
+                    partidasJugadas: 0,
+                    victorias: 0,
+                    derrotas: 0,
+                    empates: 0,
+                    puntosRanking: 0,
+                },
+            }),
+        } as Response);
+
+        render(<UserStatsComponent username="testUser" />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Fecha no disponible')).toBeInTheDocument();
+        });
+
+        expect(screen.getByText('Sin partidas jugadas')).toBeInTheDocument();
+        expect(screen.getByText('0')).toBeInTheDocument();
+    });
+
     // --- Tab de Historial de Partidas ---
     it('switches to games tab and shows loading state', async () => {
         globalThis.fetch = vi.fn()
@@ -159,5 +187,58 @@ describe('UserStatsComponent', () => {
         await waitFor(() => {
             expect(screen.getByText(/Error de red al conectar con el servidor/)).toBeInTheDocument();
         });
+    });
+
+    it('shows error when fetching games returns a non-ok HTTP response', async () => {
+        const mockStats = { success: true, nombreUsuario: 'testUser', estadisticas: {} };
+
+        globalThis.fetch = vi.fn()
+            .mockResolvedValueOnce({ ok: true, json: async () => mockStats } as Response)
+            .mockResolvedValueOnce({
+                ok: false,
+                status: 500,
+                json: async () => ({ success: false, message: 'Servidor no disponible' }),
+            } as Response);
+
+        render(<UserStatsComponent username="testUser" />);
+        fireEvent.click(screen.getByRole('button', { name: /Historial de Partidas/i }));
+
+        await waitFor(() => {
+            expect(screen.getByText(/Error de red al conectar con el servidor/)).toBeInTheDocument();
+        });
+    });
+
+    it('sorts games by date descending and keeps only the five most recent entries', async () => {
+        const mockStats = { success: true, nombreUsuario: 'testUser', estadisticas: {} };
+        const mockGames = {
+            success: true,
+            games: [
+                { _id: '1', jugador: 'testUser', tipo: 'bot', fecha: '2024-01-02T10:00:00Z', activa: false, puntos: 8002 },
+                { _id: '2', jugador: 'testUser', tipo: 'bot', fecha: '2024-01-06T10:00:00Z', activa: false, puntos: 9001 },
+                { _id: '3', jugador: 'testUser', tipo: 'bot', fecha: '2024-01-01T10:00:00Z', activa: false, puntos: 4006 },
+                { _id: '4', jugador: 'testUser', tipo: 'bot', fecha: '2024-01-05T10:00:00Z', activa: false, puntos: 7003 },
+                { _id: '5', jugador: 'testUser', tipo: 'bot', fecha: '2024-01-03T10:00:00Z', activa: false, puntos: 6004 },
+                { _id: '6', jugador: 'testUser', tipo: 'bot', fecha: '2024-01-04T10:00:00Z', activa: false, puntos: 5005 },
+            ],
+        };
+
+        globalThis.fetch = vi.fn()
+            .mockResolvedValueOnce({ ok: true, json: async () => mockStats } as Response)
+            .mockResolvedValueOnce({ ok: true, json: async () => mockGames } as Response);
+
+        const { container } = render(<UserStatsComponent username="testUser" />);
+        fireEvent.click(screen.getByRole('button', { name: /Historial de Partidas/i }));
+
+        await waitFor(() => {
+            expect(container.querySelectorAll('tbody tr')).toHaveLength(5);
+        });
+
+        const rows = Array.from(container.querySelectorAll('tbody tr')).map((row) => row.textContent ?? '');
+        expect(rows[0]).toContain('9001');
+        expect(rows[1]).toContain('7003');
+        expect(rows[2]).toContain('5005');
+        expect(rows[3]).toContain('6004');
+        expect(rows[4]).toContain('8002');
+        expect(container.textContent).not.toContain('4006');
     });
 });

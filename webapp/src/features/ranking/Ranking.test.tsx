@@ -51,6 +51,16 @@ describe('Ranking Component', () => {
         });
     });
 
+    it('shows server error when rejection is not an Error instance', async () => {
+        globalThis.fetch = vi.fn().mockRejectedValue('boom');
+
+        render(<Ranking />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Error: Error del servidor')).toBeInTheDocument();
+        });
+    });
+
     it('shows error "Formato de datos inválido" with invalid data format', async () => {
         globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
@@ -106,5 +116,59 @@ describe('Ranking Component', () => {
         expect(screen.getByText('Ranking Global')).toBeInTheDocument();
         expect(screen.getByText(/1000/)).toBeInTheDocument();
         expect(screen.getByText(/800/)).toBeInTheDocument();
+    });
+
+    it('shows only the first seven rest players in the ranking table', async () => {
+        const mockData = {
+            gold: { playerName: 'Alice', score: 1000 },
+            silver: { playerName: 'Bob', score: 900 },
+            bronze: { playerName: 'Charlie', score: 800 },
+            rest: [
+                { playerName: 'P4', score: 700 },
+                { playerName: 'P5', score: 600 },
+                { playerName: 'P6', score: 500 },
+                { playerName: 'P7', score: 400 },
+                { playerName: 'P8', score: 300 },
+                { playerName: 'P9', score: 200 },
+                { playerName: 'P10', score: 100 },
+                { playerName: 'P11', score: 50 },
+            ],
+        };
+
+        globalThis.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => mockData,
+        } as Response);
+
+        const { container } = render(<Ranking />);
+
+        await waitFor(() => {
+            expect(screen.getByText('P10')).toBeInTheDocument();
+        });
+
+        expect(screen.queryByText('P11')).not.toBeInTheDocument();
+        expect(container.querySelectorAll('tbody tr')).toHaveLength(7);
+    });
+
+    it('renders podium correctly when rest is missing', async () => {
+        const mockData = {
+            gold: { playerName: 'Alice', score: 1000 },
+            silver: { playerName: 'Bob', score: 900 },
+            bronze: { playerName: 'Charlie', score: 800 },
+        };
+
+        globalThis.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => mockData,
+        } as Response);
+
+        const { container } = render(<Ranking />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Alice')).toBeInTheDocument();
+        });
+
+        expect(container.querySelectorAll('tbody tr')).toHaveLength(0);
+        expect(screen.getByText('Ranking Global')).toBeInTheDocument();
     });
 });
