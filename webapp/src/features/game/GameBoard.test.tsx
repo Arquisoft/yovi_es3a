@@ -232,7 +232,6 @@ describe('GameBoard', () => {
 
 		expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 9, bot_id: 'greedy_hard' }));
 	});
-});
 
 	it('handles WebSocket close event', async () => {
 		const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -482,4 +481,4 @@ describe('GameBoard', () => {
 
 		expect(ws.close).toHaveBeenCalled();
 	});
-
+});
