@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { createRequire } from 'module'
-import { create } from 'domain'
+import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
 const GestorDBUSERS = require('../gestorDBUSER.js')
@@ -14,7 +13,6 @@ const cleanupCreatedUsers = async () =>
     {
         return
     }
-
 
     try
     {
@@ -34,7 +32,7 @@ const cleanupCreatedUsers = async () =>
     }
     catch (err)
     {
-        // ignore cleanup errors in tests
+        console.warn('Cleanup error ignored:', err.message)
     }
 
     finally
@@ -191,7 +189,7 @@ describe('GestorDBUSERS.login', () =>
         const result = await gestor.login(username, 'wrong_password')
 
         expect(result.success).toBe(false)
-        expect(result.message).toMatch(/inválidas|incorrecta/i)
+        expect(result.message).toMatch(/Credenciales inválidas./i)
     })
 })
 
@@ -326,25 +324,16 @@ describe('GestorDBUSERS.globalRanking', () =>
 
          const rankingResult = await gestor.globalRanking()
 
-         expect(rankingResult.success).toBe(true)
-         const rankingData = rankingResult.data || rankingResult.ranking
-         expect(Array.isArray(rankingData)).toBe(true)
-         expect(rankingData.length).toBeGreaterThanOrEqual(4)
+        expect(rankingResult.success).toBe(true)
+        expect(Array.isArray(rankingResult.ranking)).toBe(true)
+        expect(rankingResult.ranking.length).toBeGreaterThanOrEqual(4)
 
-         for (let i = 1; i < rankingData.length; i++)
-         {
-             // Handle different possible structures for ranking data
-             const prevItem = rankingData[i - 1]
-             const currentItem = rankingData[i]
-             const prevScore = prevItem.score !== undefined ? prevItem.score : prevItem.estadisticas?.puntosRanking
-             const currentScore = currentItem.score !== undefined ? currentItem.score : currentItem.estadisticas?.puntosRanking
-
-             // Only check if both scores are available
-             if (prevScore !== undefined && currentScore !== undefined) {
-                 expect(prevScore).toBeGreaterThanOrEqual(currentScore)
-             }
-         }
-     })
+        for (let i = 1; i < rankingResult.ranking.length; i++)
+        {
+            expect(rankingResult.ranking[i - 1].score)
+                .toBeGreaterThanOrEqual(rankingResult.ranking[i].score)
+        }
+    })
 })
 
 describe('GestorDBUSERS.addUserMatch', () =>
@@ -407,17 +396,17 @@ describe('GestorDBUSERS.addUserMatch', () =>
             expect(result.message).toBe("Partida registrada correctamente.")
         })
 
-         /**
-          * Se intenta añadir una partida con el username desconocido.
-          * Se recibe success igual a false y mensaje de error indicando que el usuario no existe.
-          */
-         it('returns not found when user does not exist', async () =>
-         {
-             const result = await gestor.addUserMatch("user_that_does_not_exist",-10)
-
-             expect(result.success).toBe(false)
-             expect(result.message).toMatch(/no existe|no encontrado/i)
-         })
+        /**
+         * Se intenta añadir una partida con el username desconocido.
+         * Se recibe success igual a false y mensaje de error indicando que el usuario no existe.
+         */
+        it('returns not found when user does not exist', async () =>
+        {    
+            const result = await gestor.addUserMatch("user_that_does_not_exist",-10)
+    
+            expect(result.success).toBe(false)
+            expect(result.message).toBe("Usuario no encontrado.")
+        })
     })
 
 describe('GestorDBUSERS.getUserGames', () =>
@@ -463,16 +452,16 @@ describe('GestorDBUSERS.getUserGames', () =>
             expect(Array.isArray(result.games)).toBe(true)
             expect(result.games.length).toBe(4)
         })
-
-         /**
-          * busca las partidas de un usuario que no existe.
-          * Se recibe success igual a false y mensaje de error indicando que el usuario no existe.
-          */
-         it('returns not found when user does not exist', async () =>
-         {
-             const result = await gestor.getUserGames("user_that_does_not_exist")
-
-             expect(result.success).toBe(false)
-             expect(result.message).toMatch(/no existe|no encontrado/i)
-         })
+        
+        /**
+         * busca las partidas de un usuario que no existe.
+         * Se recibe success igual a false y mensaje de error indicando que el usuario no existe.
+         */ 
+        it('returns not found when user does not exist', async () =>
+        {
+            const result = await gestor.getUserGames("user_that_does_not_exist")
+    
+            expect(result.success).toBe(false)
+            expect(result.message).toBe("Usuario no encontrado.")
+        })
     })

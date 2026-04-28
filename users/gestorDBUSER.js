@@ -1,10 +1,39 @@
+
 require('dotenv').config();
 const { connectToDatabase } = require('./userDB');
 const bcrypt = require('bcryptjs');
 
-class GestorDBUSERS {
-    constructor() {}
+// Función para prevenir inyecciones NoSQL
+function sanitizeUsername(nombreUsuario) {
+    if (typeof nombreUsuario !== 'string') return null;
 
+    const trimmed = nombreUsuario.trim();
+
+    if (!trimmed) return null;
+
+    if (!/^\w+$/.test(trimmed)) return null;
+
+    return trimmed;
+}
+
+function requireValidUsername(nombreUsuario) {
+    const safeUsername = sanitizeUsername(nombreUsuario);
+
+    if (!safeUsername) return null;
+
+    return safeUsername;
+}
+
+async function ensureIndexes(usersCollection) {
+    await usersCollection.createIndex(
+        { nombreUsuario: 1 },
+        { unique: true }
+    );
+}
+
+
+class GestorDBUSERS
+{
     /**
      * Verifica la conexión con la base de datos.
      */
@@ -28,23 +57,43 @@ class GestorDBUSERS {
             const db = await connectToDatabase();
             const usersCollection = db.collection('usuarios');
 
+            await ensureIndexes(usersCollection);
+
+            const safeUsername = requireValidUsername(nombreUsuario);
+
+            if (!safeUsername) {
+                return {
+                    success: false,
+                    message: 'El nombre de usuario no es válido.'
+                };
+            }
+
             // 1. Comprobar si existe el usuario
-            const usuarioExistente = await usersCollection.findOne({ nombreUsuario });
+            const usuarioExistente = await usersCollection.findOne({
+                nombreUsuario: safeUsername
+            });
 
             if (usuarioExistente) {
                 return { 
                     success: false, 
-                    message: `El usuario '${nombreUsuario}' ya existe.` 
+                    message: `El usuario ya existe.` 
                 };
             }
 
-             // Encrypt password (10 salt rounds).
+            if (typeof contrasena !== 'string' || contrasena.length < 6) {
+                return {
+                    success: false,
+                    message: 'Contraseña inválida (mínimo 6 caracteres).'
+                };
+            }
+
+            // Encrypt password (10 salt rounds).
             const passwordHashed = await bcrypt.hash(contrasena, 10);
 
             // 2. Preparar el nuevo usuario
             const nuevoUsuario = {
                 nombre,
-                nombreUsuario,
+                nombreUsuario: safeUsername,
                 passwordHashed,
                 fechaUltimaEdicion: new Date().toISOString(),
                 estadisticas: {
@@ -67,6 +116,14 @@ class GestorDBUSERS {
 
         } catch (err) {
             console.error('Error en addUser:', err.message);
+
+            if (err.code === 11000) {
+                return {
+                    success: false,
+                    message: 'El usuario ya existe (duplicado).'
+                };
+            }
+
             throw new Error(`Error al añadir usuario: ${err.message}`);
         }
     }
@@ -83,10 +140,21 @@ class GestorDBUSERS {
             const db = await connectToDatabase();
             const usersCollection = db.collection('usuarios');
 
+            const safeUsername = requireValidUsername(nombreUsuario);
+            if (!safeUsername) {
+                return {
+                    success: false,
+                    message: 'El nombre de usuario no es válido.'
+                };
+            }
+
             // 1. Buscar al usuario actual para conocer sus puntos
-            const usuario = await usersCollection.findOne({ nombreUsuario });
+            const usuario = await usersCollection.findOne({
+                nombreUsuario: safeUsername
+            });
+
             if (!usuario) {
-                return { success: false, message: `El usuario '${nombreUsuario}' no existe.` };
+                return { success: false, message: `El usuario no existe.` };
             }
 
             // 2. Preparar el objeto de actualización
@@ -105,17 +173,22 @@ class GestorDBUSERS {
             }
 
             // 3. Calcular los nuevos puntos de ranking (nunca por debajo de 0)
-            let nuevosPuntos = (usuario.estadisticas.puntosRanking || 0) + puntos;
+            let current = Number(usuario.estadisticas?.puntosRanking ?? 0);
+            let nuevosPuntos = current + puntos;
+            
             if (nuevosPuntos < 0) nuevosPuntos = 0;
             
             updateDoc.$set["estadisticas.puntosRanking"] = nuevosPuntos;
 
             // 4. Realizar la actualización
-            await usersCollection.updateOne({ nombreUsuario }, updateDoc);
+            await usersCollection.updateOne(
+                { nombreUsuario: safeUsername },
+                updateDoc
+            );
 
             return { 
                 success: true, 
-                message: `Estadísticas de '${nombreUsuario}' actualizadas correctamente.`,
+                message: `Estadísticas de '${safeUsername}' actualizadas correctamente.`,
                 nuevosPuntos: nuevosPuntos
             };
 
@@ -136,11 +209,24 @@ class GestorDBUSERS {
             const db = await connectToDatabase();
             const usersCollection = db.collection('usuarios');
 
+            const safeUsername = requireValidUsername(nombreUsuario);
+            if (!safeUsername) {
+                return {
+                    success: false,
+                    message: 'Credenciales inválidas.'
+                };
+            }
+
             // 1. Buscar al usuario por nombreUsuario
-            const usuario = await usersCollection.findOne({ nombreUsuario });
-            
+            const usuario = await usersCollection.findOne({
+                nombreUsuario: safeUsername
+            }); 
+
             if (!usuario) {
-                return { success: false, message: `El usuario '${nombreUsuario}' no existe.` };
+                return {
+                    success: false,
+                    message: 'Credenciales inválidas.'
+                };
             }
 
             // 2. Comparar la contraseña proporcionada con el hash guardado
@@ -148,7 +234,8 @@ class GestorDBUSERS {
 
             if (esValida) {
                 // No devolvemos la contraseña en el objeto user por seguridad
-                const { passwordHashed: _, ...userWithoutPassword } = usuario;
+                const userWithoutPassword = { ...usuario };
+                delete userWithoutPassword.passwordHashed;
                 return {
                     success: true, 
                     message: 'Login correcto.', 
@@ -157,7 +244,7 @@ class GestorDBUSERS {
             } else {
                 return { 
                     success: false, 
-                    message: 'Contraseña incorrecta.' 
+                    message: 'Credenciales inválidas.'
                 };
             }
 
@@ -189,16 +276,24 @@ class GestorDBUSERS {
             const db = await connectToDatabase();
             const usersCollection = db.collection('usuarios');
 
+            const safeUsername = requireValidUsername(nombreUsuario);
+            if (!safeUsername) {
+                return {
+                    success: false,
+                    message: 'El nombre de usuario no es válido.'
+                };
+            }
+
             // 1. Buscar al usuario
             const usuario = await usersCollection.findOne(
-                { nombreUsuario },
+                { nombreUsuario: safeUsername },
                 { projection: { estadisticas: 1, _id: 0 } } // Solo queremos las estadísticas
             );
 
             if (!usuario) {
                 return { 
                     success: false, 
-                    message: `El usuario '${nombreUsuario}' no existe.` 
+                    message: 'Usuario no encontrado.' 
                 };
             }
 
@@ -241,14 +336,13 @@ class GestorDBUSERS {
                 "estadisticas": {}
             }
         ]
-     * @param {string} nombreUsuario 
      * @returns {Promise<{success: boolean, message: string, ranking?: object}>}
      */
     async globalRanking() {
         try {
             const db = await connectToDatabase();
             const usersCollection = db.collection('usuarios');
-
+            
             const ranking = await usersCollection.find({})
                 .sort({ "estadisticas.puntosRanking": -1 })
                 .project({ 
@@ -261,13 +355,13 @@ class GestorDBUSERS {
             // Transformar los datos al formato esperado
             const formattedRanking = ranking.map(user => ({
                 playerName: user.nombreUsuario || 'Desconocido',
-                score: (user.estadisticas && user.estadisticas.puntosRanking) || 0
+                score: (user.estadisticas?.puntosRanking) || 0
             }));
 
             return { 
                 success: true, 
                 message: 'Ranking recuperado correctamente.', 
-                data: formattedRanking
+                ranking: formattedRanking
             };
 
         } catch (err) {
@@ -275,7 +369,7 @@ class GestorDBUSERS {
             return {
                 success: false,
                 message: `Error al recuperar ranking global: ${err.message}`,
-                data: []
+                ranking: []
             };
         }
     }
@@ -306,7 +400,6 @@ class GestorDBUSERS {
                 "estadisticas": {}
             }
         ]
-     * @param {string} nombreUsuario 
      * @returns {Promise<{success: boolean, message: string, ranking?: object}>}
      */
     async getRankingThreeBest() {
@@ -356,22 +449,31 @@ class GestorDBUSERS {
             const usersCollection = db.collection('usuarios');
             const gamesCollection = db.collection('partidas');
 
+            const safeUsername = requireValidUsername(nombreUsuario);
+
+            if (!safeUsername) {
+                return {
+                    success: false,
+                    message: 'El nombre de usuario no es válido.'
+                };
+            }
+
             // 1. Buscar al usuario para obtener su ID
             const usuario = await usersCollection.findOne(
-                { nombreUsuario },
+                { nombreUsuario: safeUsername },
                 { projection: { _id: 1 } }
             );
 
             if (!usuario) {
                 return { 
                     success: false, 
-                    message: `El usuario '${nombreUsuario}' no existe.` 
+                    message: 'Usuario no encontrado.'
                 };
             }
 
             // 2. Buscar las últimas 5 partidas del usuario
             const games = await gamesCollection.find(
-                { jugador: usuario._id.toString() }
+                { jugador: usuario._id }
             )
             .sort({ fecha: -1 })  // Ordenar por fecha descendente (más recientes primero)
             .limit(5)
@@ -404,15 +506,29 @@ class GestorDBUSERS {
             const usersCollection = db.collection('usuarios');
             const gamesCollection = db.collection('partidas');
 
+            const safeUsername = requireValidUsername(nombreUsuario);
+            if (!safeUsername) {
+                return {
+                    success: false,
+                    message: 'El nombre de usuario no es válido.'
+                };
+            }
+
             // 1. Buscar al usuario
-            const usuario = await usersCollection.findOne({ nombreUsuario });
+            const usuario = await usersCollection.findOne({
+                nombreUsuario: safeUsername
+            });
+
             if (!usuario) {
-                return { success: false, message: `El usuario '${nombreUsuario}' no existe.` };
+                return {
+                    success: false,
+                    message: 'Usuario no encontrado.'
+                };
             }
 
             // 2. Registrar la partida en la colección 'partidas'
             await gamesCollection.insertOne({
-                jugador: usuario._id.toString(),
+                jugador: usuario._id,
                 tipo,
                 fecha: new Date(),
                 activa: false,
