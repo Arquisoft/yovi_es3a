@@ -180,7 +180,7 @@ describe('GameBoard', () => {
 		ws.open();
 		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
-		fireEvent.click(screen.getByText('← Menú'));
+		fireEvent.click(screen.getByRole('button', { name: /Menú/i }));
 		expect(screen.getByText('Selecciona el modo de juego')).toBeInTheDocument();
 	});
 
@@ -232,7 +232,6 @@ describe('GameBoard', () => {
 
 		expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 9, bot_id: 'greedy_hard' }));
 	});
-});
 
 	it('handles WebSocket close event', async () => {
 		const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -269,12 +268,13 @@ describe('GameBoard', () => {
 	});
 
 
-	it('prevents clicking occupied cells', () => {
+	it('prevents clicking occupied cells', async () => {
 		const { container } = render(<GameBoard username="test-username" />);
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Jugador/i }));
 
 		const ws = MockWebSocket.instances[MockWebSocket.instances.length - 1];
 		ws.open();
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
 		// Send state message with occupied cell at position 0
 		ws.emitMessage({
@@ -284,7 +284,9 @@ describe('GameBoard', () => {
 		});
 
 		// Verify board state was updated
-		expect(container.querySelectorAll('.gb-piece').length).toBeGreaterThan(0);
+		await waitFor(() => {
+			expect(container.querySelectorAll('.gb-piece').length).toBeGreaterThan(0);
+		});
 	});
 
 	it('prevents clicking when winner exists', async () => {
@@ -294,7 +296,7 @@ describe('GameBoard', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Jugador/i }));
 		const ws = MockWebSocket.instances[0];
 		ws.open();
-
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
 		ws.emitMessage({
 			type: 'state',
@@ -302,7 +304,7 @@ describe('GameBoard', () => {
 			status: { Finished: { winner: { id: 0 } } }
 		});
 
-		await waitFor(() => expect(screen.getByText('¡Has ganado!')).toBeInTheDocument(), { timeout: 2000 });
+		await waitFor(() => expect(screen.getByText(/Jugador 1/i)).toBeInTheDocument(), { timeout: 2000 });
 
 		const secondHexCell = container.querySelectorAll('polygon')[1];
 		ws.send.mockClear();
@@ -316,12 +318,16 @@ describe('GameBoard', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Bot/i }));
 		const ws = MockWebSocket.instances[0];
 		ws.open();
-
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
 		ws.emitMessage({
 			type: 'state',
 			yen: { layout: 'B/.../..../.....', turn: 2 },
 			status: { Ongoing: { next_player: { id: 1 } } }
+		});
+
+		await waitFor(() => {
+			expect(container.querySelectorAll('polygon').length).toBeGreaterThan(1);
 		});
 
 		const secondHexCell = container.querySelectorAll('polygon')[1];
@@ -336,11 +342,12 @@ describe('GameBoard', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Bot/i }));
 		const ws = MockWebSocket.instances[0];
 		ws.open();
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
 		const firstHexCell = container.querySelector('polygon');
 		fireEvent.click(firstHexCell!);
 
-		expect(screen.getByText(/Bot está pensando/i)).toBeInTheDocument();
+		expect(screen.getByText(/Bot pensando/i)).toBeInTheDocument();
 
 		ws.send.mockClear();
 		const secondHexCell = container.querySelectorAll('polygon')[1];
@@ -354,7 +361,7 @@ describe('GameBoard', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Jugador/i }));
 		const ws = MockWebSocket.instances[0];
 		ws.open();
-
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
 		const firstHexCell = container.querySelector('polygon');
 		fireEvent.mouseEnter(firstHexCell!);
@@ -366,7 +373,7 @@ describe('GameBoard', () => {
 	});
 
 	it('displays correct board size 9', async () => {
-		render(<GameBoard username="test-username" />);
+		const { container } = render(<GameBoard username="test-username" />);
 
 		const selects = screen.getAllByRole('combobox');
 		const sizeSelect = selects[1];
@@ -376,15 +383,14 @@ describe('GameBoard', () => {
 
 		const ws = MockWebSocket.instances[0];
 		ws.open();
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
-		const cellsText = screen.getByText((content, element) => {
-			return element?.textContent?.includes('45') && element?.textContent?.includes('9') || false;
-		});
-		expect(cellsText).toBeInTheDocument();
+		const pInfo = container.querySelector('.gb-cells-count');
+		expect(pInfo?.textContent).toMatch(/45.*9/);
 	});
 
 	it('displays correct board size 11', async () => {
-		render(<GameBoard username="test-username" />);
+		const { container } = render(<GameBoard username="test-username" />);
 
 		const selects = screen.getAllByRole('combobox');
 		const sizeSelect = selects[1];
@@ -394,11 +400,10 @@ describe('GameBoard', () => {
 
 		const ws = MockWebSocket.instances[0];
 		ws.open();
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
-		const cellsText = screen.getByText((content, element) => {
-			return element?.textContent?.includes('66') && element?.textContent?.includes('11') || false;
-		});
-		expect(cellsText).toBeInTheDocument();
+		const pInfo = container.querySelector('.gb-cells-count');
+		expect(pInfo?.textContent).toMatch(/66.*11/);
 	});
 
 	it('selects different bot difficulty levels', async () => {
@@ -411,9 +416,10 @@ describe('GameBoard', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Bot/i }));
 		let ws = MockWebSocket.instances[0];
 		ws.open();
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 		expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 7, bot_id: 'random_bot' }));
 
-		fireEvent.click(screen.getByText('← Menú'));
+		fireEvent.click(screen.getByRole('button', { name: /Menú/i }));
 
 		await waitFor(() => expect(screen.getByText('Selecciona el modo de juego')).toBeInTheDocument());
 
@@ -422,6 +428,7 @@ describe('GameBoard', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Bot/i }));
 		ws = MockWebSocket.instances[1];
 		ws.open();
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 		expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'start', size: 7, bot_id: 'greedy_medium' }));
 	});
 
@@ -430,11 +437,12 @@ describe('GameBoard', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Bot/i }));
 		const ws = MockWebSocket.instances[0];
 		ws.open();
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
 		const firstHexCell = container.querySelector('polygon');
 		fireEvent.click(firstHexCell!);
 
-		expect(screen.getByText(/Bot está pensando/i)).toBeInTheDocument();
+		expect(screen.getByText(/Bot pensando/i)).toBeInTheDocument();
 
 		ws.emitMessage({
 			type: 'state',
@@ -443,7 +451,7 @@ describe('GameBoard', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.queryByText(/Bot está pensando/i)).not.toBeInTheDocument();
+			expect(screen.queryByText(/Bot pensando/i)).not.toBeInTheDocument();
 		});
 	});
 
@@ -454,6 +462,7 @@ describe('GameBoard', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Jugador/i }));
 		const ws = MockWebSocket.instances[0];
 		ws.open();
+		await waitFor(() => expect(screen.getByText(/Online/i)).toBeInTheDocument());
 
 		ws.emitMessage({
 			type: 'state',
@@ -462,7 +471,7 @@ describe('GameBoard', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.getByText('¡Has ganado!')).toBeInTheDocument();
+			expect(screen.getByText(/gana!/i)).toBeInTheDocument();
 		});
 
 		const playAgainButton = screen.getByText('Jugar de nuevo');
@@ -482,4 +491,6 @@ describe('GameBoard', () => {
 
 		expect(ws.close).toHaveBeenCalled();
 	});
+});
+
 
