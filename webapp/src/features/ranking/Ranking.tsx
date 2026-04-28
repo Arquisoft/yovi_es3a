@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import './Ranking.css';
+
 import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState } from 'react';
+
+import './Ranking.css';
 
 interface PlayerScore
 {
@@ -25,10 +27,11 @@ const Ranking: React.FC = () => {
 
   useEffect(() => {
     const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-    fetch(API_URL + '/api/ranking')
+
+    fetch(`${API_URL}/api/ranking`)
       .then((res) => {
         if (!res.ok) {
-          throw new Error(`Error ${res.status}: ${res.statusText}`);
+          throw new Error(`${res.status}: ${res.statusText}`);
         }
         return res.json();
       })
@@ -42,13 +45,19 @@ const Ranking: React.FC = () => {
       })
       .catch((err) => {
         console.error('Error fetching ranking:', err);
-        setError(err instanceof Error ? err.message : t('ranking.response.server_error') );
+        setError(err instanceof Error ? `${t('common.error')}: ${err.message}` : t('ranking.response.server_error') );
         setLoading(false);
       });
   }, [t]);
 
-  if (loading) return <div className="text-center mt-5"> {t('ranking.loading')} </div>;
-  if (error) return <div className="text-center mt-5 text-danger">{t('common.error')}: {error}</div>;
+  if (loading) {
+      return <div className="text-center mt-5"> {t('ranking.loading')} </div>;
+    }
+
+  if (error) {
+      return <div className="text-center mt-5 text-danger">{t('common.error')}: {error}</div>;
+    }
+  
   if (!data || (!data.gold && !data.silver && !data.bronze && (!data.rest || data.rest.length === 0))) {
     return <div className="text-center mt-5"> {t('ranking.no_data')} </div>;
   }
@@ -102,7 +111,7 @@ const Ranking: React.FC = () => {
             </table>
         </div>
     </div>
-);
+  );
 };
 
 export default Ranking;

@@ -12,6 +12,8 @@
     "nav.signup": "Registrarse",
     "nav.logout": "Cerrar sesión",
 
+	"footer.copyright": "© 2026 - Juego de Mesa YOVI · v1.0.0",
+
 	"login.header": "Inicio de sesión",
 	"login.username.label": "Nombre de usuario:",
 	"login.password.label": "Contraseña:",
@@ -51,7 +53,7 @@
 
 	"stats.header": "Estadísticas del jugador",
 	"stats.overall": "Estadísticas",
-	"stats.history": "Historial de Partidas",
+	"stats.history": "Historial de partidas",
 	"stats.overall.loading": "Cargando estadísticas",
 	"stats.username": "Nombre de usuario",
 	"stats.create_date": "Fecha de Creación",
@@ -82,9 +84,9 @@
 	"gameboard.pvp.description": "Juega contra un amigo en local",
 	"gameboard.pve.header": "Jugador vs Bot",
 	"gameboard.pve.description": "Desafía a un Bot Inteligente",
-	"gameboard.options": "Opciones de Partida",
+	"gameboard.options": "Opciones de partida",
     "gameboard.difficulty": "Dificultad del Bot",
-	"gameboard.size": "Tamaño del Tablero",
+	"gameboard.size": "Tamaño del tablero",
 	"gameboard.tiles": "Casillas",
 	"gameboard.connecting": "Conectando al servidor",
 	"gameboard.user_wins": "¡Has ganado!",
@@ -109,7 +111,7 @@
 
     "gameboard.bot.random_bot.description": "Bot de movimientos aleatorios",
     "gameboard.bot.greedy_easy.description": "Bot Greedy inicial",
-    "gameboard.bot.greedy_medium.description": "Bot Greedy experimentado!",
-    "gameboard.bot.greedy_hard.description": "Bot Greedy avanzado!!",
-    "gameboard.bot.random_strategy_bot.description": "Bot de estrategia variables"
+    "gameboard.bot.greedy_medium.description": "Bot Greedy experimentado",
+    "gameboard.bot.greedy_hard.description": "Bot Greedy avanzado",
+    "gameboard.bot.random_strategy_bot.description": "Bot de estrategia variable"
 }

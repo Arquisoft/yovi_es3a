@@ -1,31 +1,35 @@
-﻿// @vitest-environment jsdom
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import UserStatsComponent from './UserStats'
+﻿
+// @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest'
-import { render, screen, waitFor, cleanup, fireEvent } from '../../test-utils.tsx'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+
+import i18n from '../../locales/i18n'
+import UserStatsComponent from './UserStats'
+import { render, screen, waitFor, cleanup, fireEvent } from '../../testing/test-utils.tsx'
 
 describe('UserStatsComponent', () => {
-    const originalFetch = global.fetch;
+    const originalFetch = globalThis.fetch;
 
     beforeEach(() => {
         vi.restoreAllMocks();
-        global.fetch = vi.fn();
+        globalThis.fetch = vi.fn();
+        i18n.changeLanguage('es');
     });
 
     afterEach(() => {
-        global.fetch = originalFetch;
+        globalThis.fetch = originalFetch;
         cleanup();
     });
 
     // --- Tab de Estadísticas ---
     it('shows loading state initially for stats', () => {
-        global.fetch = vi.fn().mockImplementation(() => new Promise(() => {}));
+        globalThis.fetch = vi.fn().mockImplementation(() => new Promise(() => {}));
         render(<UserStatsComponent username="testUser" />);
-        expect(screen.getByText('Cargando estadísticas...')).toBeInTheDocument();
+        expect(screen.getByText(/Cargando estadísticas/i)).toBeInTheDocument();  
     });
 
     it('shows error when fetching stats fails (network error)', async () => {
-        global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+        globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
         render(<UserStatsComponent username="testUser" />);
         
         await waitFor(() => {
@@ -34,7 +38,7 @@ describe('UserStatsComponent', () => {
     });
 
     it('shows error when fetching stats returns success: false', async () => {
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => ({ success: false, message: 'Usuario no encontrado' }),
         } as Response);
@@ -60,7 +64,7 @@ describe('UserStatsComponent', () => {
             }
         };
 
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => mockStats,
         } as Response);
@@ -80,7 +84,7 @@ describe('UserStatsComponent', () => {
 
     // --- Tab de Historial de Partidas ---
     it('switches to games tab and shows loading state', async () => {
-        global.fetch = vi.fn()
+        globalThis.fetch = vi.fn()
             .mockResolvedValueOnce({
                 ok: true,
                 json: async () => ({ success: true, nombreUsuario: 'testUser', estadisticas: {} }),
@@ -93,7 +97,7 @@ describe('UserStatsComponent', () => {
         fireEvent.click(gamesTab);
 
         await waitFor(() => {
-            expect(screen.getByText(/Cargando historial de partidas/)).toBeInTheDocument();
+            expect(screen.getByText(/Cargando historial de partidas/i)).toBeInTheDocument();
         });
     });
 
@@ -107,7 +111,7 @@ describe('UserStatsComponent', () => {
             ]
         };
 
-        global.fetch = vi.fn()
+        globalThis.fetch = vi.fn()
             .mockResolvedValueOnce({ ok: true, json: async () => mockStats } as Response)
             .mockResolvedValueOnce({ ok: true, json: async () => mockGames } as Response);
 
@@ -130,7 +134,7 @@ describe('UserStatsComponent', () => {
         const mockStats = { success: true, nombreUsuario: 'testUser', estadisticas: {} };
         const mockGames = { success: true, games: [] };
 
-        global.fetch = vi.fn()
+        globalThis.fetch = vi.fn()
             .mockResolvedValueOnce({ ok: true, json: async () => mockStats } as Response)
             .mockResolvedValueOnce({ ok: true, json: async () => mockGames } as Response);
 
@@ -145,7 +149,7 @@ describe('UserStatsComponent', () => {
     it('shows error when fetching games fails', async () => {
         const mockStats = { success: true, nombreUsuario: 'testUser', estadisticas: {} };
         
-        global.fetch = vi.fn()
+        globalThis.fetch = vi.fn()
             .mockResolvedValueOnce({ ok: true, json: async () => mockStats } as Response)
             .mockRejectedValueOnce(new Error('Network error')); // Error al cargar juegos
 

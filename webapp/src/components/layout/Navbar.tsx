@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { useAlert } from "../ui/useAlert";
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
 
+// Props separadas para evitar error de SonarQube
 interface NavbarProps
 {
   user: string | null;
@@ -11,7 +13,7 @@ interface NavbarProps
 
 export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
 {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
@@ -24,9 +26,9 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
     navigate("/login");
   };
 
-  const { i18n } = useTranslation();
-
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  // Permitir cambiar el idioma de forma dinámica
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
+  {
     i18n.changeLanguage(e.target.value);
   };
 
@@ -34,38 +36,38 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
     <nav id="myNav" className="navbar navbar-expand-lg navbar-dark purple-bg shadow">
       <div className="container-fluid">
         
-        {/* Navbar brand - App icon/brand */}
+        {/* Icono de la aplicación */}
         <NavLink className="navbar-brand d-flex align-items-center" to="/" style={{ fontFamily: "'Righteous'" }}>
           <i className="bi bi-triangle-half h1 me-2 mb-0"></i>
           <b className="h2 font-weight-bold font-italic mb-0">YOVI</b>
         </NavLink>
 
-        {/* Toggler for smaller viewports */}
+        {/* Botón para colapsar el menú */}
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navLinks">
           <span className="navbar-toggler-icon"></span>
         </button>
         
         <div id="navLinks" className="collapse navbar-collapse">
             
-          {/* Base links - play, ranking, stats...*/}
+          {/* Enlaces pricipales */}
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             {user && (
               <>
-                {/* GOTO: Play game */}
+                {/* Vista de juego */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/game">
                     <i className="bi bi-play-circle me-1"></i> {t('nav.play')}
                   </NavLink>
                 </li>
 
-                {/* GOTO: personal stats */}
+                {/* Estadísticas de usuarios */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/stats">
                     <i className="bi bi-bar-chart-fill me-1"></i> {t('nav.stats')}
                   </NavLink>
                 </li>
 
-                {/* GOTO: rankings */}
+                {/* Ranking de usuarios */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/ranking">
                     <i className="bi bi-trophy me-1"></i> {t('nav.ranking')}
@@ -75,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
             )}
           </ul>
 
-          {/* Auth-related links */}
+          {/* Enlaces de autenticación */}
           <ul className="navbar-nav ms-auto">
             {user ? (
               <li className="nav-item dropdown">
@@ -92,14 +94,14 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) =>
               </li>
             ) : (
               <>
-                {/* GOTO: log in */}
+                {/* Login de usuario */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/login">
                     <i className="bi bi-box-arrow-in-right me-1"></i> {t('nav.login')}
                   </NavLink>
                 </li>
 
-                {/* GOTO: sign in */}
+                {/* Entrar en sesión */}
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/register">
                     <i className="bi bi-person-plus me-1"></i> {t('nav.signup')}

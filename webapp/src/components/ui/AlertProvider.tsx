@@ -1,10 +1,14 @@
-import { AlertList } from "./AlertList";
+
 import { createPortal } from "react-dom";
-import { AlertContext } from "./alertContext";
-import type { Alert, AlertType } from "./alertTypes";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+import { AlertList } from "./AlertList";
+import { AlertContext } from "./alertContext";
+import type { Alert, AlertType } from "./alertTypes";
+
+// Gestor del sistema de alertas
+export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
+{
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [topOffset, setTopOffset] = useState<number>(0);
 

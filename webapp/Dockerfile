@@ -1,3 +1,4 @@
+
 # ------ Fase de Construcción -----
 
 # Usar imagen compatible con ARM para la compilación
@@ -14,7 +15,7 @@ COPY . .
 
 # Aceptar url de la API en tiempo de ejecución y compilar el binario final
 ARG VITE_API_URL="http://localhost:3000"
-RUN export VITE_API_URL=${VITE_API_URL} && npm run build
+RUN export VITE_API_URL="${VITE_API_URL}" && npm run build
 
 # ----- Fase de Ejecución -----
 

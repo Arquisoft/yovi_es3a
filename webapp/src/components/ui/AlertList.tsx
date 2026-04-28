@@ -1,25 +1,34 @@
+
 import React from "react";
 import type { Alert, AlertType } from "./alertTypes";
 
-interface Props {
+// Props separadas para evitar error de SonarQube
+interface Props
+{
   alerts: Alert[];
   clearAlert: (id: string) => void;
   topOffset: number;
 }
 
-function alertClass(type?: AlertType): string {
+// Devuelve la clase de alerta de Bootsrap
+function alertClass(type?: AlertType): string
+{
   if (type === "error") return "danger";
   if (type === "success") return "success";
   return "secondary";
 }
 
-function iconClass(type?: AlertType): string {
+// Devuelve el icono de alerta según su tipo
+function iconClass(type?: AlertType): string
+{
   if (type === "success") return "bi-check-circle-fill";
   if (type === "error") return "bi-exclamation-triangle-fill";
   return "bi-info-circle-fill";
 }
 
-export const AlertList: React.FC<Props> = ({ alerts, clearAlert, topOffset }) => {
+// Componente que muestra la lista de alertas activas
+export const AlertList: React.FC<Props> = ({ alerts, clearAlert, topOffset }) =>
+{
   return (
     <div
       className="alert-portal-wrapper"

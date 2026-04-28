@@ -17,12 +17,10 @@ body {
     padding: clamp(8px, 1vh, 20px) clamp(8px, 1.5vw, 20px);
     overflow-y: auto;
     overflow-x: hidden;
-    /* ✅ FIX: scroll suave en iOS */
     -webkit-overflow-scrolling: touch;
-    box-sizing: border-box; /* ✅ FIX: padding no suma al 100% */
+    box-sizing: border-box;
 }
 
-/* Scrollbar personalizado para el overlay */
 .stats-overlay::-webkit-scrollbar {
     width: 4px;
 }
@@ -63,7 +61,7 @@ body {
     min-height: auto;
     overflow-y: visible;
     overflow-x: hidden;
-    box-sizing: border-box; /* ✅ FIX: padding no desborda el ancho */
+    box-sizing: border-box;
 }
 
 .stats-close-icon {
@@ -80,9 +78,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;  /* ✅ FIX: área táctil mínima WCAG */
+    width: 44px;
     height: 44px;
-    /* ✅ FIX: z-index para que no quede por debajo de otros elementos */
     z-index: 1;
 }
 
@@ -91,11 +88,9 @@ body {
 }
 
 .stats-title {
-    /* ✅ FIX: clamp más conservador para pantallas muy pequeñas */
     font-size: clamp(1.3rem, 3vh, 2rem);
     margin: clamp(4px, 0.8vh, 8px) 0 clamp(10px, 1.5vh, 16px) 0;
     padding-top: clamp(4px, 0.5vh, 8px);
-    /* ✅ FIX: espacio a la derecha para no solaparse con el botón de cierre */
     padding-right: 48px;
     text-align: center;
     color: #111827;
@@ -196,7 +191,6 @@ body {
     margin: 0;
 }
 
-/* Pie Chart Styles */
 .pie-chart-container {
     display: flex;
     flex-direction: column;
@@ -207,7 +201,6 @@ body {
 }
 
 .pie-chart {
-    /* ✅ FIX: tamaño dinámico basado en viewport, no fijo */
     width: clamp(140px, 20vw, 200px);
     height: clamp(140px, 20vw, 200px);
     max-width: 100%;
@@ -246,12 +239,10 @@ body {
     flex-shrink: 0;
 }
 
-/* Loading State */
 .spinner-border {
     border-width: 3px !important;
 }
 
-/* Button Styles */
 .stats-modal .btn {
     margin-top: clamp(20px, 3vh, 40px) !important;
     padding: clamp(8px, 1.2vh, 12px) clamp(16px, 2vw, 24px) !important;
@@ -262,7 +253,6 @@ body {
     margin-bottom: 12px !important;
 }
 
-/* ─── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
     .stats-modal {
         padding: clamp(12px, 1.8vh, 20px) clamp(12px, 1.8vw, 20px);
@@ -354,7 +344,6 @@ body {
     }
 }
 
-/* ─── Tab Navigation ────────────────────────────────────────────────────── */
 .tabs-container {
     display: flex;
     gap: 4px;
@@ -362,7 +351,6 @@ body {
     border-bottom: 2px solid #e5e7eb;
     width: 100%;
     max-width: 1100px;
-    /* ✅ FIX: scroll horizontal si hay muchas tabs en pantalla pequeña */
     overflow-x: auto;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
@@ -387,7 +375,7 @@ body {
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
     white-space: nowrap;
-    flex-shrink: 0; /* ✅ FIX: las tabs no se comprimen */
+    flex-shrink: 0;
 }
 
 .tab-button:hover {
@@ -402,7 +390,7 @@ body {
 .tabs-content {
     width: 100%;
     max-width: 1100px;
-    min-height: 0; /* ✅ FIX: permite que el contenido se comprima en flex */
+    min-height: 0;
     flex: 1 1 auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -423,7 +411,6 @@ body {
     }
 }
 
-/* ─── Games Table ───────────────────────────────────────────────────────── */
 .games-table-container {
     margin-top: 12px;
     width: 100%;
@@ -455,7 +442,7 @@ body {
     text-transform: uppercase;
     font-size: clamp(0.65rem, 1vh, 0.85rem);
     letter-spacing: 0.5px;
-    white-space: nowrap; /* ✅ FIX: headers no se rompen */
+    white-space: nowrap;
 }
 
 .games-table tbody tr {
@@ -482,7 +469,6 @@ body {
 
 .opponent-cell {
     font-weight: 500;
-    /* ✅ FIX: corta nombres muy largos */
     max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -525,7 +511,6 @@ body {
     white-space: nowrap;
 }
 
-/* Responsive Tables */
 @media (max-width: 768px) {
     .tab-button {
         padding: 8px 14px;

@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import './UserStats.css';
-import { useTranslation } from 'react-i18next';
 
-interface StatsProps {
+import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState } from 'react';
+
+import './UserStats.css';
+
+interface StatsProps
+{
   username: string;
 }
 
-interface UserStats {
+interface UserStats
+{
   nombreUsuario: string;
   fechaUltimaEdicion: string;
   tiempoJuego: number;
@@ -19,7 +23,8 @@ interface UserStats {
   };
 }
 
-interface Game {
+interface Game
+{
   _id: string;
   jugador: string;
   tipo: 'local' | 'bot';
@@ -28,10 +33,37 @@ interface Game {
   puntos: number;
 }
 
+const PIE_RADIUS = 40;
+const PIE_CIRCUMFERENCE = 2 * Math.PI * PIE_RADIUS;
+
+const baseCircleStyle =
+{
+  transform: 'rotate(-90deg)',
+  transformOrigin: '50% 50%',
+};
+
+const fetchJson = async (url: string) =>
+{
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error: ${response.status}`);
+  }
+  return response.json();
+};
+
+const safeParseDate = (dateString: string): Date | null =>
+{
+  const date = new Date(dateString);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+
 const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ wins, losses, draws }) => {
   const { t } = useTranslation();
   const total = wins + losses + draws;
-  if (total === 0) {
+
+  if (total === 0)
+  {
     return (
       <div className="pie-chart-container">
         <p className="text-muted"> {t('stats.no_games')} </p>
@@ -43,35 +75,30 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
   const lossesPercentage = (losses / total) * 100;
   const drawsPercentage = (draws / total) * 100;
 
-  const circumference = 251;
-  const winsDasharray = winsPercentage * circumference / 100;
-  const lossesDasharray = lossesPercentage * circumference / 100;
-  const drawsDasharray = drawsPercentage * circumference / 100;
+  const winsDasharray = winsPercentage * PIE_CIRCUMFERENCE / 100;
+  const lossesDasharray = lossesPercentage * PIE_CIRCUMFERENCE / 100;
+  const drawsDasharray = drawsPercentage * PIE_CIRCUMFERENCE / 100;
 
-  const winsOffset = 0;
   const lossesOffset = -(winsDasharray);
   const drawsOffset = -(winsDasharray + lossesDasharray);
 
   return (
     <div className="pie-chart-container">
       <svg viewBox="0 0 100 100" className="pie-chart">
-        <circle cx="50" cy="50" r="40" fill="none" stroke="#e0e0e0" strokeWidth="20" />
+        <circle cx="50" cy="50" r={PIE_RADIUS} fill="none" stroke="#e0e0e0" strokeWidth="20" />
         {/* Victorias - Verde */}
         {wins > 0 && (
         <circle
           cx="50"
           cy="50"
-          r="40"
+          r={PIE_RADIUS}
           fill="none"
           stroke="#22c55e"
           strokeWidth="20"
-          strokeDasharray={`${winsDasharray} ${circumference}`}
-          strokeDashoffset={winsOffset}
+          strokeDasharray={`${winsDasharray} ${PIE_CIRCUMFERENCE}`}
+          strokeDashoffset={0}
           strokeLinecap="butt"
-          style={{
-            transform: 'rotate(-90deg)',
-            transformOrigin: '50% 50%',
-          }}
+          style={baseCircleStyle}
         />
 
         )}
@@ -80,17 +107,14 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
           <circle
             cx="50"
             cy="50"
-            r="40"
+            r={PIE_RADIUS}
             fill="none"
             stroke="#ef4444"
             strokeWidth="20"
-            strokeDasharray={`${lossesDasharray} ${circumference}`}
+            strokeDasharray={`${lossesDasharray} ${PIE_CIRCUMFERENCE}`}
             strokeDashoffset={lossesOffset}
             strokeLinecap="butt"
-            style={{
-              transform: 'rotate(-90deg)',
-              transformOrigin: '50% 50%',
-            }}
+            style={baseCircleStyle}
           />
         )}
 
@@ -99,17 +123,14 @@ const PieChart: React.FC<{ wins: number; losses: number; draws: number }> = ({ w
           <circle
             cx="50"
             cy="50"
-            r="40"
+            r={PIE_RADIUS}
             fill="none"
             stroke="#9ca3af"
             strokeWidth="20"
-            strokeDasharray={`${drawsDasharray} ${circumference}`}
+            strokeDasharray={`${drawsDasharray} ${PIE_CIRCUMFERENCE}`}
             strokeDashoffset={drawsOffset}
             strokeLinecap="butt"
-            style={{
-              transform: 'rotate(-90deg)',
-              transformOrigin: '50% 50%',
-            }}
+            style={baseCircleStyle}
           />
         )}
         <text x="50" y="50" textAnchor="middle" dy="0.3em" className="pie-chart-text">
@@ -145,9 +166,30 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
 
   const { t } = useTranslation();
 
+  const formatDateSafe = (dateString: string, withTime = false) => {
+    const date = safeParseDate(dateString);
+    if (!date) return t('stats.date_unavailable');
+
+    const datePart = date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+
+    if (!withTime) return datePart;
+
+    const timePart = date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    return `${datePart} ${timePart}`;
+  };
+
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
+      setError(null);
 
       try {
         const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
@@ -194,8 +236,8 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
 
       try {
         const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-        const response = await fetch(API_URL + '/games/user/' + username);
-        const data = await response.json();
+
+        const data = await fetchJson(`${API_URL}/games/user/${username}`);
 
         if (data.success) {
           const sortedGames = data.games
@@ -214,43 +256,6 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
 
     fetchGames();
   }, [username, activeTab, t]);
-
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      if (Number.isNaN(date.getTime())) {
-        return t('stats.date_unavailable');
-      }
-      return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
-    } catch {
-      return t('stats.date_unavailable');
-    }
-  };
-
-  const formatDateTime = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      if (Number.isNaN(date.getTime())) {
-        return t('stats.date_unavailable');
-      }
-      const dateFormatted = date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
-      const timeFormatted = date.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      return `${dateFormatted} ${timeFormatted}`;
-    } catch {
-      return t('stats.date_unavailable');
-    }
-  };
 
   const getGameResult = (game: Game) => {
     return game.puntos > 0 ? t('stats.win') : t('stats.lose');
@@ -329,7 +334,7 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
                   {/* Fecha de Creación */}
                   <div className="stats-section">
                     <h5 className="stats-section-title"> {t('stats.create_date')} </h5>
-                    <p className="stats-value">{formatDate(stats.fechaUltimaEdicion)}</p>
+                    <p className="stats-value">{formatDateSafe(stats.fechaUltimaEdicion)}</p>
                   </div>
 
                   {/* Puntos de Ranking */}
@@ -358,7 +363,7 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
             {gamesLoading && (
               <div className="text-center">
                 <div className="spinner-border text-primary" aria-label="Cargando">
-                  <span className="visually-hidden"> {t('aria.loading')} ...</span>
+                  <span className="visually-hidden"> {t('stats.aria.loading')} ...</span>
                 </div>
                 <p className="mt-2"> {t('stats.history.loading')} ...</p>
               </div>
@@ -395,18 +400,22 @@ const UserStatsComponent: React.FC<StatsProps> = ({ username }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {games.map((game) => (
-                        <tr key={game._id} className={getGameResultClass(game)}>
+                      {games.map((game) => {
+                        const resultClass = getGameResultClass(game);
+                        
+                        return (
+                          <tr key={game._id} className={resultClass}>
                           <td className="opponent-cell">{getOpponentType(game.tipo)}</td>
                           <td className="result-cell">
-                            <span className={`result-badge ${getGameResultClass(game)}`}>
+                            <span className={`result-badge ${resultClass}`}>
                               {getGameResult(game)}
                             </span>
                           </td>
                           <td className="points-cell">{game.puntos}</td>
-                          <td className="date-cell">{formatDateTime(game.fecha)}</td>
+                          <td className="date-cell">{formatDateSafe(game.fecha, true)}</td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}

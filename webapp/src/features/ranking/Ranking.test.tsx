@@ -1,30 +1,34 @@
-﻿// @vitest-environment jsdom
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import Ranking from './Ranking'
+﻿
+// @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest'
-import { render, screen, waitFor, cleanup } from '../../test-utils.tsx'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+
+import Ranking from './Ranking'
+import i18n from '../../locales/i18n'
+import { render, screen, waitFor, cleanup } from '../../testing/test-utils.tsx'
 
 describe('Ranking Component', () => {
-    const originalFetch = global.fetch;
+    const originalFetch = globalThis.fetch;
 
     beforeEach(() => {
         vi.restoreAllMocks();
-        global.fetch = vi.fn();
+        i18n.changeLanguage('es');
+        globalThis.fetch = vi.fn();
     });
 
     afterEach(() => {
-        global.fetch = originalFetch;
+        globalThis.fetch = originalFetch;
         cleanup();
     });
 
     it('shows loading state initially', () => {
-        global.fetch = vi.fn().mockImplementation(() => new Promise(() => {}));
+        globalThis.fetch = vi.fn().mockImplementation(() => new Promise(() => {}));
         render(<Ranking />);
         expect(screen.getByText('Cargando ranking...')).toBeInTheDocument();
     });
 
     it('shows error if fetch returns not ok', async () => {
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: false,
             status: 500,
             statusText: 'Internal Server Error',
@@ -33,22 +37,22 @@ describe('Ranking Component', () => {
         render(<Ranking />);
 
         await waitFor(() => {
-            expect(screen.getByText('Error: Error 500: Internal Server Error')).toBeInTheDocument();
+            expect(screen.getByText(/500: Internal Server Error/i)).toBeInTheDocument();
         });
     });
 
     it('shows error on network failure', async () => {
-        global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+        globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
         render(<Ranking />);
 
         await waitFor(() => {
-            expect(screen.getByText('Error: Network error')).toBeInTheDocument();
+            expect(screen.getByText(/network error/i)).toBeInTheDocument();
         });
     });
 
     it('shows error "Formato de datos inválido" with invalid data format', async () => {
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => null,
         } as Response);
@@ -61,7 +65,7 @@ describe('Ranking Component', () => {
     });
 
     it('shows "No hay datos disponibles" when data is empty', async () => {
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => ({ gold: null, silver: null, bronze: null, rest: [] }),
         } as Response);
@@ -84,7 +88,7 @@ describe('Ranking Component', () => {
             ]
         };
 
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => mockData,
         } as Response);

@@ -1,8 +1,11 @@
+
 // @vitest-environment jsdom
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, waitFor, cleanup } from '../../test-utils.tsx'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+
 import GameBoard from './GameBoard'
+import i18n from '../../locales/i18n'
+import { render, screen, fireEvent, waitFor, cleanup } from '../../testing/test-utils.tsx'
 
 class MockWebSocket {
 	static readonly instances: MockWebSocket[] = [];
@@ -43,6 +46,7 @@ describe('GameBoard', () => {
 		vi.restoreAllMocks();
 		MockWebSocket.instances.length = 0;
 		globalThis.WebSocket = MockWebSocket as unknown as typeof WebSocket;
+		i18n.changeLanguage('es');
 	});
 
 	afterEach(() => {
@@ -150,7 +154,7 @@ describe('GameBoard', () => {
 	});
 
 	it('detects a winner correctly', async () => {
-		global.fetch = vi.fn().mockResolvedValue({ ok: true }); 
+		globalThis.fetch = vi.fn().mockResolvedValue({ ok: true }); 
 
 		render(<GameBoard username="test-username" />);
 		fireEvent.click(screen.getByRole('button', { name: /Jugador vs Bot/i }));
