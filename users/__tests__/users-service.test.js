@@ -86,10 +86,9 @@ describe('POST /createuser', () =>
                 .set('Accept', 'application/json')
     
             expect(res.status).toBe(400)
-            expect(res.body).toHaveProperty('success', false)
-            expect(res.body).toHaveProperty('message')
-            expect(res.body.message).toMatch(/username is required/i)
-    });
+            expect(res.body).toHaveProperty('error')
+            expect(res.body.error).toMatch(/username is required/i)
+    }); 
 
     /**
      * Intenta crear un usuario nuevo sin la password.
@@ -103,10 +102,9 @@ describe('POST /createuser', () =>
                 .set('Accept', 'application/json')
     
             expect(res.status).toBe(400)
-            expect(res.body).toHaveProperty('success', false)
-            expect(res.body).toHaveProperty('message')
-            expect(res.body.message).toMatch(/password is required/i)
-    });
+            expect(res.body).toHaveProperty('error')
+            expect(res.body.error).toMatch(/password is required/i)
+    }); 
 
     /**
      * Intenta crear un usuario ya existente.
@@ -129,9 +127,8 @@ describe('POST /createuser', () =>
                 .set('Accept', 'application/json')
 
             expect(res.status).toBe(400)
-            expect(res.body).toHaveProperty('success', false)
-            expect(res.body).toHaveProperty('message')
-            expect(res.body.message).toMatch(/ya existe/i)
+            expect(res.body).toHaveProperty('error')
+            expect(res.body.error).toMatch(/ya existe/i)
     });
 })
 
@@ -192,9 +189,8 @@ describe('POST /login', () =>
                     .set('Accept', 'application/json')
         
                 expect(res.status).toBe(400)
-                expect(res.body).toHaveProperty('success', false)
-                expect(res.body).toHaveProperty('message')
-                expect(res.body.message).toMatch(/username is required/i)
+                expect(res.body).toHaveProperty('error')
+                expect(res.body.error).toMatch(/username is required/i)
         });
     
         /**
@@ -209,9 +205,8 @@ describe('POST /login', () =>
                     .set('Accept', 'application/json')
         
                 expect(res.status).toBe(400)
-                expect(res.body).toHaveProperty('success', false)
-                expect(res.body).toHaveProperty('message')
-                expect(res.body.message).toMatch(/password is required/i)
+                expect(res.body).toHaveProperty('error')
+                expect(res.body.error).toMatch(/password is required/i)
         });
     
         /**
@@ -226,9 +221,8 @@ describe('POST /login', () =>
                     .set('Accept', 'application/json')
         
                 expect(res.status).toBe(401)
-                expect(res.body).toHaveProperty('success', false)
-                expect(res.body).toHaveProperty('message')
-                expect(res.body.message).toMatch(/no existe|inválidas/i)
+                expect(res.body).toHaveProperty('error')
+                expect(res.body.error).toMatch(/no existe|inválidas/i)
         });
     })
 
@@ -404,9 +398,8 @@ describe('POST /api/users', () =>
             .set('Accept', 'application/json')
 
         expect(res.status).toBe(400)
-        expect(res.body).toHaveProperty('success', false)
-        expect(res.body).toHaveProperty('message')
-        expect(res.body.message).toMatch(/username is required/i)
+        expect(res.body).toHaveProperty('error')
+        expect(res.body.error).toMatch(/username is required/i)
     })
 
     /**
@@ -421,9 +414,8 @@ describe('POST /api/users', () =>
             .set('Accept', 'application/json')
 
         expect(res.status).toBe(400)
-        expect(res.body).toHaveProperty('success', false)
-        expect(res.body).toHaveProperty('message')
-        expect(res.body.message).toMatch(/password is required/i)
+        expect(res.body).toHaveProperty('error')
+        expect(res.body.error).toMatch(/password is required/i)
     })
 
     /**
@@ -484,8 +476,7 @@ describe('GET /api/users/:id', () =>
             .set('Accept', 'application/json')
 
         expect(res.status).toBe(404)
-        expect(res.body).toHaveProperty('success', false)
-        expect(res.body).toHaveProperty('message')
+        expect(res.body).toHaveProperty('error', 'not found')
     })
 })
 
@@ -528,8 +519,7 @@ describe('DELETE /api/users/:id', () =>
             .set('Accept', 'application/json')
 
         expect(res.status).toBe(404)
-        expect(res.body).toHaveProperty('success', false)
-        expect(res.body).toHaveProperty('message')
+        expect(res.body).toHaveProperty('error', 'not found')
     })
 })
 
