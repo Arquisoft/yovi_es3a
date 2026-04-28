@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { createRequire } from 'module'
+import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
 const User = require('../user-model.js')

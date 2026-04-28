@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { createRequire } from 'module'
-import { create } from 'domain'
+import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
 const GestorDBUSERS = require('../gestorDBUSER.js')
@@ -14,7 +13,6 @@ const cleanupCreatedUsers = async () =>
     {
         return
     }
-
 
     try
     {
@@ -34,7 +32,7 @@ const cleanupCreatedUsers = async () =>
     }
     catch (err)
     {
-        // ignore cleanup errors in tests
+        console.warn('Cleanup error ignored:', err.message)
     }
 
     finally
@@ -191,7 +189,7 @@ describe('GestorDBUSERS.login', () =>
         const result = await gestor.login(username, 'wrong_password')
 
         expect(result.success).toBe(false)
-        expect(result.message).toMatch(/incorrecta/i)
+        expect(result.message).toMatch(/Credenciales inválidas./i)
     })
 })
 
@@ -327,13 +325,13 @@ describe('GestorDBUSERS.globalRanking', () =>
         const rankingResult = await gestor.globalRanking()
 
         expect(rankingResult.success).toBe(true)
-        expect(Array.isArray(rankingResult.data)).toBe(true)
-        expect(rankingResult.data.length).toBeGreaterThanOrEqual(4)
+        expect(Array.isArray(rankingResult.ranking)).toBe(true)
+        expect(rankingResult.ranking.length).toBeGreaterThanOrEqual(4)
 
-        for (let i = 1; i < rankingResult.data.length; i++)
+        for (let i = 1; i < rankingResult.ranking.length; i++)
         {
-            expect(rankingResult.data[i - 1].score)
-                .toBeGreaterThanOrEqual(rankingResult.data[i].score)
+            expect(rankingResult.ranking[i - 1].score)
+                .toBeGreaterThanOrEqual(rankingResult.ranking[i].score)
         }
     })
 })
@@ -407,7 +405,7 @@ describe('GestorDBUSERS.addUserMatch', () =>
             const result = await gestor.addUserMatch("user_that_does_not_exist",-10)
     
             expect(result.success).toBe(false)
-            expect(result.message).toBe("El usuario 'user_that_does_not_exist' no existe.")
+            expect(result.message).toBe("Usuario no encontrado.")
         })
     })
 
@@ -464,6 +462,6 @@ describe('GestorDBUSERS.getUserGames', () =>
             const result = await gestor.getUserGames("user_that_does_not_exist")
     
             expect(result.success).toBe(false)
-            expect(result.message).toBe("El usuario 'user_that_does_not_exist' no existe.")
+            expect(result.message).toBe("Usuario no encontrado.")
         })
     })

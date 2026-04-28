@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import request from 'supertest'
-import { createRequire } from 'module'
+import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 import app from '../users-service.js'
 
@@ -27,13 +27,13 @@ const cleanupUsers = async (...usernames) =>
 
         for (const username of uniqueUsernames)
         {
-            try { await db.collection('usuarios').deleteMany({ nombreUsuario: username }) } catch(e) {}
-            try { await db.collection('users').deleteMany({ username }) } catch(e) {}
+            try { await db.collection('usuarios').deleteMany({ nombreUsuario: username }) } catch(e) {console.warn('Cleanup error ignored:', e.message)}
+            try { await db.collection('users').deleteMany({ username }) } catch(e) {console.warn('Cleanup error ignored:', e.message)}
         }
     }
     catch (err)
     {
-        // ignore cleanup errors
+        console.warn('Cleanup error ignored:', err.message)
     }
 }
 
@@ -49,12 +49,12 @@ describe('POST /createuser', () =>
             const { connectToDatabase } = require('../userDB.js')
             const db = await connectToDatabase()
 
-            try { await db.collection('usuarios').deleteMany({ nombreUsuario: 'Pablo' }) } catch(e) {}
-            try { await db.collection('users').deleteMany({ username: 'Pablo' }) } catch(e) {}
+            try { await db.collection('usuarios').deleteMany({ nombreUsuario: 'Pablo' }) } catch(e) {console.warn('Cleanup error ignored:', e.message)}
+            try { await db.collection('users').deleteMany({ username: 'Pablo' }) } catch(e) {console.warn('Cleanup error ignored:', e.message)}
         }
         catch (err)
         {
-            // ignore cleanup errors
+            console.warn('Cleanup error ignored:', err.message)
         }
     })
 
@@ -78,7 +78,7 @@ describe('POST /createuser', () =>
      * Intenta crear un usuario nuevo sin el username.
      * Se recibe un mensaje de error con el código 400.
      */
-    it('returns a error message saying that the username is required', async () =>
+    it('returns a error message saying that the username is required (createuser)', async () =>
         {
             const res = await request(app)
                 .post('/createuser')
@@ -86,15 +86,15 @@ describe('POST /createuser', () =>
                 .set('Accept', 'application/json')
     
             expect(res.status).toBe(400)
-            expect(res.body).toHaveProperty('error')
-            expect(res.body.error).toMatch(/username is required/i)
+            expect(res.body).toHaveProperty('message')
+            expect(res.body.message).toMatch(/username is required/i)
     }); 
 
     /**
      * Intenta crear un usuario nuevo sin la password.
      * Se recibe un mensaje de error con el código 400.
      */
-    it('returns a error message saying that the password is required', async () =>
+    it('returns a error message saying that the password is required (login)', async () =>
         {
             const res = await request(app)
                 .post('/createuser')
@@ -102,15 +102,15 @@ describe('POST /createuser', () =>
                 .set('Accept', 'application/json')
     
             expect(res.status).toBe(400)
-            expect(res.body).toHaveProperty('error')
-            expect(res.body.error).toMatch(/password is required/i)
+            expect(res.body).toHaveProperty('message')
+            expect(res.body.message).toMatch(/password is required/i)
     }); 
 
     /**
      * Intenta crear un usuario ya existente.
      * Se recibe un mensaje de error con el código 400.
      */
-    it('returns a error message saying that the password is required', async () =>
+    it('returns a error message saying that the password is required (duplicate user)', async () =>
         {
             let res = await request(app)
                 .post('/createuser')
@@ -127,8 +127,8 @@ describe('POST /createuser', () =>
                 .set('Accept', 'application/json')
 
             expect(res.status).toBe(400)
-            expect(res.body).toHaveProperty('error')
-            expect(res.body.error).toMatch(/El usuario 'Pablo' ya existe./i)
+            expect(res.body).toHaveProperty('message')
+            expect(res.body.message).toMatch(/El usuario ya existe./i)
     }); 
 })
 
@@ -152,12 +152,13 @@ describe('POST /login', () =>
                 const { connectToDatabase } = require('../userDB.js')
                 const db = await connectToDatabase()
     
-                try { await db.collection('usuarios').deleteMany({ nombreUsuario: 'Pablo' }) } catch(e) {}
-                try { await db.collection('users').deleteMany({ username: 'Pablo' }) } catch(e) {}
+                try { await db.collection('usuarios').deleteMany({ nombreUsuario: 'Pablo' }) } catch(e) {console.warn('Cleanup error ignored:', e.message)}
+                try { await db.collection('users').deleteMany({ username: 'Pablo' }) } catch(e) {console.warn('Cleanup error ignored:', e.message)}
+
             }
             catch (err)
             {
-                // ignore cleanup errors
+                console.warn('Cleanup error ignored:', err.message)
             }
         })
     
@@ -189,8 +190,8 @@ describe('POST /login', () =>
                     .set('Accept', 'application/json')
         
                 expect(res.status).toBe(400)
-                expect(res.body).toHaveProperty('error')
-                expect(res.body.error).toMatch(/username is required/i)
+                expect(res.body).toHaveProperty('message')
+                expect(res.body.message).toMatch(/invalid credentials/i)
         }); 
     
         /**
@@ -205,8 +206,8 @@ describe('POST /login', () =>
                     .set('Accept', 'application/json')
         
                 expect(res.status).toBe(400)
-                expect(res.body).toHaveProperty('error')
-                expect(res.body.error).toMatch(/password is required/i)
+                expect(res.body).toHaveProperty('message')
+                expect(res.body.message).toMatch(/invalid credentials/i)
         }); 
     
         /**
@@ -221,8 +222,8 @@ describe('POST /login', () =>
                     .set('Accept', 'application/json')
         
                 expect(res.status).toBe(401)
-                expect(res.body).toHaveProperty('error')
-                expect(res.body.error).toMatch(/El usuario 'PabloASW' no existe./i)
+                expect(res.body).toHaveProperty('message')
+                expect(res.body.message).toMatch(/Credenciales inválidas./i)
         }); 
     })
 
@@ -246,12 +247,12 @@ describe('GET /stats/:username', () =>
                 const { connectToDatabase } = require('../userDB.js')
                 const db = await connectToDatabase()
 
-                try { await db.collection('usuarios').deleteMany({ nombreUsuario: 'Pablo' }) } catch(e) {}
-                try { await db.collection('users').deleteMany({ username: 'Pablo' }) } catch(e) {}
+                try { await db.collection('usuarios').deleteMany({ nombreUsuario: 'Pablo' }) } catch(e) {console.warn('Cleanup error ignored:', e.message)}
+                try { await db.collection('users').deleteMany({ username: 'Pablo' }) } catch(e) {console.warn('Cleanup error ignored:', e.message)}
             }
             catch (err)
             {
-                // ignore cleanup errors
+                console.warn('Cleanup error ignored:', err.message)
             }
         })
 
@@ -289,7 +290,7 @@ describe('GET /stats/:username', () =>
             expect(res.status).toBe(404)
             expect(res.body).toHaveProperty('success', false)
             expect(res.body).toHaveProperty('message')
-            expect(res.body.message).toMatch(/El usuario 'PabloASW' no existe./i)
+            expect(res.body.message).toMatch(/Usuario no encontrado/i)
         });
     })
 
@@ -398,8 +399,8 @@ describe('POST /api/users', () =>
             .set('Accept', 'application/json')
 
         expect(res.status).toBe(400)
-        expect(res.body).toHaveProperty('error')
-        expect(res.body.error).toMatch(/username is required/i)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toMatch(/username is required/i)
     })
 
     /**
@@ -414,8 +415,8 @@ describe('POST /api/users', () =>
             .set('Accept', 'application/json')
 
         expect(res.status).toBe(400)
-        expect(res.body).toHaveProperty('error')
-        expect(res.body.error).toMatch(/password is required/i)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toMatch(/password is required/i)
     })
 
     /**
@@ -476,7 +477,7 @@ describe('GET /api/users/:id', () =>
             .set('Accept', 'application/json')
 
         expect(res.status).toBe(404)
-        expect(res.body).toHaveProperty('error', 'not found')
+        expect(res.body).toHaveProperty('message', 'not found')
     })
 })
 
@@ -519,7 +520,7 @@ describe('DELETE /api/users/:id', () =>
             .set('Accept', 'application/json')
 
         expect(res.status).toBe(404)
-        expect(res.body).toHaveProperty('error', 'not found')
+        expect(res.body).toHaveProperty('message', 'not found')
     })
 })
 
@@ -571,11 +572,11 @@ describe('POST /api/matches/update', () =>
             .send({ username: 'ApiUserTest1', password: 'passtest123' })
             .set('Accept', 'application/json')
 
-        const initialStats = await request(app)
+        await request(app)
             .get('/stats/ApiUserTest1')
             .set('Accept', 'application/json')
 
-        const updateRes = await request(app)
+        await request(app)
             .post(`/api/matches/update`)
             .send({ 
                 username: 'ApiUserTest1',
@@ -625,7 +626,7 @@ describe('GET /games/user/:username', () =>
             .set('Accept', 'application/json')
 
         expect(gamesRes.status).toBe(404)
-        expect(gamesRes.body.message).toMatch(/El usuario 'UnknownUsername' no existe./i)
+        expect(gamesRes.body.message).toMatch(/Usuario no encontrado/i)
         expect(gamesRes.body).toHaveProperty('success', false)
     })
 })
