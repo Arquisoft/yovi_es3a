@@ -439,6 +439,28 @@ impl GreedyBot {
         worst / 4
     }
 
+    #[doc(hidden)]
+    pub fn test_component_touch_count(
+        &self,
+        board: &GameY,
+        player: PlayerId,
+        start: Coordinates,
+    ) -> usize {
+        let view = self.build_view(board);
+        Self::component_touch_count(&view, player, start)
+    }
+
+    #[doc(hidden)]
+    pub fn test_score_connectivity(&self, board: &GameY, player: PlayerId) -> i32 {
+        let view = self.build_view(board);
+        Self::score_connectivity(self, &view, player)
+    }
+
+    #[doc(hidden)]
+    pub fn test_quick_reply_penalty(&self, board: &GameY, coords: Coordinates) -> i32 {
+        Self::quick_reply_penalty(self, board, coords)
+    }
+
     fn jitter(&self, score: i32) -> i32 {
         let mut rng = rand::thread_rng();
 
@@ -730,3 +752,4 @@ impl YBot for GreedyBot {
         }
     }
 }
+

@@ -390,3 +390,176 @@ fn test_cli_args_version_flag() {
     let result = CliArgs::try_parse_from(["gamey", "--version"]);
     assert!(result.is_err()); // --version causes an error (but it's intentional)
 }
+
+// =============================================================================
+// apply_move Tests
+// =============================================================================
+
+use gamey::{Coordinates, GameY, GameStatus, Movement, PlayerId, RenderOptions, RandomBot};
+use gamey::{test_apply_move, test_handle_place_command, test_trigger_bot_move as trigger_bot, test_process_input};
+use std::sync::Arc;
+
+#[test]
+fn test_apply_move_valid_placement() {
+    let mut game = GameY::new(3);
+    let movement = Movement::Placement {
+        player: PlayerId::new(0),
+        coords: Coordinates::new(0, 1, 1),
+    };
+
+    let result = test_apply_move(&mut game, movement, "Test error");
+    assert!(result);
+    assert_eq!(game.available_cells().len(), 5); // 6 total - 1 placed
+}
+
+#[test]
+fn test_apply_move_invalid_occupied_cell() {
+    let mut game = GameY::new(3);
+    let coords = Coordinates::new(0, 1, 1);
+    let movement = Movement::Placement {
+        player: PlayerId::new(0),
+        coords,
+    };
+
+    test_apply_move(&mut game, movement.clone(), "Error");
+    let second_move = Movement::Placement {
+        player: PlayerId::new(1),
+        coords,
+    };
+
+    let result = test_apply_move(&mut game, second_move, "Expected error");
+    assert!(!result);
+}
+
+#[test]
+fn test_handle_place_command_human_mode() {
+    let mut game = GameY::new(3);
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    test_handle_place_command(&mut game, 2, player, Mode::Human, bot.as_ref());
+
+    assert_eq!(game.available_cells().len(), 5);
+    assert_eq!(game.next_player(), Some(PlayerId::new(1)));
+}
+
+#[test]
+fn test_handle_place_command_computer_mode() {
+    let mut game = GameY::new(3);
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    test_handle_place_command(&mut game, 2, player, Mode::Computer, bot.as_ref());
+
+    assert_eq!(game.available_cells().len(), 4); // Uno del jugador + uno del bot
+    assert_eq!(game.next_player(), Some(PlayerId::new(0)));
+}
+
+#[test]
+fn test_trigger_bot_move_places_piece() {
+    let mut game = GameY::new(3);
+    let bot = Arc::new(RandomBot);
+
+    let moves_before = game.available_cells().len();
+    trigger_bot(&mut game, bot.as_ref());
+    let moves_after = game.available_cells().len();
+
+    assert_eq!(moves_before - moves_after, 1);
+}
+
+#[test]
+fn test_process_input_handles_place_command() {
+    let mut game = GameY::new(3);
+    let mut render_options = RenderOptions::default();
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    let result = test_process_input("2", &mut game, &player, &mut render_options, Mode::Human, bot.as_ref());
+    assert!(result.is_ok());
+    assert_eq!(game.available_cells().len(), 5);
+}
+
+#[test]
+fn test_process_input_handles_resign_command() {
+    let mut game = GameY::new(3);
+    let mut render_options = RenderOptions::default();
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    let result = test_process_input("resign", &mut game, &player, &mut render_options, Mode::Human, bot.as_ref());
+    assert!(result.is_ok());
+    assert!(game.check_game_over());
+    if let GameStatus::Finished { winner } = game.status() {
+        assert_eq!(*winner, PlayerId::new(1));
+    }
+}
+
+#[test]
+fn test_process_input_toggles_show_colors() {
+    let mut game = GameY::new(3);
+    let mut render_options = RenderOptions::default();
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    assert!(render_options.show_colors, "default should be true");
+    test_process_input("show_colors", &mut game, &player, &mut render_options, Mode::Human, bot.as_ref()).unwrap();
+    assert!(!render_options.show_colors, "show_colors should toggle to false");
+}
+
+#[test]
+fn test_process_input_toggles_show_coords() {
+    let mut game = GameY::new(3);
+    let mut render_options = RenderOptions::default();
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    assert!(!render_options.show_3d_coords);
+    test_process_input("show_coords", &mut game, &player, &mut render_options, Mode::Human, bot.as_ref()).unwrap();
+    assert!(render_options.show_3d_coords, "show_coords should toggle to true");
+}
+
+#[test]
+fn test_process_input_toggles_show_idx() {
+    let mut game = GameY::new(3);
+    let mut render_options = RenderOptions::default();
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    assert!(render_options.show_idx, "default should be true");
+    test_process_input("show_idx", &mut game, &player, &mut render_options, Mode::Human, bot.as_ref()).unwrap();
+    assert!(!render_options.show_idx, "show_idx should toggle to false");
+}
+
+#[test]
+fn test_process_input_handles_invalid_command() {
+    let mut game = GameY::new(3);
+    let mut render_options = RenderOptions::default();
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    let result = test_process_input("invalid", &mut game, &player, &mut render_options, Mode::Human, bot.as_ref());
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_process_input_handles_empty_string() {
+    let mut game = GameY::new(3);
+    let mut render_options = RenderOptions::default();
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    let result = test_process_input("", &mut game, &player, &mut render_options, Mode::Human, bot.as_ref());
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_process_input_handles_out_of_bounds_index() {
+    let mut game = GameY::new(3);
+    let mut render_options = RenderOptions::default();
+    let bot = Arc::new(RandomBot);
+    let player = PlayerId::new(0);
+
+    let result = test_process_input("100", &mut game, &player, &mut render_options, Mode::Human, bot.as_ref());
+    assert!(result.is_ok());
+}
+
