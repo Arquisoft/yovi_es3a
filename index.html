@@ -502,19 +502,70 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_observabilidad_con_prometheus_y_grafana">9.7. Observabilidad con Prometheus y Grafana</a></li>
 </ul>
 </li>
-<li><a href="#section-quality-scenarios">10. Requisitos de calidad</a>
+<li><a href="#_introducción">10. Introducción</a>
 <ul class="sectlevel2">
-<li><a href="#_árbol_de_calidad">10.1. Árbol de calidad</a></li>
-<li><a href="#_escenarios_de_calidad">10.2. Escenarios de calidad</a></li>
+<li><a href="#_objetivos">10.1. Objetivos</a></li>
 </ul>
 </li>
-<li><a href="#section-technical-risks">11. Riesgos y deuda técnica</a>
+<li><a href="#_estructura_del_testing">11. Estructura del Testing</a>
 <ul class="sectlevel2">
-<li><a href="#_riesgos">11.1. Riesgos</a></li>
-<li><a href="#_deuda_técnica">11.2. Deuda técnica</a></li>
+<li><a href="#_directorios_principales">11.1. Directorios principales</a></li>
+<li><a href="#_herramientas_utilizadas">11.2. Herramientas utilizadas</a></li>
 </ul>
 </li>
-<li><a href="#section-glossary">12. Glossary</a></li>
+<li><a href="#_testing_del_motor_de_juego_gamey">12. Testing del Motor de Juego (gamey)</a>
+<ul class="sectlevel2">
+<li><a href="#_visión_general">12.1. Visión General</a></li>
+<li><a href="#_categorías_de_tests">12.2. Categorías de Tests</a></li>
+<li><a href="#_ejecución">12.3. Ejecución</a></li>
+</ul>
+</li>
+<li><a href="#_testing_del_servicio_de_usuarios_users">13. Testing del Servicio de Usuarios (users)</a>
+<ul class="sectlevel2">
+<li><a href="#_visión_general_2">13.1. Visión General</a></li>
+<li><a href="#_categorías_de_tests_2">13.2. Categorías de Tests</a></li>
+<li><a href="#_ejecución_2">13.3. Ejecución</a></li>
+</ul>
+</li>
+<li><a href="#_testing_del_frontend_webapp">14. Testing del Frontend (webapp)</a>
+<ul class="sectlevel2">
+<li><a href="#_visión_general_3">14.1. Visión General</a></li>
+<li><a href="#_categorías_de_tests_3">14.2. Categorías de Tests</a></li>
+<li><a href="#_ejecución_3">14.3. Ejecución</a></li>
+</ul>
+</li>
+<li><a href="#_testing_de_carga_gatling">15. Testing de Carga (Gatling)</a>
+<ul class="sectlevel2">
+<li><a href="#_visión_general_4">15.1. Visión General</a></li>
+<li><a href="#_proceso_de_ejecución">15.2. Proceso de ejecución</a></li>
+<li><a href="#_escenarios_evaluados">15.3. Escenarios evaluados</a></li>
+<li><a href="#_métricas_analizadas">15.4. Métricas analizadas</a></li>
+<li><a href="#_resultados_escenario_base_10_usuarios">15.5. Resultados: Escenario Base (10 usuarios)</a></li>
+<li><a href="#_resultados_escenario_alta_carga_100_usuarios">15.6. Resultados: Escenario Alta Carga (100 usuarios)</a></li>
+<li><a href="#_ejecución_4">15.7. Ejecución</a></li>
+</ul>
+</li>
+<li><a href="#_integración_continua_cicd">16. Integración Continua (CI/CD)</a>
+<ul class="sectlevel2">
+<li><a href="#_automatización">16.1. Automatización</a></li>
+<li><a href="#_flujo">16.2. Flujo</a></li>
+<li><a href="#_quality_gate">16.3. Quality Gate</a></li>
+<li><a href="#_snapshot_de_calidad_sonarqube">16.4. Snapshot de Calidad (SonarQube)</a></li>
+</ul>
+</li>
+<li><a href="#section-quality-scenarios">17. Requisitos de calidad</a>
+<ul class="sectlevel2">
+<li><a href="#_árbol_de_calidad">17.1. Árbol de calidad</a></li>
+<li><a href="#_escenarios_de_calidad">17.2. Escenarios de calidad</a></li>
+</ul>
+</li>
+<li><a href="#section-technical-risks">18. Riesgos y deuda técnica</a>
+<ul class="sectlevel2">
+<li><a href="#_riesgos">18.1. Riesgos</a></li>
+<li><a href="#_deuda_técnica">18.2. Deuda técnica</a></li>
+</ul>
+</li>
+<li><a href="#section-glossary">19. Glossary</a></li>
 </ul>
 </div>
 </div>
@@ -2659,10 +2710,768 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-quality-scenarios">10. Requisitos de calidad</h2>
+<h2 id="_introducción">10. Introducción</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Este documento describe la estrategia de testing de YOVI y los mecanismos utilizados para validar calidad, estabilidad y rendimiento del sistema.</p>
+</div>
+<div class="paragraph">
+<p>La aplicación está compuesta por:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Motor de juego en Rust (<code>gamey</code>)</p>
+</li>
+<li>
+<p>Servicio de usuarios en Node.js (<code>users</code>)</p>
+</li>
+<li>
+<p>Aplicación web en React (<code>webapp</code>)</p>
+</li>
+<li>
+<p>Pruebas de carga con Gatling</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_objetivos">10.1. Objetivos</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Verificar el correcto funcionamiento del sistema</p>
+</li>
+<li>
+<p>Detectar errores de forma temprana</p>
+</li>
+<li>
+<p>Validar integración entre componentes</p>
+</li>
+<li>
+<p>Medir rendimiento bajo carga</p>
+</li>
+<li>
+<p>Automatizar pruebas mediante CI/CD</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_estructura_del_testing">11. Estructura del Testing</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_árbol_de_calidad">10.1. Árbol de calidad</h3>
+<h3 id="_directorios_principales">11.1. Directorios principales</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>yovi_es3a/
+├── gamey/tests/
+├── users/__tests__/
+├── webapp/__tests__/
+├── testCarga/
+└── docs/TESTING.adoc</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_herramientas_utilizadas">11.2. Herramientas utilizadas</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Herramienta</th>
+<th class="tableblock halign-left valign-top">Componente</th>
+<th class="tableblock halign-left valign-top">Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cargo Test</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gamey</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tests unitarios Rust</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vitest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">users, webapp</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tests unitarios e integración</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supertest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">users</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Testing de APIs REST</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Playwright</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">webapp</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tests E2E</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gatling</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">testCarga</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tests de carga</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SonarQube</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Todos</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calidad y cobertura</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GitHub Actions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Todos</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatización CI/CD</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_testing_del_motor_de_juego_gamey">12. Testing del Motor de Juego (gamey)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_visión_general">12.1. Visión General</h3>
+<div class="paragraph">
+<p>El motor de juego está desarrollado en Rust y utiliza <code>cargo test</code>.</p>
+</div>
+<div class="paragraph">
+<p>Se validan reglas del juego, movimientos, detección de victoria, persistencia y servidor de bots.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_categorías_de_tests">12.2. Categorías de Tests</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Categoría</th>
+<th class="tableblock halign-left valign-top">Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inicialización</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creación correcta del tablero y estado inicial</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flujo de juego</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Turnos, movimientos válidos y ocupación</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Victoria</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Detección de conexión de tres lados</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Errores</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jugadas inválidas y turnos incorrectos</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Persistencia</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Guardado y carga en formato YEN</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Coordenadas</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conversión índice ↔ coordenadas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bot Server</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Endpoints HTTP/WebSocket</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_ejecución">12.3. Ejecución</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">cd gamey
+cargo test
+cargo llvm-cov</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_testing_del_servicio_de_usuarios_users">13. Testing del Servicio de Usuarios (users)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_visión_general_2">13.1. Visión General</h3>
+<div class="paragraph">
+<p>El servicio de usuarios en Node.js utiliza Vitest y Supertest para validar lógica interna y endpoints REST.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_categorías_de_tests_2">13.2. Categorías de Tests</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Categoría</th>
+<th class="tableblock halign-left valign-top">Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Registro</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alta de usuarios y validación de datos</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Login</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Credenciales correctas e incorrectas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CRUD</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operaciones básicas sobre usuarios</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Seguridad</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hash de contraseñas y tokens</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validación</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Emails y contraseñas válidas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manejo de errores</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Respuestas ante entradas inválidas</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_ejecución_2">13.3. Ejecución</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">cd users
+npm test
+npm run test:coverage</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_testing_del_frontend_webapp">14. Testing del Frontend (webapp)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_visión_general_3">14.1. Visión General</h3>
+<div class="paragraph">
+<p>El frontend desarrollado en React + TypeScript utiliza Vitest para tests unitarios y Playwright para pruebas End-to-End.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_categorías_de_tests_3">14.2. Categorías de Tests</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Categoría</th>
+<th class="tableblock halign-left valign-top">Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Componentes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Renderizado y props</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Formularios</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inputs y validaciones</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Navegación</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cambio entre páginas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integración</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comunicación con backend</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Juego</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Renderizado del tablero e interacción</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">E2E</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Login y flujo completo de partida</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_ejecución_3">14.3. Ejecución</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">cd webapp
+npm test
+npm run test:coverage
+npx playwright test</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_testing_de_carga_gatling">15. Testing de Carga (Gatling)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_visión_general_4">15.1. Visión General</h3>
+<div class="paragraph">
+<p>Gatling se utiliza para simular múltiples usuarios concurrentes y medir rendimiento del sistema.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_proceso_de_ejecución">15.2. Proceso de ejecución</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Inicio de Gatling desde el entorno de desarrollo</p>
+</li>
+<li>
+<p>Uso del modo Recorder para capturar tráfico real</p>
+</li>
+<li>
+<p>Simulación de acciones principales:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Registro de usuario</p>
+</li>
+<li>
+<p>Inicio de sesión</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Generación automática del script</p>
+</li>
+<li>
+<p>Ajuste manual del escenario:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Incremento de usuarios</p>
+</li>
+<li>
+<p>Repeticiones</p>
+</li>
+<li>
+<p>Parámetros de carga</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Ejecución de la simulación</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_escenarios_evaluados">15.3. Escenarios evaluados</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Escenario</th>
+<th class="tableblock halign-left valign-top">Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Login concurrente</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Varias autenticaciones simultáneas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Registro concurrente</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creación simultánea de usuarios</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Carga progresiva</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Incremento gradual de usuarios</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Estrés</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alta concurrencia sostenida</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_métricas_analizadas">15.4. Métricas analizadas</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Tiempo de respuesta medio</p>
+</li>
+<li>
+<p>Percentiles p95 / p99</p>
+</li>
+<li>
+<p>Throughput</p>
+</li>
+<li>
+<p>Solicitudes exitosas/fallidas</p>
+</li>
+<li>
+<p>Estabilidad del sistema</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_resultados_escenario_base_10_usuarios">15.5. Resultados: Escenario Base (10 usuarios)</h3>
+<div class="sect3">
+<h4 id="_métricas_generales">15.5.1. Métricas generales</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Tasa de éxito: 100%</p>
+</li>
+<li>
+<p>Errores KO: 0</p>
+</li>
+<li>
+<p>Duración aproximada: 10 segundos</p>
+</li>
+<li>
+<p>Pico máximo: 10 peticiones/segundo</p>
+</li>
+<li>
+<p>Respuestas rápidas concentradas en ~73 ms</p>
+</li>
+<li>
+<p>Algunos picos aislados entre 542 ms y 1000+ ms</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_rendimiento_por_endpoint">15.5.2. Rendimiento por endpoint</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2858%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Endpoint</th>
+<th class="tableblock halign-left valign-top">Peticiones</th>
+<th class="tableblock halign-left valign-top">Mínimo</th>
+<th class="tableblock halign-left valign-top">p50</th>
+<th class="tableblock halign-left valign-top">p95</th>
+<th class="tableblock halign-left valign-top">Máximo</th>
+<th class="tableblock halign-left valign-top">Media</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Login</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">166 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">734 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1240 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1240 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">693 ms</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Register</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">67 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">71 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">83 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">83 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">72 ms</p></td>
+</tr>
+</tbody>
+</table>
+<div class="imageblock">
+<div class="content">
+<img src="./images/graficaGatling10.png" alt="][&quot;Grafica de resultados Gatling 10 usuarios&quot;">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_análisis">15.5.3. Análisis</h4>
+<div class="paragraph">
+<p>El sistema respondió correctamente sin errores. El endpoint <code>register</code> mostró excelente rendimiento y <code>login</code> fue claramente más costoso.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/statsGatling10_1.png" alt="][&quot;Distribución de tiempo de respuesta&quot;">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/statsGatling10_2.png" alt="][&quot;Numero de peticiones por segundo&quot;">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/statsGatling10_3.png" alt="][&quot;Numero de respuesta por segundo&quot;">
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_resultados_escenario_alta_carga_100_usuarios">15.6. Resultados: Escenario Alta Carga (100 usuarios)</h3>
+<div class="sect3">
+<h4 id="_métricas_generales_2">15.6.1. Métricas generales</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Total de peticiones: 200</p>
+</li>
+<li>
+<p>100 login + 100 register</p>
+</li>
+<li>
+<p>Tasa de éxito: 100%</p>
+</li>
+<li>
+<p>Errores KO: 0</p>
+</li>
+<li>
+<p>Tiempo medio global: 4723 ms</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_distribución_observada">15.6.2. Distribución observada</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>~100 peticiones por debajo de 800 ms</p>
+</li>
+<li>
+<p>~100 peticiones por encima de 1200 ms</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_rendimiento_por_endpoint_2">15.6.3. Rendimiento por endpoint</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2858%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Endpoint</th>
+<th class="tableblock halign-left valign-top">Peticiones</th>
+<th class="tableblock halign-left valign-top">Mínimo</th>
+<th class="tableblock halign-left valign-top">p50</th>
+<th class="tableblock halign-left valign-top">p95</th>
+<th class="tableblock halign-left valign-top">Máximo</th>
+<th class="tableblock halign-left valign-top">Media</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Login</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4700 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8300 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14200 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14200 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8300 ms</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Register</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">84 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">78 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">870 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">870 ms</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">104 ms</p></td>
+</tr>
+</tbody>
+</table>
+<div class="imageblock">
+<div class="content">
+<img src="./images/graficaGatling100.png" alt="][&quot;Grafica de resultados Gatling 100 usuarios&quot;">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_análisis_2">15.6.4. Análisis</h4>
+<div class="paragraph">
+<p>Existe una diferencia crítica entre endpoints:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>register</code> mantiene tiempos excelentes incluso bajo carga.</p>
+</li>
+<li>
+<p><code>login</code> se degrada severamente al aumentar concurrencia.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/statsGatling100_1.png" alt="][&quot;Distribución de tiempo de respuesta&quot;">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/statsGatling100_2.png" alt="][&quot;Numero de peticiones por segundo y respuestas por segundo&quot;">
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ejecución_4">15.7. Ejecución</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">cd testCarga
+./mvnw gatling:test</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integración_continua_cicd">16. Integración Continua (CI/CD)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_automatización">16.1. Automatización</h3>
+<div class="paragraph">
+<p>GitHub Actions ejecuta pruebas automáticamente en cada push y pull request.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_flujo">16.2. Flujo</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Instalación de dependencias</p>
+</li>
+<li>
+<p>Ejecución de tests Rust</p>
+</li>
+<li>
+<p>Ejecución de tests Node.js</p>
+</li>
+<li>
+<p>Cobertura de código</p>
+</li>
+<li>
+<p>Tests de carga</p>
+</li>
+<li>
+<p>Análisis con SonarQube</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quality_gate">16.3. Quality Gate</h3>
+<div class="paragraph">
+<p><strong>Estado:</strong> &#160; <strong>PASSED</strong> (All conditions passed)</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Métrica</th>
+<th class="tableblock halign-left valign-top">Objetivo</th>
+<th class="tableblock halign-left valign-top">Resultado Actual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cobertura</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">≥ 80%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">85.6%</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Duplicación</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">≤ 3%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.1%</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vulnerabilidades</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rating A</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_snapshot_de_calidad_sonarqube">16.4. Snapshot de Calidad (SonarQube)</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Categoría</th>
+<th class="tableblock halign-left valign-top">Calificación (Rating)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Security Rating</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Security Hotspots</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">E</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reliability (Fiabilidad)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maintainability (Mantenibilidad)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-quality-scenarios">17. Requisitos de calidad</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_árbol_de_calidad">17.1. Árbol de calidad</h3>
 <div class="imageblock">
 <div class="content">
 <img src="./images/10_1_arbol_calidad.png" alt="][&quot;Árbol de calidad&quot;">
@@ -2670,7 +3479,7 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </div>
 </div>
 <div class="sect2">
-<h3 id="_escenarios_de_calidad">10.2. Escenarios de calidad</h3>
+<h3 id="_escenarios_de_calidad">17.2. Escenarios de calidad</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 14.2857%;">
@@ -2742,7 +3551,7 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-technical-risks">11. Riesgos y deuda técnica</h2>
+<h2 id="section-technical-risks">18. Riesgos y deuda técnica</h2>
 <div class="sectionbody">
 <div class="sidebarblock arc42help">
 <div class="content">
@@ -2753,7 +3562,7 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </div>
 </div>
 <div class="sect2">
-<h3 id="_riesgos">11.1. Riesgos</h3>
+<h3 id="_riesgos">18.1. Riesgos</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -2811,7 +3620,7 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </table>
 </div>
 <div class="sect2">
-<h3 id="_deuda_técnica">11.2. Deuda técnica</h3>
+<h3 id="_deuda_técnica">18.2. Deuda técnica</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -2865,7 +3674,7 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-glossary">12. Glossary</h2>
+<h2 id="section-glossary">19. Glossary</h2>
 <div class="sectionbody">
 <div class="sidebarblock arc42help">
 <div class="content">
@@ -2947,6 +3756,34 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>Motor del juego</em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>Componente central del sistema que implementa las reglas del juego Y, procesa los movimientos de los jugadores y determina el estado del juego. En el proyecto, se refiere al software que ejecuta la lógica del juego y proporciona la funcionalidad necesaria para que los jugadores puedan interactuar con él a través de la API.</em></p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Unit Test</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Prueba de una unidad individual.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Integration Test</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Prueba entre componentes.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>E2E Test</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Flujo completo de usuario.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Coverage</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Porcentaje cubierto por tests.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Gatling</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Herramienta de carga.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>YEN</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Formato de persistencia del juego.</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>CI/CD</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Integración y despliegue continuo.</em></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2955,7 +3792,7 @@ Haz referencia a la sección 4, donde ya capturaste las decisiones más importan
 <div id="footer">
 <div id="footer-text">
 Version 8.2 EN<br>
-Last updated 2026-04-13 00:43:55 +0200
+Last updated 2026-04-29 00:54:41 +0200
 </div>
 </div>
 </body>
