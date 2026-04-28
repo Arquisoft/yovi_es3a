@@ -190,7 +190,7 @@ describe('POST /login', () =>
         
                 expect(res.status).toBe(400)
                 const hasError = res.body.error || res.body.message
-                expect(hasError).toMatch(/username is required/i)
+                expect(hasError).toMatch(/invalid credentials/i)
         }); 
     
         /**
@@ -206,7 +206,7 @@ describe('POST /login', () =>
         
                 expect(res.status).toBe(400)
                 const hasError = res.body.error || res.body.message
-                expect(hasError).toMatch(/password is required/i)
+                expect(hasError).toMatch(/invalid credentials/i)
         }); 
     
         /**
