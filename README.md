@@ -37,7 +37,7 @@ La funcionalidad central de YOVI es permitir a los usuarios jugar al juego de co
 - **Arquitectura Políglota**: Combinación de la potencia de Rust para la lógica de juego y TypeScript para una experiencia web moderna y fluida.
 
 ### Vídeo
-AQUÍ IRÁ EL VÍDEO DEL PROYECTO
+[Vídeo](https://youtu.be/0fgZIoe_j4Q)
 
 ## Estructura del Proyecto
 
