@@ -6,6 +6,8 @@ import { AlertList } from "./AlertList";
 import { AlertContext } from "./alertContext";
 import type { Alert, AlertType } from "./alertTypes";
 
+let alertIdCounter = 0;
+
 // Gestor del sistema de alertas
 export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 {
@@ -13,7 +15,8 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [topOffset, setTopOffset] = useState<number>(0);
 
   const showAlert = useCallback((message: string, type: AlertType = "info", ttl = 5000) => {
-    const id = `${Date.now()}-${crypto.randomUUID().slice(0, 7)}`;
+    const id = `alert-${Date.now()}-${alertIdCounter++}`;
+    
     const alert: Alert = { id, message, type, ttl };
     setAlerts((s) => [...s, alert]);
   }, []);
